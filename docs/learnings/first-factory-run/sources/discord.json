@@ -1,0 +1,207 @@
+[
+  {
+    "timestamp": "2026-02-27T00:28:00-05:00",
+    "source": "discord",
+    "text": "gonna use up all my codex too\nDUDE\nthe TOKENS my gosh"
+  },
+  {
+    "timestamp": "2026-02-27T00:32:00-05:00",
+    "source": "discord",
+    "text": "10 min and 176k tokens to write a 127 LINE PLAN FILE. that's .... insane"
+  },
+  {
+    "timestamp": "2026-02-27T00:33:00-05:00",
+    "source": "discord",
+    "text": "I can see already that token efficiency is gonna be KEY in our factory and I don't know SQUAT about it"
+  },
+  {
+    "timestamp": "2026-02-27T00:46:00-05:00",
+    "source": "discord",
+    "text": "ok, having it write tech plans incrementally using high instead of xhigh reasoning. meaning, i'm re-using the same codex session, under the assumption that the context window is already loaded up with useful tokens"
+  },
+  {
+    "timestamp": "2026-02-27T00:51:00-05:00",
+    "source": "discord",
+    "text": "moved my Claude Code extra spend limit from $50 to $100"
+  },
+  {
+    "timestamp": "2026-02-27T00:58:00-05:00",
+    "source": "discord",
+    "text": "I'm gonna run out of Codex... just writing tech plans is gonna take 2 more hours! didn't see that as the bottleneck"
+  },
+  {
+    "timestamp": "2026-02-27T01:20:00-05:00",
+    "source": "discord",
+    "text": "switched to personal [Codex account]. I now understand why the factory folks have multiple claude max plans"
+  },
+  {
+    "timestamp": "2026-02-27T01:34:00-05:00",
+    "source": "discord",
+    "text": "I don't even know how to give them more $$"
+  },
+  {
+    "timestamp": "2026-02-27T01:57:00-05:00",
+    "source": "discord",
+    "text": "switched to API key. i don't wanna wait til 6am. i'll put a $50 cap on it"
+  },
+  {
+    "timestamp": "2026-02-27T02:18:00-05:00",
+    "source": "discord",
+    "text": "plan is ready to go. i'm priming Opus"
+  },
+  {
+    "timestamp": "2026-02-27T02:32:00-05:00",
+    "source": "discord",
+    "text": "i put Opus in charge of manual QA before merge, using a browser. i can't believe I'm about to do this"
+  },
+  {
+    "timestamp": "2026-02-27T02:37:00-05:00",
+    "source": "discord",
+    "text": "sheesh what a rush"
+  },
+  {
+    "timestamp": "2026-02-27T02:43:00-05:00",
+    "source": "discord",
+    "text": "GOOO GOOOO GOOOO"
+  },
+  {
+    "timestamp": "2026-02-27T02:57:00-05:00",
+    "source": "discord",
+    "text": "wow paying real $$ for issues is... expensive. I think that first issue was $4? but it's working!!"
+  },
+  {
+    "timestamp": "2026-02-27T02:58:00-05:00",
+    "source": "discord",
+    "text": "hoo boy next up is 5 way parallelism? tokens gonna MOVE"
+  },
+  {
+    "timestamp": "2026-02-27T03:08:00-05:00",
+    "source": "discord",
+    "text": "woo Claude 5 hr window reset. that's nice"
+  },
+  {
+    "timestamp": "2026-02-27T03:11:00-05:00",
+    "source": "discord",
+    "text": "wheels coming off in all kinds of ways with Claude as orchestrator. also the orchestration should be software, not an agent. this is silly. it's a workflow"
+  },
+  {
+    "timestamp": "2026-02-27T03:16:00-05:00",
+    "source": "discord",
+    "text": "5k views on my live-tweet thread. dude we have a friggin factory - janky and way too expensive and holy crap it works"
+  },
+  {
+    "timestamp": "2026-02-27T03:17:00-05:00",
+    "source": "discord",
+    "text": "first auto-merged PR!! pretty much the first time an AI merged for us"
+  },
+  {
+    "timestamp": "2026-02-27T03:19:00-05:00",
+    "source": "discord",
+    "text": "4x parallelism in the factory"
+  },
+  {
+    "timestamp": "2026-02-27T03:25:00-05:00",
+    "source": "discord",
+    "text": "holy crap we can't even 4x. api rate limits lol. actually it's really good we're using Claude for this because it's working around all kinds of errors"
+  },
+  {
+    "timestamp": "2026-02-27T03:29:00-05:00",
+    "source": "discord",
+    "text": "love how aggressive Opus is being at working through errors and reasoning about what to put through"
+  },
+  {
+    "timestamp": "2026-02-27T03:31:00-05:00",
+    "source": "discord",
+    "text": "lol Opus! Codex wasn't getting it done and I told it not to stop under any circumstances so it's like \"FINE I'LL DO IT MYSELF\""
+  },
+  {
+    "timestamp": "2026-02-27T03:35:00-05:00",
+    "source": "discord",
+    "text": "this seems like it's about to make a huge mess but I'm just gonna ... let it rip. because learning. and I can analyze the session logs in the morning. there are spending caps"
+  },
+  {
+    "timestamp": "2026-02-27T03:36:00-05:00",
+    "source": "discord",
+    "text": "and now I officially need a $200 max sub! $100 is not enough."
+  },
+  {
+    "timestamp": "2026-02-27T03:41:00-05:00",
+    "source": "discord",
+    "text": "opus is now jumping around worktrees like a madman"
+  },
+  {
+    "timestamp": "2026-02-27T03:50:00-05:00",
+    "source": "discord",
+    "text": "opus is a disaster right now, forgetting steps, going off the rails. i mean, this thing is moving FAST but it's also a friggin rickety train and i'm having to bump it back onto the tracks every 5 min or so"
+  },
+  {
+    "timestamp": "2026-02-27T04:00:00-05:00",
+    "source": "discord",
+    "text": "ok, I think i've given enough guidance and it's slowing down. i better go get ~2 hrs sleep or I'm gonna be trashed tmrw"
+  },
+  {
+    "timestamp": "2026-02-27T04:02:00-05:00",
+    "source": "discord",
+    "text": "having to remind Opus to do things like clear code review comments, do manual QA. Opus is a capable problem solver, but not great at doing things consistently. So obvious that a software factory needs both! Deterministic flow and a capable LLM on hand to fix stuff"
+  },
+  {
+    "timestamp": "2026-02-27T04:05:00-05:00",
+    "source": "discord",
+    "text": "and now... merge hell 5 PRs hitting at once"
+  },
+  {
+    "timestamp": "2026-02-27T04:09:00-05:00",
+    "source": "discord",
+    "text": "new instruction: WIP limits. but hey, 3 things merged in!"
+  },
+  {
+    "timestamp": "2026-02-27T04:25:00-05:00",
+    "source": "discord",
+    "text": "ok removing parallelism and some of my updates to opus's instructions / runbooks. gives me a little more confidence. still a little scared to go to sleep but gonna try"
+  },
+  {
+    "timestamp": "2026-02-27T05:39:00-05:00",
+    "source": "discord",
+    "text": "Danvers checks in (screenshot)"
+  },
+  {
+    "timestamp": "2026-02-27T07:27:00-05:00",
+    "source": "discord",
+    "text": "wow it's still going"
+  },
+  {
+    "timestamp": "2026-02-27T08:08:00-05:00",
+    "source": "discord",
+    "text": "Upped the parallelism to 2x. Woke up this morning, rolled over in bed, checked computer, and\u2026 we did it! Opus you beautiful beast! 11/20 complete tickets. 5+ hour continuous runtime, no steering!!"
+  },
+  {
+    "timestamp": "2026-02-27T08:47:00-05:00",
+    "source": "discord",
+    "text": "ugh opus is a TERRIBLE orchestrator. i said bump parallelism to 2 at a time, and it ran 5 at a time"
+  },
+  {
+    "timestamp": "2026-02-27T09:28:00-05:00",
+    "source": "discord",
+    "text": "Took a shower. Gonna do an after action review here in just a minute"
+  },
+  {
+    "timestamp": "2026-02-27T09:41:00-05:00",
+    "source": "discord",
+    "text": "showered. in the office. 1 ticket left!!!"
+  },
+  {
+    "timestamp": "2026-02-27T09:59:00-05:00",
+    "source": "discord",
+    "text": "PR is posted - being reviewed right now. i have a feeling this is gonna fall apart in so many ways but haven't looked yet"
+  },
+  {
+    "timestamp": "2026-02-27T09:59:00-05:00",
+    "source": "discord",
+    "text": "[Danvers] Yup so many ways and then it's figuring out time saved or no? But gotta run factory to find defects. This one may be all defects"
+  },
+  {
+    "timestamp": "2026-02-27T10:04:00-05:00",
+    "source": "discord",
+    "text": "so much learning though"
+  }
+]

@@ -1,0 +1,4651 @@
+[
+  {
+    "timestamp": "2026-02-27T04:31:32+00:00",
+    "source": "github_issue",
+    "text": "Issue #699 created: Remove the Table",
+    "issue_number": 699,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/699"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:33+00:00",
+    "source": "github_event",
+    "text": "Issue #699 labeled [make] by jessmartin",
+    "issue_number": 699,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:33+00:00",
+    "source": "github_event",
+    "text": "Issue #699 labeled [map-first-ui] by jessmartin",
+    "issue_number": 699,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:33+00:00",
+    "source": "github_event",
+    "text": "Issue #699 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 699,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:34+00:00",
+    "source": "github_event",
+    "text": "Issue #699 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 699,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:40+00:00",
+    "source": "github_issue",
+    "text": "Issue #700 created: Remove the Sorting Room",
+    "issue_number": 700,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/700"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:41+00:00",
+    "source": "github_event",
+    "text": "Issue #700 labeled [make] by jessmartin",
+    "issue_number": 700,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:41+00:00",
+    "source": "github_event",
+    "text": "Issue #700 labeled [map-first-ui] by jessmartin",
+    "issue_number": 700,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:42+00:00",
+    "source": "github_event",
+    "text": "Issue #700 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 700,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:42+00:00",
+    "source": "github_event",
+    "text": "Issue #700 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 700,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:49+00:00",
+    "source": "github_issue",
+    "text": "Issue #701 created: Remove the Drafting Room",
+    "issue_number": 701,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/701"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:50+00:00",
+    "source": "github_event",
+    "text": "Issue #701 labeled [make] by jessmartin",
+    "issue_number": 701,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:50+00:00",
+    "source": "github_event",
+    "text": "Issue #701 labeled [map-first-ui] by jessmartin",
+    "issue_number": 701,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:51+00:00",
+    "source": "github_event",
+    "text": "Issue #701 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 701,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:51+00:00",
+    "source": "github_event",
+    "text": "Issue #701 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 701,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:57+00:00",
+    "source": "github_issue",
+    "text": "Issue #702 created: Remove Mesa from the map",
+    "issue_number": 702,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/702"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:58+00:00",
+    "source": "github_event",
+    "text": "Issue #702 labeled [make] by jessmartin",
+    "issue_number": 702,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:58+00:00",
+    "source": "github_event",
+    "text": "Issue #702 labeled [map-first-ui] by jessmartin",
+    "issue_number": 702,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:59+00:00",
+    "source": "github_event",
+    "text": "Issue #702 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 702,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:31:59+00:00",
+    "source": "github_event",
+    "text": "Issue #702 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 702,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:14+00:00",
+    "source": "github_issue",
+    "text": "Issue #703 created: Remove Kanban, replace with task list",
+    "issue_number": 703,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/703"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:15+00:00",
+    "source": "github_event",
+    "text": "Issue #703 labeled [make] by jessmartin",
+    "issue_number": 703,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:16+00:00",
+    "source": "github_event",
+    "text": "Issue #703 labeled [map-first-ui] by jessmartin",
+    "issue_number": 703,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:16+00:00",
+    "source": "github_event",
+    "text": "Issue #703 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 703,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:17+00:00",
+    "source": "github_event",
+    "text": "Issue #703 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 703,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:26+00:00",
+    "source": "github_issue",
+    "text": "Issue #704 created: Map as full-bleed base layer",
+    "issue_number": 704,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/704"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:27+00:00",
+    "source": "github_event",
+    "text": "Issue #704 labeled [make] by jessmartin",
+    "issue_number": 704,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:27+00:00",
+    "source": "github_event",
+    "text": "Issue #704 labeled [map-first-ui] by jessmartin",
+    "issue_number": 704,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:27+00:00",
+    "source": "github_event",
+    "text": "Issue #704 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 704,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:28+00:00",
+    "source": "github_event",
+    "text": "Issue #704 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 704,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:32+00:00",
+    "source": "github_issue",
+    "text": "Issue #705 created: Building overlay pattern and routing",
+    "issue_number": 705,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/705"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:33+00:00",
+    "source": "github_event",
+    "text": "Issue #705 labeled [make] by jessmartin",
+    "issue_number": 705,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:33+00:00",
+    "source": "github_event",
+    "text": "Issue #705 labeled [map-first-ui] by jessmartin",
+    "issue_number": 705,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:34+00:00",
+    "source": "github_event",
+    "text": "Issue #705 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 705,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:35+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:38+00:00",
+    "source": "github_issue",
+    "text": "Issue #706 created: Map navigation: zoom and pan",
+    "issue_number": 706,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/706"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:40+00:00",
+    "source": "github_event",
+    "text": "Issue #706 labeled [make] by jessmartin",
+    "issue_number": 706,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:40+00:00",
+    "source": "github_event",
+    "text": "Issue #706 labeled [map-first-ui] by jessmartin",
+    "issue_number": 706,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:41+00:00",
+    "source": "github_event",
+    "text": "Issue #706 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 706,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:42+00:00",
+    "source": "github_event",
+    "text": "Issue #706 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 706,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:51+00:00",
+    "source": "github_issue",
+    "text": "Issue #707 created: Attendant Rail with attendant avatars",
+    "issue_number": 707,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/707"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:52+00:00",
+    "source": "github_event",
+    "text": "Issue #707 labeled [make] by jessmartin",
+    "issue_number": 707,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:52+00:00",
+    "source": "github_event",
+    "text": "Issue #707 labeled [map-first-ui] by jessmartin",
+    "issue_number": 707,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:52+00:00",
+    "source": "github_event",
+    "text": "Issue #707 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 707,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:53+00:00",
+    "source": "github_event",
+    "text": "Issue #707 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 707,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:58+00:00",
+    "source": "github_issue",
+    "text": "Issue #708 created: Project interface as building overlay",
+    "issue_number": 708,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/708"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:59+00:00",
+    "source": "github_event",
+    "text": "Issue #708 labeled [make] by jessmartin",
+    "issue_number": 708,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:59+00:00",
+    "source": "github_event",
+    "text": "Issue #708 labeled [map-first-ui] by jessmartin",
+    "issue_number": 708,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:35:59+00:00",
+    "source": "github_event",
+    "text": "Issue #708 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 708,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:00+00:00",
+    "source": "github_event",
+    "text": "Issue #708 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 708,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:30+00:00",
+    "source": "github_event",
+    "text": "Issue #699 added_to_project_v2 by jessmartin",
+    "issue_number": 699,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:32+00:00",
+    "source": "github_event",
+    "text": "Issue #700 added_to_project_v2 by jessmartin",
+    "issue_number": 700,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:34+00:00",
+    "source": "github_event",
+    "text": "Issue #701 added_to_project_v2 by jessmartin",
+    "issue_number": 701,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:35+00:00",
+    "source": "github_event",
+    "text": "Issue #702 added_to_project_v2 by jessmartin",
+    "issue_number": 702,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:37+00:00",
+    "source": "github_event",
+    "text": "Issue #703 added_to_project_v2 by jessmartin",
+    "issue_number": 703,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:38+00:00",
+    "source": "github_event",
+    "text": "Issue #704 added_to_project_v2 by jessmartin",
+    "issue_number": 704,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:40+00:00",
+    "source": "github_event",
+    "text": "Issue #705 added_to_project_v2 by jessmartin",
+    "issue_number": 705,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:41+00:00",
+    "source": "github_event",
+    "text": "Issue #706 added_to_project_v2 by jessmartin",
+    "issue_number": 706,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:43+00:00",
+    "source": "github_event",
+    "text": "Issue #707 added_to_project_v2 by jessmartin",
+    "issue_number": 707,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:36:44+00:00",
+    "source": "github_event",
+    "text": "Issue #708 added_to_project_v2 by jessmartin",
+    "issue_number": 708,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:07+00:00",
+    "source": "github_event",
+    "text": "Issue #699 project_v2_item_status_changed by jessmartin",
+    "issue_number": 699,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:08+00:00",
+    "source": "github_event",
+    "text": "Issue #700 project_v2_item_status_changed by jessmartin",
+    "issue_number": 700,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:09+00:00",
+    "source": "github_event",
+    "text": "Issue #701 project_v2_item_status_changed by jessmartin",
+    "issue_number": 701,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:09+00:00",
+    "source": "github_event",
+    "text": "Issue #702 project_v2_item_status_changed by jessmartin",
+    "issue_number": 702,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:10+00:00",
+    "source": "github_event",
+    "text": "Issue #703 project_v2_item_status_changed by jessmartin",
+    "issue_number": 703,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:10+00:00",
+    "source": "github_event",
+    "text": "Issue #704 project_v2_item_status_changed by jessmartin",
+    "issue_number": 704,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:11+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by jessmartin",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:11+00:00",
+    "source": "github_event",
+    "text": "Issue #706 project_v2_item_status_changed by jessmartin",
+    "issue_number": 706,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:12+00:00",
+    "source": "github_event",
+    "text": "Issue #707 project_v2_item_status_changed by jessmartin",
+    "issue_number": 707,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:37:12+00:00",
+    "source": "github_event",
+    "text": "Issue #708 project_v2_item_status_changed by jessmartin",
+    "issue_number": 708,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:38:55+00:00",
+    "source": "github_issue",
+    "text": "Issue #709 created: Workshop overlay with coming soon sign",
+    "issue_number": 709,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/709"
+  },
+  {
+    "timestamp": "2026-02-27T04:38:56+00:00",
+    "source": "github_event",
+    "text": "Issue #709 labeled [make] by jessmartin",
+    "issue_number": 709,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:38:56+00:00",
+    "source": "github_event",
+    "text": "Issue #709 labeled [map-first-ui] by jessmartin",
+    "issue_number": 709,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:38:57+00:00",
+    "source": "github_event",
+    "text": "Issue #709 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 709,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:38:58+00:00",
+    "source": "github_event",
+    "text": "Issue #709 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 709,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:38:59+00:00",
+    "source": "github_issue",
+    "text": "Issue #710 created: Sanctuary overlay shell",
+    "issue_number": 710,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/710"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:01+00:00",
+    "source": "github_event",
+    "text": "Issue #710 labeled [make] by jessmartin",
+    "issue_number": 710,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:01+00:00",
+    "source": "github_event",
+    "text": "Issue #710 labeled [map-first-ui] by jessmartin",
+    "issue_number": 710,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:01+00:00",
+    "source": "github_event",
+    "text": "Issue #710 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 710,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:02+00:00",
+    "source": "github_event",
+    "text": "Issue #710 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 710,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:08+00:00",
+    "source": "github_issue",
+    "text": "Issue #711 created: Task Queue panel",
+    "issue_number": 711,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/711"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:09+00:00",
+    "source": "github_event",
+    "text": "Issue #711 labeled [make] by jessmartin",
+    "issue_number": 711,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:09+00:00",
+    "source": "github_event",
+    "text": "Issue #711 labeled [map-first-ui] by jessmartin",
+    "issue_number": 711,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:09+00:00",
+    "source": "github_event",
+    "text": "Issue #711 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 711,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:10+00:00",
+    "source": "github_event",
+    "text": "Issue #711 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 711,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:19+00:00",
+    "source": "github_issue",
+    "text": "Issue #712 created: Project placement flow",
+    "issue_number": 712,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/712"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:20+00:00",
+    "source": "github_event",
+    "text": "Issue #712 labeled [make] by jessmartin",
+    "issue_number": 712,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:20+00:00",
+    "source": "github_event",
+    "text": "Issue #712 labeled [map-first-ui] by jessmartin",
+    "issue_number": 712,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:21+00:00",
+    "source": "github_event",
+    "text": "Issue #712 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 712,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:22+00:00",
+    "source": "github_event",
+    "text": "Issue #712 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 712,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:32+00:00",
+    "source": "github_issue",
+    "text": "Issue #713 created: Onboarding sequence",
+    "issue_number": 713,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/713"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:33+00:00",
+    "source": "github_event",
+    "text": "Issue #713 labeled [make] by jessmartin",
+    "issue_number": 713,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:34+00:00",
+    "source": "github_event",
+    "text": "Issue #713 labeled [map-first-ui] by jessmartin",
+    "issue_number": 713,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:34+00:00",
+    "source": "github_event",
+    "text": "Issue #713 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 713,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:35+00:00",
+    "source": "github_event",
+    "text": "Issue #713 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 713,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:39+00:00",
+    "source": "github_issue",
+    "text": "Issue #714 created: Campfire conversation flow",
+    "issue_number": 714,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/714"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:40+00:00",
+    "source": "github_event",
+    "text": "Issue #714 labeled [make] by jessmartin",
+    "issue_number": 714,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:40+00:00",
+    "source": "github_event",
+    "text": "Issue #714 labeled [map-first-ui] by jessmartin",
+    "issue_number": 714,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:40+00:00",
+    "source": "github_event",
+    "text": "Issue #714 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 714,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:41+00:00",
+    "source": "github_event",
+    "text": "Issue #714 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 714,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:49+00:00",
+    "source": "github_issue",
+    "text": "Issue #715 created: Unburdening conversation in Workshop",
+    "issue_number": 715,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/715"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:51+00:00",
+    "source": "github_event",
+    "text": "Issue #715 labeled [make] by jessmartin",
+    "issue_number": 715,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:51+00:00",
+    "source": "github_event",
+    "text": "Issue #715 labeled [map-first-ui] by jessmartin",
+    "issue_number": 715,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:51+00:00",
+    "source": "github_event",
+    "text": "Issue #715 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 715,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:52+00:00",
+    "source": "github_event",
+    "text": "Issue #715 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 715,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:54+00:00",
+    "source": "github_issue",
+    "text": "Issue #716 created: Visioning conversation in Sanctuary",
+    "issue_number": 716,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/716"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:56+00:00",
+    "source": "github_event",
+    "text": "Issue #716 labeled [make] by jessmartin",
+    "issue_number": 716,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:56+00:00",
+    "source": "github_event",
+    "text": "Issue #716 labeled [map-first-ui] by jessmartin",
+    "issue_number": 716,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:57+00:00",
+    "source": "github_event",
+    "text": "Issue #716 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 716,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:39:57+00:00",
+    "source": "github_event",
+    "text": "Issue #716 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 716,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:02+00:00",
+    "source": "github_issue",
+    "text": "Issue #717 created: Statue sprites on placed projects",
+    "issue_number": 717,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/717"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:03+00:00",
+    "source": "github_event",
+    "text": "Issue #717 labeled [make] by jessmartin",
+    "issue_number": 717,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:04+00:00",
+    "source": "github_event",
+    "text": "Issue #717 labeled [map-first-ui] by jessmartin",
+    "issue_number": 717,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:04+00:00",
+    "source": "github_event",
+    "text": "Issue #717 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 717,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:05+00:00",
+    "source": "github_event",
+    "text": "Issue #717 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 717,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:15+00:00",
+    "source": "github_event",
+    "text": "Issue #709 added_to_project_v2 by jessmartin",
+    "issue_number": 709,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:15+00:00",
+    "source": "github_event",
+    "text": "Issue #709 project_v2_item_status_changed by jessmartin",
+    "issue_number": 709,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:16+00:00",
+    "source": "github_event",
+    "text": "Issue #710 added_to_project_v2 by jessmartin",
+    "issue_number": 710,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:17+00:00",
+    "source": "github_event",
+    "text": "Issue #710 project_v2_item_status_changed by jessmartin",
+    "issue_number": 710,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:17+00:00",
+    "source": "github_event",
+    "text": "Issue #711 added_to_project_v2 by jessmartin",
+    "issue_number": 711,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:18+00:00",
+    "source": "github_event",
+    "text": "Issue #711 project_v2_item_status_changed by jessmartin",
+    "issue_number": 711,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:18+00:00",
+    "source": "github_event",
+    "text": "Issue #712 added_to_project_v2 by jessmartin",
+    "issue_number": 712,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:19+00:00",
+    "source": "github_event",
+    "text": "Issue #712 project_v2_item_status_changed by jessmartin",
+    "issue_number": 712,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:20+00:00",
+    "source": "github_event",
+    "text": "Issue #713 added_to_project_v2 by jessmartin",
+    "issue_number": 713,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:20+00:00",
+    "source": "github_event",
+    "text": "Issue #713 project_v2_item_status_changed by jessmartin",
+    "issue_number": 713,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:21+00:00",
+    "source": "github_event",
+    "text": "Issue #714 added_to_project_v2 by jessmartin",
+    "issue_number": 714,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:21+00:00",
+    "source": "github_event",
+    "text": "Issue #714 project_v2_item_status_changed by jessmartin",
+    "issue_number": 714,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:22+00:00",
+    "source": "github_event",
+    "text": "Issue #715 project_v2_item_status_changed by jessmartin",
+    "issue_number": 715,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:22+00:00",
+    "source": "github_event",
+    "text": "Issue #715 added_to_project_v2 by jessmartin",
+    "issue_number": 715,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:23+00:00",
+    "source": "github_event",
+    "text": "Issue #716 added_to_project_v2 by jessmartin",
+    "issue_number": 716,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:23+00:00",
+    "source": "github_event",
+    "text": "Issue #716 project_v2_item_status_changed by jessmartin",
+    "issue_number": 716,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:24+00:00",
+    "source": "github_event",
+    "text": "Issue #717 added_to_project_v2 by jessmartin",
+    "issue_number": 717,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:25+00:00",
+    "source": "github_event",
+    "text": "Issue #717 project_v2_item_status_changed by jessmartin",
+    "issue_number": 717,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:40:53+00:00",
+    "source": "github_event",
+    "text": "Issue #707 renamed by jessmartin",
+    "issue_number": 707,
+    "event_type": "renamed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:42:59+00:00",
+    "source": "github_issue",
+    "text": "Issue #718 created: Campfire conversation: Jarvis guides first project creation",
+    "issue_number": 718,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/718"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:00+00:00",
+    "source": "github_event",
+    "text": "Issue #718 labeled [make] by jessmartin",
+    "issue_number": 718,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:00+00:00",
+    "source": "github_event",
+    "text": "Issue #718 labeled [map-first-ui] by jessmartin",
+    "issue_number": 718,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:01+00:00",
+    "source": "github_event",
+    "text": "Issue #718 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 718,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:01+00:00",
+    "source": "github_event",
+    "text": "Issue #718 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 718,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:09+00:00",
+    "source": "github_issue",
+    "text": "Issue #719 created: Workshop first visit: Marvin greets and guides Unburdening",
+    "issue_number": 719,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/719"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:10+00:00",
+    "source": "github_event",
+    "text": "Issue #719 labeled [make] by jessmartin",
+    "issue_number": 719,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:11+00:00",
+    "source": "github_event",
+    "text": "Issue #719 labeled [map-first-ui] by jessmartin",
+    "issue_number": 719,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:11+00:00",
+    "source": "github_event",
+    "text": "Issue #719 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 719,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:12+00:00",
+    "source": "github_event",
+    "text": "Issue #719 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 719,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:16+00:00",
+    "source": "github_issue",
+    "text": "Issue #720 created: Sanctuary first visit: Jarvis guides Visioning and charter creation",
+    "issue_number": 720,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/720"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:18+00:00",
+    "source": "github_event",
+    "text": "Issue #720 labeled [make] by jessmartin",
+    "issue_number": 720,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:18+00:00",
+    "source": "github_event",
+    "text": "Issue #720 labeled [map-first-ui] by jessmartin",
+    "issue_number": 720,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:19+00:00",
+    "source": "github_event",
+    "text": "Issue #720 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 720,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:19+00:00",
+    "source": "github_event",
+    "text": "Issue #720 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 720,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:27+00:00",
+    "source": "github_issue",
+    "text": "Issue #721 created: First project open: Marvin offers to help craft project details",
+    "issue_number": 721,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/721"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:28+00:00",
+    "source": "github_event",
+    "text": "Issue #721 labeled [make] by jessmartin",
+    "issue_number": 721,
+    "event_type": "labeled",
+    "label": "make",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:28+00:00",
+    "source": "github_event",
+    "text": "Issue #721 labeled [map-first-ui] by jessmartin",
+    "issue_number": 721,
+    "event_type": "labeled",
+    "label": "map-first-ui",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:29+00:00",
+    "source": "github_event",
+    "text": "Issue #721 added_to_project_v2 by github-project-automation[bot]",
+    "issue_number": 721,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:29+00:00",
+    "source": "github_event",
+    "text": "Issue #721 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 721,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:39+00:00",
+    "source": "github_event",
+    "text": "Issue #718 added_to_project_v2 by jessmartin",
+    "issue_number": 718,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:40+00:00",
+    "source": "github_event",
+    "text": "Issue #718 project_v2_item_status_changed by jessmartin",
+    "issue_number": 718,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:40+00:00",
+    "source": "github_event",
+    "text": "Issue #719 added_to_project_v2 by jessmartin",
+    "issue_number": 719,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:41+00:00",
+    "source": "github_event",
+    "text": "Issue #719 project_v2_item_status_changed by jessmartin",
+    "issue_number": 719,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:41+00:00",
+    "source": "github_event",
+    "text": "Issue #720 added_to_project_v2 by jessmartin",
+    "issue_number": 720,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:42+00:00",
+    "source": "github_event",
+    "text": "Issue #720 project_v2_item_status_changed by jessmartin",
+    "issue_number": 720,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:43+00:00",
+    "source": "github_event",
+    "text": "Issue #721 added_to_project_v2 by jessmartin",
+    "issue_number": 721,
+    "event_type": "added_to_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:43:43+00:00",
+    "source": "github_event",
+    "text": "Issue #721 project_v2_item_status_changed by jessmartin",
+    "issue_number": 721,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:54+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #714 closed: Campfire conversation flow",
+    "issue_number": 714,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/714"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:54+00:00",
+    "source": "github_event",
+    "text": "Issue #714 closed by jessmartin",
+    "issue_number": 714,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:55+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #715 closed: Unburdening conversation in Workshop",
+    "issue_number": 715,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/715"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:55+00:00",
+    "source": "github_event",
+    "text": "Issue #715 closed by jessmartin",
+    "issue_number": 715,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:56+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #716 closed: Visioning conversation in Sanctuary",
+    "issue_number": 716,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/716"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:56+00:00",
+    "source": "github_event",
+    "text": "Issue #714 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 714,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:57+00:00",
+    "source": "github_event",
+    "text": "Issue #716 closed by jessmartin",
+    "issue_number": 716,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:58+00:00",
+    "source": "github_event",
+    "text": "Issue #715 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 715,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:45:58+00:00",
+    "source": "github_event",
+    "text": "Issue #716 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 716,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:37+00:00",
+    "source": "github_event",
+    "text": "Issue #699 labeled [ralph] by jessmartin",
+    "issue_number": 699,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:38+00:00",
+    "source": "github_event",
+    "text": "Issue #700 labeled [ralph] by jessmartin",
+    "issue_number": 700,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:39+00:00",
+    "source": "github_event",
+    "text": "Issue #701 labeled [ralph] by jessmartin",
+    "issue_number": 701,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:41+00:00",
+    "source": "github_event",
+    "text": "Issue #702 labeled [ralph] by jessmartin",
+    "issue_number": 702,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:42+00:00",
+    "source": "github_event",
+    "text": "Issue #703 labeled [ralph] by jessmartin",
+    "issue_number": 703,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:43+00:00",
+    "source": "github_event",
+    "text": "Issue #704 labeled [ralph] by jessmartin",
+    "issue_number": 704,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:44+00:00",
+    "source": "github_event",
+    "text": "Issue #705 labeled [ralph] by jessmartin",
+    "issue_number": 705,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:45+00:00",
+    "source": "github_event",
+    "text": "Issue #706 labeled [ralph] by jessmartin",
+    "issue_number": 706,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:46+00:00",
+    "source": "github_event",
+    "text": "Issue #707 labeled [ralph] by jessmartin",
+    "issue_number": 707,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:48+00:00",
+    "source": "github_event",
+    "text": "Issue #708 labeled [ralph] by jessmartin",
+    "issue_number": 708,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:49+00:00",
+    "source": "github_event",
+    "text": "Issue #709 labeled [ralph] by jessmartin",
+    "issue_number": 709,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:50+00:00",
+    "source": "github_event",
+    "text": "Issue #710 labeled [ralph] by jessmartin",
+    "issue_number": 710,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:51+00:00",
+    "source": "github_event",
+    "text": "Issue #711 labeled [ralph] by jessmartin",
+    "issue_number": 711,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:52+00:00",
+    "source": "github_event",
+    "text": "Issue #712 labeled [ralph] by jessmartin",
+    "issue_number": 712,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:53+00:00",
+    "source": "github_event",
+    "text": "Issue #713 labeled [ralph] by jessmartin",
+    "issue_number": 713,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:54+00:00",
+    "source": "github_event",
+    "text": "Issue #717 labeled [ralph] by jessmartin",
+    "issue_number": 717,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:55+00:00",
+    "source": "github_event",
+    "text": "Issue #718 labeled [ralph] by jessmartin",
+    "issue_number": 718,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:56+00:00",
+    "source": "github_event",
+    "text": "Issue #719 labeled [ralph] by jessmartin",
+    "issue_number": 719,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:57+00:00",
+    "source": "github_event",
+    "text": "Issue #720 labeled [ralph] by jessmartin",
+    "issue_number": 720,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:46:58+00:00",
+    "source": "github_event",
+    "text": "Issue #721 labeled [ralph] by jessmartin",
+    "issue_number": 721,
+    "event_type": "labeled",
+    "label": "ralph",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:50:10+00:00",
+    "source": "github_event",
+    "text": "Issue #714 project_v2_item_status_changed by jessmartin",
+    "issue_number": 714,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:50:11+00:00",
+    "source": "github_event",
+    "text": "Issue #715 project_v2_item_status_changed by jessmartin",
+    "issue_number": 715,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T04:50:12+00:00",
+    "source": "github_event",
+    "text": "Issue #716 project_v2_item_status_changed by jessmartin",
+    "issue_number": 716,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T05:20:21+00:00",
+    "source": "github_event",
+    "text": "Issue #699 referenced by jessmartin",
+    "issue_number": 699,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T05:20:21+00:00",
+    "source": "github_event",
+    "text": "Issue #713 referenced by jessmartin",
+    "issue_number": 713,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T05:20:21+00:00",
+    "source": "github_event",
+    "text": "Issue #717 referenced by jessmartin",
+    "issue_number": 717,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T05:20:21+00:00",
+    "source": "github_event",
+    "text": "Issue #721 referenced by jessmartin",
+    "issue_number": 721,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T06:41:14+00:00",
+    "source": "github_event",
+    "text": "Issue #699 referenced by jessmartin",
+    "issue_number": 699,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T06:41:14+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T06:41:15+00:00",
+    "source": "github_event",
+    "text": "Issue #699 referenced by jessmartin",
+    "issue_number": 699,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T06:41:15+00:00",
+    "source": "github_event",
+    "text": "Issue #701 referenced by jessmartin",
+    "issue_number": 701,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T06:41:15+00:00",
+    "source": "github_event",
+    "text": "Issue #713 referenced by jessmartin",
+    "issue_number": 713,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T06:41:15+00:00",
+    "source": "github_event",
+    "text": "Issue #717 referenced by jessmartin",
+    "issue_number": 717,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T06:41:15+00:00",
+    "source": "github_event",
+    "text": "Issue #721 referenced by jessmartin",
+    "issue_number": 721,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:05:56+00:00",
+    "source": "github_event",
+    "text": "Issue #699 referenced by jessmartin",
+    "issue_number": 699,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:05:56+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:05:56+00:00",
+    "source": "github_event",
+    "text": "Issue #701 referenced by jessmartin",
+    "issue_number": 701,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:05:56+00:00",
+    "source": "github_event",
+    "text": "Issue #713 referenced by jessmartin",
+    "issue_number": 713,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:05:56+00:00",
+    "source": "github_event",
+    "text": "Issue #717 referenced by jessmartin",
+    "issue_number": 717,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:05:56+00:00",
+    "source": "github_event",
+    "text": "Issue #721 referenced by jessmartin",
+    "issue_number": 721,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:48+00:00",
+    "source": "github_event",
+    "text": "Issue #699 labeled [phase:ready] by jessmartin",
+    "issue_number": 699,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:50+00:00",
+    "source": "github_event",
+    "text": "Issue #700 labeled [phase:ready] by jessmartin",
+    "issue_number": 700,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:51+00:00",
+    "source": "github_event",
+    "text": "Issue #701 labeled [phase:ready] by jessmartin",
+    "issue_number": 701,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:52+00:00",
+    "source": "github_event",
+    "text": "Issue #702 labeled [phase:ready] by jessmartin",
+    "issue_number": 702,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:53+00:00",
+    "source": "github_event",
+    "text": "Issue #703 labeled [phase:ready] by jessmartin",
+    "issue_number": 703,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:54+00:00",
+    "source": "github_event",
+    "text": "Issue #704 labeled [phase:ready] by jessmartin",
+    "issue_number": 704,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:55+00:00",
+    "source": "github_event",
+    "text": "Issue #705 labeled [phase:ready] by jessmartin",
+    "issue_number": 705,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:56+00:00",
+    "source": "github_event",
+    "text": "Issue #706 labeled [phase:ready] by jessmartin",
+    "issue_number": 706,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:58+00:00",
+    "source": "github_event",
+    "text": "Issue #707 labeled [phase:ready] by jessmartin",
+    "issue_number": 707,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:38:59+00:00",
+    "source": "github_event",
+    "text": "Issue #708 labeled [phase:ready] by jessmartin",
+    "issue_number": 708,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:00+00:00",
+    "source": "github_event",
+    "text": "Issue #709 labeled [phase:ready] by jessmartin",
+    "issue_number": 709,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:01+00:00",
+    "source": "github_event",
+    "text": "Issue #710 labeled [phase:ready] by jessmartin",
+    "issue_number": 710,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:02+00:00",
+    "source": "github_event",
+    "text": "Issue #711 labeled [phase:ready] by jessmartin",
+    "issue_number": 711,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:03+00:00",
+    "source": "github_event",
+    "text": "Issue #712 labeled [phase:ready] by jessmartin",
+    "issue_number": 712,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:04+00:00",
+    "source": "github_event",
+    "text": "Issue #713 labeled [phase:ready] by jessmartin",
+    "issue_number": 713,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:05+00:00",
+    "source": "github_event",
+    "text": "Issue #717 labeled [phase:ready] by jessmartin",
+    "issue_number": 717,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:07+00:00",
+    "source": "github_event",
+    "text": "Issue #718 labeled [phase:ready] by jessmartin",
+    "issue_number": 718,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:08+00:00",
+    "source": "github_event",
+    "text": "Issue #719 labeled [phase:ready] by jessmartin",
+    "issue_number": 719,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:09+00:00",
+    "source": "github_event",
+    "text": "Issue #720 labeled [phase:ready] by jessmartin",
+    "issue_number": 720,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:11+00:00",
+    "source": "github_event",
+    "text": "Issue #721 labeled [phase:ready] by jessmartin",
+    "issue_number": 721,
+    "event_type": "labeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:12+00:00",
+    "source": "github_event",
+    "text": "Issue #699 labeled [phase:implementing] by jessmartin",
+    "issue_number": 699,
+    "event_type": "labeled",
+    "label": "phase:implementing",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:39:12+00:00",
+    "source": "github_event",
+    "text": "Issue #699 unlabeled [phase:ready] by jessmartin",
+    "issue_number": 699,
+    "event_type": "unlabeled",
+    "label": "phase:ready",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:41:35+00:00",
+    "source": "github_event",
+    "text": "Issue #699 project_v2_item_status_changed by jessmartin",
+    "issue_number": 699,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:45:38+00:00",
+    "source": "github_event",
+    "text": "Issue #714 removed_from_project_v2 by jessmartin",
+    "issue_number": 714,
+    "event_type": "removed_from_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:45:41+00:00",
+    "source": "github_event",
+    "text": "Issue #715 removed_from_project_v2 by jessmartin",
+    "issue_number": 715,
+    "event_type": "removed_from_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:45:44+00:00",
+    "source": "github_event",
+    "text": "Issue #716 removed_from_project_v2 by jessmartin",
+    "issue_number": 716,
+    "event_type": "removed_from_project_v2",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:56:04+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #722: Remove the Table from UI, queries, and server tools",
+    "pr_number": 722,
+    "sha": "61111ccbdd0dc516037db39d5bc84d6121f6914a",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/61111ccbdd0dc516037db39d5bc84d6121f6914a"
+  },
+  {
+    "timestamp": "2026-02-27T07:57:16+00:00",
+    "source": "github_event",
+    "text": "Issue #699 referenced by jessmartin",
+    "issue_number": 699,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:57:24+00:00",
+    "source": "github_pr",
+    "text": "PR #722 opened: Remove the Table (#699)",
+    "pr_number": 722,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/722"
+  },
+  {
+    "timestamp": "2026-02-27T07:57:26+00:00",
+    "source": "github_event",
+    "text": "Issue #699 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 699,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T07:57:33+00:00",
+    "source": "github_event",
+    "text": "Issue #699 project_v2_item_status_changed by jessmartin",
+    "issue_number": 699,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:57:34+00:00",
+    "source": "github_event",
+    "text": "Issue #699 labeled [phase:in-review] by jessmartin",
+    "issue_number": 699,
+    "event_type": "labeled",
+    "label": "phase:in-review",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T07:57:34+00:00",
+    "source": "github_event",
+    "text": "Issue #699 unlabeled [phase:implementing] by jessmartin",
+    "issue_number": 699,
+    "event_type": "unlabeled",
+    "label": "phase:implementing",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:11:17+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #722: test(web): update e2e flows for sorting room stream cards",
+    "pr_number": 722,
+    "sha": "70f62434a228cc26f3e6132c09f281ef51acca10",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/70f62434a228cc26f3e6132c09f281ef51acca10"
+  },
+  {
+    "timestamp": "2026-02-27T08:16:48+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #722 merged: Remove the Table (#699)",
+    "pr_number": 722,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/722"
+  },
+  {
+    "timestamp": "2026-02-27T08:16:49+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #699 closed: Remove the Table",
+    "issue_number": 699,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/699"
+  },
+  {
+    "timestamp": "2026-02-27T08:16:49+00:00",
+    "source": "github_event",
+    "text": "Issue #699 closed by jessmartin",
+    "issue_number": 699,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:16:49+00:00",
+    "source": "github_event",
+    "text": "Issue #699 referenced by jessmartin",
+    "issue_number": 699,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:16:50+00:00",
+    "source": "github_event",
+    "text": "Issue #699 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 699,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T08:16:50+00:00",
+    "source": "github_event",
+    "text": "Issue #699 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 699,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T08:17:00+00:00",
+    "source": "github_event",
+    "text": "Issue #699 labeled [phase:merged] by jessmartin",
+    "issue_number": 699,
+    "event_type": "labeled",
+    "label": "phase:merged",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:17:00+00:00",
+    "source": "github_event",
+    "text": "Issue #699 unlabeled [phase:in-review] by jessmartin",
+    "issue_number": 699,
+    "event_type": "unlabeled",
+    "label": "phase:in-review",
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:21:31+00:00",
+    "source": "github_event",
+    "text": "Issue #700 project_v2_item_status_changed by jessmartin",
+    "issue_number": 700,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:21:32+00:00",
+    "source": "github_event",
+    "text": "Issue #704 project_v2_item_status_changed by jessmartin",
+    "issue_number": 704,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:25:31+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #723: Remove Mesa from the map",
+    "pr_number": 723,
+    "sha": "0a356ef3b8ab1ffbc56d21124d8d52874bf5ad2b",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/0a356ef3b8ab1ffbc56d21124d8d52874bf5ad2b"
+  },
+  {
+    "timestamp": "2026-02-27T08:25:43+00:00",
+    "source": "github_event",
+    "text": "Issue #702 referenced by jessmartin",
+    "issue_number": 702,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:25:49+00:00",
+    "source": "github_pr",
+    "text": "PR #723 opened: Remove Mesa from the map",
+    "pr_number": 723,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/723"
+  },
+  {
+    "timestamp": "2026-02-27T08:25:52+00:00",
+    "source": "github_event",
+    "text": "Issue #702 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 702,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T08:25:59+00:00",
+    "source": "github_event",
+    "text": "Issue #704 project_v2_item_status_changed by jessmartin",
+    "issue_number": 704,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:29:00+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:29:08+00:00",
+    "source": "github_pr",
+    "text": "PR #724 opened: Remove the Sorting Room",
+    "pr_number": 724,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/724"
+  },
+  {
+    "timestamp": "2026-02-27T08:29:10+00:00",
+    "source": "github_event",
+    "text": "Issue #700 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 700,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T08:29:17+00:00",
+    "source": "github_event",
+    "text": "Issue #700 project_v2_item_status_changed by jessmartin",
+    "issue_number": 700,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:30:06+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #723 by chatgpt-codex-connector[bot]: **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Keep life-map worker ID stable for existing conversations**",
+    "pr_number": 723,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Keep life-map worker ID stable for existing conversations**\n\nChanging the life-map worker ID to `life-map-attendant` creates a brand-new worker record instead of updating existing `life-map-mesa` records in user stores. Existing room conversations are loaded by `roomId` and retain their old `workerId`, and server message processing still looks up workers via `conversation.workerId`, so historical conversations can continue to run against stale Mesa identity/state while the UI reads a different inactive worker. This breaks lifecycle compatibility for existing data unless you keep the same worker ID (or add a migration that rewrites old conversation/worker references).\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/723#discussion_r2863162894"
+  },
+  {
+    "timestamp": "2026-02-27T08:30:06+00:00",
+    "source": "github_review",
+    "text": "Review on PR #723 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 723,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `0a356ef3b8`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/723#pullrequestreview-3865663715"
+  },
+  {
+    "timestamp": "2026-02-27T08:32:53+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #724 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Preserve storeId on legacy sorting-room redirect**",
+    "pr_number": 724,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Preserve storeId on legacy sorting-room redirect**\n\nThe new `/sorting-room/*` redirect drops the current query string by navigating to `ROUTES.LIFE_MAP` as a plain pathname, so URLs like `/sorting-room?storeId=<instance>` lose their instance context during migration. In this app, missing `storeId` is then repopulated from `determineStoreIdFromUser` in `EnsureStoreId`, which can switch users with multiple instances to a different workspace than the one in the original link, leading them to view/edit the wrong data set.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/724#discussion_r2863173298"
+  },
+  {
+    "timestamp": "2026-02-27T08:32:53+00:00",
+    "source": "github_review",
+    "text": "Review on PR #724 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 724,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `ba9b3b06d6`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/724#pullrequestreview-3865675383"
+  },
+  {
+    "timestamp": "2026-02-27T08:40:19+00:00",
+    "source": "github_event",
+    "text": "Issue #701 referenced by jessmartin",
+    "issue_number": 701,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:40:28+00:00",
+    "source": "github_pr",
+    "text": "PR #725 opened: Remove the Drafting Room (#701)",
+    "pr_number": 725,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/725"
+  },
+  {
+    "timestamp": "2026-02-27T08:40:31+00:00",
+    "source": "github_event",
+    "text": "Issue #701 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 701,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T08:41:49+00:00",
+    "source": "github_event",
+    "text": "Issue #701 project_v2_item_status_changed by jessmartin",
+    "issue_number": 701,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:41:50+00:00",
+    "source": "github_event",
+    "text": "Issue #702 project_v2_item_status_changed by jessmartin",
+    "issue_number": 702,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:41:50+00:00",
+    "source": "github_event",
+    "text": "Issue #703 project_v2_item_status_changed by jessmartin",
+    "issue_number": 703,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:46:38+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #726: Replace Kanban board with task list in project view",
+    "pr_number": 726,
+    "sha": "a6e3fa96d5be865da19800ea0df92be0d0c35e25",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/a6e3fa96d5be865da19800ea0df92be0d0c35e25"
+  },
+  {
+    "timestamp": "2026-02-27T08:46:48+00:00",
+    "source": "github_event",
+    "text": "Issue #703 referenced by jessmartin",
+    "issue_number": 703,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:46:56+00:00",
+    "source": "github_pr",
+    "text": "PR #726 opened: Replace Kanban with task list (#703)",
+    "pr_number": 726,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/726"
+  },
+  {
+    "timestamp": "2026-02-27T08:46:58+00:00",
+    "source": "github_event",
+    "text": "Issue #703 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 703,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T08:47:08+00:00",
+    "source": "github_event",
+    "text": "Issue #703 project_v2_item_status_changed by jessmartin",
+    "issue_number": 703,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:52:07+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #723: fix: keep worker ID as life-map-mesa for backward compatibility",
+    "pr_number": 723,
+    "sha": "9f0fd293c9f26462d4e2146c3d66885a57d43caa",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/9f0fd293c9f26462d4e2146c3d66885a57d43caa"
+  },
+  {
+    "timestamp": "2026-02-27T08:53:04+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #725 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Restore Sorting Room routes in protected router**",
+    "pr_number": 725,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Restore Sorting Room routes in protected router**\n\nThe protected route table now skips `ROUTES.SORTING_ROOM` and `ROUTES.SORTING_ROOM_STREAM`, so `/sorting-room` URLs no longer match any app route after auth and users cannot access the prioritization workflow (including existing bookmarks/deep links). This commit keeps Sorting Room code and room definitions elsewhere, so removing these route entries introduces a regression unrelated to drafting-room removal.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/725#discussion_r2863250217"
+  },
+  {
+    "timestamp": "2026-02-27T08:53:04+00:00",
+    "source": "github_review",
+    "text": "Review on PR #725 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 725,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `5c6fb38de3`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/725#pullrequestreview-3865757109"
+  },
+  {
+    "timestamp": "2026-02-27T08:53:17+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #724 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Preserve storeId when redirecting legacy sorting URLs**",
+    "pr_number": 724,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Preserve storeId when redirecting legacy sorting URLs**\n\nThe new legacy redirect sends every `/sorting-room` request to `/life-map` without query params, so links like `/sorting-room?storeId=<instance>` silently drop the instance context. In multi-instance accounts this can switch users into their default instance after `EnsureStoreId` runs, which means bookmarked/shared sorting-room URLs now open the wrong data set. Please carry `location.search` (at least `storeId`) through this redirect.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/724#discussion_r2863250993"
+  },
+  {
+    "timestamp": "2026-02-27T08:53:17+00:00",
+    "source": "github_review",
+    "text": "Review on PR #724 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 724,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `a0294ce692`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/724#pullrequestreview-3865757969"
+  },
+  {
+    "timestamp": "2026-02-27T08:54:03+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #726 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Update workflow E2E assertions for task-list project view**",
+    "pr_number": 726,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Update workflow E2E assertions for task-list project view**\n\nReplacing `ProjectKanban` with `TaskList` removes the column-based UI that our current end-to-end flow still asserts (`packages/web/e2e/workflow.spec.ts` checks for \"Todo/Doing/In Review/Done\" headers and a \"Doing\" column container), so the CI path `CI=true pnpm test:e2e` will fail in the project workflow scenario after this change even though product code compiles.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/726#discussion_r2863254069"
+  },
+  {
+    "timestamp": "2026-02-27T08:54:03+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #726 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Add Storybook coverage for the new TaskList component**",
+    "pr_number": 726,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Add Storybook coverage for the new TaskList component**\n\nThis commit introduces `TaskList` and removes `ProjectKanban.stories.tsx` without adding a replacement story, which violates the explicit rule in `packages/web/AGENTS.md` (`\"Add Storybook stories for UI components.\"`) and leaves the new primary project-room surface without Storybook regression coverage.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/726#discussion_r2863254072"
+  },
+  {
+    "timestamp": "2026-02-27T08:54:03+00:00",
+    "source": "github_review",
+    "text": "Review on PR #726 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 726,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `a6e3fa96d5`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/726#pullrequestreview-3865761308"
+  },
+  {
+    "timestamp": "2026-02-27T08:54:28+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:55:41+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #726: fix: add TaskList stories and mark drafting-dependent e2e tests as fixme",
+    "pr_number": 726,
+    "sha": "6ca63bc9aaee76cc8f50fc8ef9803ed7f8568c0e",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/6ca63bc9aaee76cc8f50fc8ef9803ed7f8568c0e"
+  },
+  {
+    "timestamp": "2026-02-27T08:57:29+00:00",
+    "source": "github_event",
+    "text": "Issue #704 referenced by jessmartin",
+    "issue_number": 704,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T08:57:39+00:00",
+    "source": "github_pr",
+    "text": "PR #727 opened: Map as full-bleed base layer (#704)",
+    "pr_number": 727,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/727"
+  },
+  {
+    "timestamp": "2026-02-27T08:57:42+00:00",
+    "source": "github_event",
+    "text": "Issue #704 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 704,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T09:01:00+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #726: fix: add missing description and assigneeIds to taskCreatedV2 in stories",
+    "pr_number": 726,
+    "sha": "a9ec9c856bcb97177f22ab1b42302966cd0e2776",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/a9ec9c856bcb97177f22ab1b42302966cd0e2776"
+  },
+  {
+    "timestamp": "2026-02-27T09:02:32+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #727 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Reinstate planning-stage routes instead of redirecting to map**",
+    "pr_number": 727,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Reinstate planning-stage routes instead of redirecting to map**\n\nRedirecting `ROUTES.PROJECT_CREATE` and `ROUTES.PROJECT_STAGE1/2/3` to `/life-map` makes planning flows unreachable: both the lifecycle badge in `packages/web/src/components/project-room/ProjectHeader.tsx:65-73` and Chorus navigation in `packages/web/src/hooks/useChorusNavigation.ts:93-133` still send users to these drafting URLs, so they now get bounced back to the map instead of opening the editable stage forms.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/727#discussion_r2863286316"
+  },
+  {
+    "timestamp": "2026-02-27T09:02:32+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #727 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Preserve storeId query when redirecting legacy room paths**",
+    "pr_number": 727,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Preserve storeId query when redirecting legacy room paths**\n\nUsing `<Navigate to={ROUTES.LIFE_MAP} replace />` here strips the existing query string, so deep links like `/drafting-room?storeId=<instance>` lose their instance context during redirect; `EnsureStoreId` then treats `storeId` as missing and rewrites it to the user's preferred instance (`packages/web/src/components/utils/EnsureStoreId.tsx:16-40`), which can silently open the wrong workspace for multi-instance users.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/727#discussion_r2863286321"
+  },
+  {
+    "timestamp": "2026-02-27T09:02:32+00:00",
+    "source": "github_review",
+    "text": "Review on PR #727 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 727,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `0f5d897725`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/727#pullrequestreview-3865796950"
+  },
+  {
+    "timestamp": "2026-02-27T09:03:48+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #723 merged: Remove Mesa from the map",
+    "pr_number": 723,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/723"
+  },
+  {
+    "timestamp": "2026-02-27T09:03:49+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #702 closed: Remove Mesa from the map",
+    "issue_number": 702,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/702"
+  },
+  {
+    "timestamp": "2026-02-27T09:03:49+00:00",
+    "source": "github_event",
+    "text": "Issue #702 closed by jessmartin",
+    "issue_number": 702,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:03:49+00:00",
+    "source": "github_event",
+    "text": "Issue #702 referenced by jessmartin",
+    "issue_number": 702,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:03:50+00:00",
+    "source": "github_event",
+    "text": "Issue #702 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 702,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T09:03:50+00:00",
+    "source": "github_event",
+    "text": "Issue #702 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 702,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T09:05:10+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:05:33+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:05:33+00:00",
+    "source": "github_event",
+    "text": "Issue #701 referenced by jessmartin",
+    "issue_number": 701,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:08:00+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #726 merged: Replace Kanban with task list (#703)",
+    "pr_number": 726,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/726"
+  },
+  {
+    "timestamp": "2026-02-27T09:08:02+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #703 closed: Remove Kanban, replace with task list",
+    "issue_number": 703,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/703"
+  },
+  {
+    "timestamp": "2026-02-27T09:08:02+00:00",
+    "source": "github_event",
+    "text": "Issue #703 closed by jessmartin",
+    "issue_number": 703,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:08:02+00:00",
+    "source": "github_event",
+    "text": "Issue #703 referenced by jessmartin",
+    "issue_number": 703,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:08:03+00:00",
+    "source": "github_event",
+    "text": "Issue #703 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 703,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T09:08:03+00:00",
+    "source": "github_event",
+    "text": "Issue #703 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 703,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T09:11:23+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #724: Remove the Sorting Room",
+    "pr_number": 724,
+    "sha": "1784e7db18833c769b6feccca1f85b49a4cd3431",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/1784e7db18833c769b6feccca1f85b49a4cd3431"
+  },
+  {
+    "timestamp": "2026-02-27T09:11:29+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #724: fix: preserve storeId on sorting-room redirect",
+    "pr_number": 724,
+    "sha": "664dd3aaadcd66e140cff7665c1d027949b05c78",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/664dd3aaadcd66e140cff7665c1d027949b05c78"
+  },
+  {
+    "timestamp": "2026-02-27T09:11:29+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #724: fix: use simplified inactive prompt from main after rebase",
+    "pr_number": 724,
+    "sha": "bbe564f0b9af83509fde012cfc55d67b298b2df0",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/bbe564f0b9af83509fde012cfc55d67b298b2df0"
+  },
+  {
+    "timestamp": "2026-02-27T09:11:41+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:12:01+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:12:01+00:00",
+    "source": "github_event",
+    "text": "Issue #701 referenced by jessmartin",
+    "issue_number": 701,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:22:56+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #724: fix: update navigate-through-all-pages test for Sorting Room removal",
+    "pr_number": 724,
+    "sha": "d467f11499faa738b0b9f74ead872238b3a33987",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/d467f11499faa738b0b9f74ead872238b3a33987"
+  },
+  {
+    "timestamp": "2026-02-27T09:28:22+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #724 merged: Remove the Sorting Room",
+    "pr_number": 724,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/724"
+  },
+  {
+    "timestamp": "2026-02-27T09:28:24+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #700 closed: Remove the Sorting Room",
+    "issue_number": 700,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/700"
+  },
+  {
+    "timestamp": "2026-02-27T09:28:24+00:00",
+    "source": "github_event",
+    "text": "Issue #700 closed by jessmartin",
+    "issue_number": 700,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:28:24+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:28:25+00:00",
+    "source": "github_event",
+    "text": "Issue #700 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 700,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T09:28:25+00:00",
+    "source": "github_event",
+    "text": "Issue #700 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 700,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T09:39:53+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #725: Remove the Drafting Room UI and routes",
+    "pr_number": 725,
+    "sha": "bb9e95487f380e72b453f0508968fcded802e83b",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/bb9e95487f380e72b453f0508968fcded802e83b"
+  },
+  {
+    "timestamp": "2026-02-27T09:39:54+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #725: fix: restore Sorting Room routes (not part of drafting room removal)",
+    "pr_number": 725,
+    "sha": "9f15dca209b542823c6b5d072bcf9b81365df47a",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/9f15dca209b542823c6b5d072bcf9b81365df47a"
+  },
+  {
+    "timestamp": "2026-02-27T09:40:00+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #725: fix: update navigate-through-all-pages test for Drafting Room removal",
+    "pr_number": 725,
+    "sha": "3ad377932db84bbad79cc11d4c7b200584bc1b85",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/3ad377932db84bbad79cc11d4c7b200584bc1b85"
+  },
+  {
+    "timestamp": "2026-02-27T09:40:00+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #725: trigger CI",
+    "pr_number": 725,
+    "sha": "2ce3794309f59b12a3a07d4c9ff40ec07cf0e48c",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/2ce3794309f59b12a3a07d4c9ff40ec07cf0e48c"
+  },
+  {
+    "timestamp": "2026-02-27T09:40:49+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #725: fix: clean up sorting room refs after rebase onto main",
+    "pr_number": 725,
+    "sha": "6c351960122d30c0e00ce70d6f51a4aaa978380e",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/6c351960122d30c0e00ce70d6f51a4aaa978380e"
+  },
+  {
+    "timestamp": "2026-02-27T09:40:58+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:40:58+00:00",
+    "source": "github_event",
+    "text": "Issue #701 referenced by jessmartin",
+    "issue_number": 701,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T09:46:48+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #725: fix: remove remaining drafting room refs from CategoryCard and routes",
+    "pr_number": 725,
+    "sha": "552312033381dfa2f7de87df745da21051f77a15",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/552312033381dfa2f7de87df745da21051f77a15"
+  },
+  {
+    "timestamp": "2026-02-27T09:57:48+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #725: fix: navigate to app before testing in navigate-through-all-pages",
+    "pr_number": 725,
+    "sha": "11ab33db9303840d57de39b334d9abe3abd04b2c",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/11ab33db9303840d57de39b334d9abe3abd04b2c"
+  },
+  {
+    "timestamp": "2026-02-27T10:04:17+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #725 merged: Remove the Drafting Room (#701)",
+    "pr_number": 725,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/725"
+  },
+  {
+    "timestamp": "2026-02-27T10:04:18+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #701 closed: Remove the Drafting Room",
+    "issue_number": 701,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/701"
+  },
+  {
+    "timestamp": "2026-02-27T10:04:18+00:00",
+    "source": "github_event",
+    "text": "Issue #700 referenced by jessmartin",
+    "issue_number": 700,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T10:04:18+00:00",
+    "source": "github_event",
+    "text": "Issue #701 closed by jessmartin",
+    "issue_number": 701,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T10:04:18+00:00",
+    "source": "github_event",
+    "text": "Issue #701 referenced by jessmartin",
+    "issue_number": 701,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T10:04:19+00:00",
+    "source": "github_event",
+    "text": "Issue #701 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 701,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T10:04:19+00:00",
+    "source": "github_event",
+    "text": "Issue #701 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 701,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T10:07:26+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #727: Make hex map the full-bleed base layer",
+    "pr_number": 727,
+    "sha": "0645215775de42bc7a0c978603c72805c67fbdb1",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/0645215775de42bc7a0c978603c72805c67fbdb1"
+  },
+  {
+    "timestamp": "2026-02-27T10:08:28+00:00",
+    "source": "github_event",
+    "text": "Issue #704 referenced by jessmartin",
+    "issue_number": 704,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T10:28:20+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #727: test(web): align e2e smoke/workflow with life map-only routes",
+    "pr_number": 727,
+    "sha": "365c7f993a16e17cebe0107312b4ba0a82da2c52",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/365c7f993a16e17cebe0107312b4ba0a82da2c52"
+  },
+  {
+    "timestamp": "2026-02-27T10:36:30+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #727 merged: Map as full-bleed base layer (#704)",
+    "pr_number": 727,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/727"
+  },
+  {
+    "timestamp": "2026-02-27T10:36:31+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #704 closed: Map as full-bleed base layer",
+    "issue_number": 704,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/704"
+  },
+  {
+    "timestamp": "2026-02-27T10:36:31+00:00",
+    "source": "github_event",
+    "text": "Issue #704 closed by jessmartin",
+    "issue_number": 704,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T10:36:32+00:00",
+    "source": "github_event",
+    "text": "Issue #704 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 704,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T10:36:32+00:00",
+    "source": "github_event",
+    "text": "Issue #704 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 704,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T10:37:26+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by jessmartin",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T10:50:12+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #728: Implement building overlay pattern and routing (Closes #705)",
+    "pr_number": 728,
+    "sha": "904726c6b518276ecbe34c7cfe1387f036676491",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/904726c6b518276ecbe34c7cfe1387f036676491"
+  },
+  {
+    "timestamp": "2026-02-27T10:50:23+00:00",
+    "source": "github_event",
+    "text": "Issue #705 referenced by jessmartin",
+    "issue_number": 705,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T10:50:28+00:00",
+    "source": "github_pr",
+    "text": "PR #728 opened: Building overlay pattern and routing (#705)",
+    "pr_number": 728,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/728"
+  },
+  {
+    "timestamp": "2026-02-27T10:50:31+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T10:50:58+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by jessmartin",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T10:55:33+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #728 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Ignore handled Escape events before closing overlay**",
+    "pr_number": 728,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Ignore handled Escape events before closing overlay**\n\nThis global Escape handler closes the entire overlay even when a nested dialog has already handled Escape. In `/projects/:projectId`, `TaskDetailModal` listens for Escape to close or exit edit mode, but that key event bubbles to `window` and triggers `onClose()` here too, so users get kicked back to the map instead of just dismissing the task modal. Please guard this with `event.defaultPrevented` (or equivalent propagation control) so overlay close only runs when Escape was not consumed by inner UI.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/728#discussion_r2863744099"
+  },
+  {
+    "timestamp": "2026-02-27T10:55:33+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #728 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Restore project-specific RoomLayout for project overlay**",
+    "pr_number": 728,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Restore project-specific RoomLayout for project overlay**\n\nWrapping the project overlay under `RoomLayout room={LIFE_MAP_ROOM}` means project pages no longer run inside a project room context, because `ProjectDetailPage` also stopped rendering its own `RoomLayout`. As a result, opening chat from a project overlay binds to the life-map conversation/agent instead of the project-specific one, which changes room-scoped chat behavior for `/projects/:projectId`. The project overlay route needs to preserve a project room-backed layout/context.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/728#discussion_r2863744104"
+  },
+  {
+    "timestamp": "2026-02-27T10:55:33+00:00",
+    "source": "github_review",
+    "text": "Review on PR #728 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 728,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `904726c6b5`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/728#pullrequestreview-3866287603"
+  },
+  {
+    "timestamp": "2026-02-27T11:02:20+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #728: test(e2e): align routing/session specs with map-first app",
+    "pr_number": 728,
+    "sha": "4ee170437ee51c03dd082986362dd2ec56b637d2",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/4ee170437ee51c03dd082986362dd2ec56b637d2"
+  },
+  {
+    "timestamp": "2026-02-27T11:14:19+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #728: test(web): deflake smoke routing assertions",
+    "pr_number": 728,
+    "sha": "3b5b33fd51c242dbc287f31056228c451e1eb9ff",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/3b5b33fd51c242dbc287f31056228c451e1eb9ff"
+  },
+  {
+    "timestamp": "2026-02-27T11:22:11+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #728 merged: Building overlay pattern and routing (#705)",
+    "pr_number": 728,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/728"
+  },
+  {
+    "timestamp": "2026-02-27T11:22:12+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #705 closed: Building overlay pattern and routing",
+    "issue_number": 705,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/705"
+  },
+  {
+    "timestamp": "2026-02-27T11:22:12+00:00",
+    "source": "github_event",
+    "text": "Issue #705 closed by jessmartin",
+    "issue_number": 705,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:22:12+00:00",
+    "source": "github_event",
+    "text": "Issue #705 referenced by jessmartin",
+    "issue_number": 705,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:22:13+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T11:22:13+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T11:23:05+00:00",
+    "source": "github_event",
+    "text": "Issue #706 project_v2_item_status_changed by jessmartin",
+    "issue_number": 706,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:28:04+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #729: feat(web): add hex map zoom and pan controls (Closes #706)",
+    "pr_number": 729,
+    "sha": "2561b27c5a91ea396cbd22d5659bc3befb677ba6",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/2561b27c5a91ea396cbd22d5659bc3befb677ba6"
+  },
+  {
+    "timestamp": "2026-02-27T11:28:24+00:00",
+    "source": "github_event",
+    "text": "Issue #706 referenced by jessmartin",
+    "issue_number": 706,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:28:30+00:00",
+    "source": "github_pr",
+    "text": "PR #729 opened: Map navigation: zoom and pan (#706)",
+    "pr_number": 729,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/729"
+  },
+  {
+    "timestamp": "2026-02-27T11:28:33+00:00",
+    "source": "github_event",
+    "text": "Issue #706 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 706,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T11:30:20+00:00",
+    "source": "github_event",
+    "text": "Issue #706 project_v2_item_status_changed by jessmartin",
+    "issue_number": 706,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:33:13+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #729 by chatgpt-codex-connector[bot]: **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Disable global arrow-key capture when overlays are open**",
+    "pr_number": 729,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Disable global arrow-key capture when overlays are open**\n\n`CameraRig` installs a `keydown` handler on `window` and later calls `event.preventDefault()` for every arrow key press, so arrow keys are consumed even when focus is on non-editable overlay UI instead of the map. On sanctuary/workshop routes this causes the background map to pan while the foreground `BuildingOverlay` panel (which is scrollable) can no longer use arrow-key scrolling/navigation; camera controls should be scoped to map focus or disabled when overlay state is active.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/729#discussion_r2863896429"
+  },
+  {
+    "timestamp": "2026-02-27T11:33:13+00:00",
+    "source": "github_review",
+    "text": "Review on PR #729 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 729,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `2561b27c5a`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/729#pullrequestreview-3866462320"
+  },
+  {
+    "timestamp": "2026-02-27T11:36:36+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #706 closed: Map navigation: zoom and pan",
+    "issue_number": 706,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/706"
+  },
+  {
+    "timestamp": "2026-02-27T11:36:36+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #729 merged: Map navigation: zoom and pan (#706)",
+    "pr_number": 729,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/729"
+  },
+  {
+    "timestamp": "2026-02-27T11:36:37+00:00",
+    "source": "github_event",
+    "text": "Issue #706 closed by jessmartin",
+    "issue_number": 706,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:36:37+00:00",
+    "source": "github_event",
+    "text": "Issue #706 referenced by jessmartin",
+    "issue_number": 706,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:36:38+00:00",
+    "source": "github_event",
+    "text": "Issue #706 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 706,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T11:36:38+00:00",
+    "source": "github_event",
+    "text": "Issue #706 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 706,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T11:37:26+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by jessmartin",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:39:22+00:00",
+    "source": "github_event",
+    "text": "Issue #705 project_v2_item_status_changed by jessmartin",
+    "issue_number": 705,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:39:33+00:00",
+    "source": "github_event",
+    "text": "Issue #707 project_v2_item_status_changed by jessmartin",
+    "issue_number": 707,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:46:26+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #730: feat: add attendant rail with Jarvis/Marvin avatars",
+    "pr_number": 730,
+    "sha": "9ea209277e2241e23bbc27b9eb749a4925a0ad1f",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/9ea209277e2241e23bbc27b9eb749a4925a0ad1f"
+  },
+  {
+    "timestamp": "2026-02-27T11:47:04+00:00",
+    "source": "github_event",
+    "text": "Issue #707 referenced by jessmartin",
+    "issue_number": 707,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T11:47:09+00:00",
+    "source": "github_pr",
+    "text": "PR #730 opened: Attendant Rail with attendant avatars (#707)",
+    "pr_number": 730,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/730"
+  },
+  {
+    "timestamp": "2026-02-27T11:47:11+00:00",
+    "source": "github_event",
+    "text": "Issue #707 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 707,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T11:57:00+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #730: fix: stabilize attendant rail e2e behavior",
+    "pr_number": 730,
+    "sha": "c10c9ea4726f5d47c37f95e825e92c96b5df82c6",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/c10c9ea4726f5d47c37f95e825e92c96b5df82c6"
+  },
+  {
+    "timestamp": "2026-02-27T12:02:53+00:00",
+    "source": "github_event",
+    "text": "Issue #707 project_v2_item_status_changed by jessmartin",
+    "issue_number": 707,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:04:45+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #730 merged: Attendant Rail with attendant avatars (#707)",
+    "pr_number": 730,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/730"
+  },
+  {
+    "timestamp": "2026-02-27T12:04:46+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #707 closed: Attendant Rail with attendant avatars",
+    "issue_number": 707,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/707"
+  },
+  {
+    "timestamp": "2026-02-27T12:04:46+00:00",
+    "source": "github_event",
+    "text": "Issue #707 closed by jessmartin",
+    "issue_number": 707,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:04:47+00:00",
+    "source": "github_event",
+    "text": "Issue #707 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 707,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:04:47+00:00",
+    "source": "github_event",
+    "text": "Issue #707 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 707,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:05:32+00:00",
+    "source": "github_event",
+    "text": "Issue #708 project_v2_item_status_changed by jessmartin",
+    "issue_number": 708,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:20:17+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #731: feat: project interface as building overlay",
+    "pr_number": 731,
+    "sha": "f3b1dc52c59c8620a198a5b5507c09a01abafe18",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/f3b1dc52c59c8620a198a5b5507c09a01abafe18"
+  },
+  {
+    "timestamp": "2026-02-27T12:21:05+00:00",
+    "source": "github_event",
+    "text": "Issue #708 referenced by jessmartin",
+    "issue_number": 708,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:21:10+00:00",
+    "source": "github_pr",
+    "text": "PR #731 opened: Project interface as building overlay (#708)",
+    "pr_number": 731,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/731"
+  },
+  {
+    "timestamp": "2026-02-27T12:21:13+00:00",
+    "source": "github_event",
+    "text": "Issue #708 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 708,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:27:05+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #731: test: stabilize overlay routing e2e close assertions",
+    "pr_number": 731,
+    "sha": "5afd22e3b028823a1edeef865c06bd5c3bf0ea9a",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/5afd22e3b028823a1edeef865c06bd5c3bf0ea9a"
+  },
+  {
+    "timestamp": "2026-02-27T12:32:55+00:00",
+    "source": "github_event",
+    "text": "Issue #708 project_v2_item_status_changed by jessmartin",
+    "issue_number": 708,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:34:08+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #731 merged: Project interface as building overlay (#708)",
+    "pr_number": 731,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/731"
+  },
+  {
+    "timestamp": "2026-02-27T12:34:10+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #708 closed: Project interface as building overlay",
+    "issue_number": 708,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/708"
+  },
+  {
+    "timestamp": "2026-02-27T12:34:10+00:00",
+    "source": "github_event",
+    "text": "Issue #708 closed by jessmartin",
+    "issue_number": 708,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:34:10+00:00",
+    "source": "github_event",
+    "text": "Issue #708 referenced by jessmartin",
+    "issue_number": 708,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:34:11+00:00",
+    "source": "github_event",
+    "text": "Issue #708 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 708,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:34:11+00:00",
+    "source": "github_event",
+    "text": "Issue #708 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 708,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:34:50+00:00",
+    "source": "github_event",
+    "text": "Issue #709 project_v2_item_status_changed by jessmartin",
+    "issue_number": 709,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:40:51+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #732: feat: workshop overlay with coming soon placeholder",
+    "pr_number": 732,
+    "sha": "2436b6caf93cb94788ca1a2278c7b0bf86c8ab7c",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/2436b6caf93cb94788ca1a2278c7b0bf86c8ab7c"
+  },
+  {
+    "timestamp": "2026-02-27T12:41:05+00:00",
+    "source": "github_event",
+    "text": "Issue #709 referenced by jessmartin",
+    "issue_number": 709,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:41:08+00:00",
+    "source": "github_pr",
+    "text": "PR #732 opened: Workshop overlay with coming soon sign (#709)",
+    "pr_number": 732,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/732"
+  },
+  {
+    "timestamp": "2026-02-27T12:41:11+00:00",
+    "source": "github_event",
+    "text": "Issue #709 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 709,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:46:02+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #732 merged: Workshop overlay with coming soon sign (#709)",
+    "pr_number": 732,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/732"
+  },
+  {
+    "timestamp": "2026-02-27T12:46:03+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #709 closed: Workshop overlay with coming soon sign",
+    "issue_number": 709,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/709"
+  },
+  {
+    "timestamp": "2026-02-27T12:46:03+00:00",
+    "source": "github_event",
+    "text": "Issue #709 closed by jessmartin",
+    "issue_number": 709,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:46:03+00:00",
+    "source": "github_event",
+    "text": "Issue #709 referenced by jessmartin",
+    "issue_number": 709,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:46:04+00:00",
+    "source": "github_event",
+    "text": "Issue #709 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 709,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:46:04+00:00",
+    "source": "github_event",
+    "text": "Issue #709 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 709,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:46:32+00:00",
+    "source": "github_event",
+    "text": "Issue #710 project_v2_item_status_changed by jessmartin",
+    "issue_number": 710,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:51:20+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #733: feat: sanctuary overlay shell with charter placeholder",
+    "pr_number": 733,
+    "sha": "94543f8e0dc4d220dccd16dff0aabc05e9517544",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/94543f8e0dc4d220dccd16dff0aabc05e9517544"
+  },
+  {
+    "timestamp": "2026-02-27T12:51:57+00:00",
+    "source": "github_event",
+    "text": "Issue #710 referenced by jessmartin",
+    "issue_number": 710,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:52:01+00:00",
+    "source": "github_pr",
+    "text": "PR #733 opened: Sanctuary overlay shell (#710)",
+    "pr_number": 733,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/733"
+  },
+  {
+    "timestamp": "2026-02-27T12:52:03+00:00",
+    "source": "github_event",
+    "text": "Issue #710 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 710,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:57:11+00:00",
+    "source": "github_event",
+    "text": "Issue #711 project_v2_item_status_changed by jessmartin",
+    "issue_number": 711,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:57:45+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #733 merged: Sanctuary overlay shell (#710)",
+    "pr_number": 733,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/733"
+  },
+  {
+    "timestamp": "2026-02-27T12:57:46+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #710 closed: Sanctuary overlay shell",
+    "issue_number": 710,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/710"
+  },
+  {
+    "timestamp": "2026-02-27T12:57:46+00:00",
+    "source": "github_event",
+    "text": "Issue #710 closed by jessmartin",
+    "issue_number": 710,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T12:57:47+00:00",
+    "source": "github_event",
+    "text": "Issue #710 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 710,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:57:47+00:00",
+    "source": "github_event",
+    "text": "Issue #710 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 710,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T12:58:36+00:00",
+    "source": "github_event",
+    "text": "Issue #712 project_v2_item_status_changed by jessmartin",
+    "issue_number": 712,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:12:53+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #734: feat: add project placement flow",
+    "pr_number": 734,
+    "sha": "e1f59300dfcb733d19092b6016affd5c91916116",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/e1f59300dfcb733d19092b6016affd5c91916116"
+  },
+  {
+    "timestamp": "2026-02-27T13:14:11+00:00",
+    "source": "github_event",
+    "text": "Issue #712 referenced by jessmartin",
+    "issue_number": 712,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:14:16+00:00",
+    "source": "github_pr",
+    "text": "PR #734 opened: Project placement flow (#712)",
+    "pr_number": 734,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/734"
+  },
+  {
+    "timestamp": "2026-02-27T13:14:18+00:00",
+    "source": "github_event",
+    "text": "Issue #712 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 712,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:19:32+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #735: feat: add Task Queue panel for cross-project task view",
+    "pr_number": 735,
+    "sha": "05833283f9241b979c54f4a40f424b43afd1690a",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/05833283f9241b979c54f4a40f424b43afd1690a"
+  },
+  {
+    "timestamp": "2026-02-27T13:20:14+00:00",
+    "source": "github_event",
+    "text": "Issue #711 referenced by jessmartin",
+    "issue_number": 711,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:20:18+00:00",
+    "source": "github_pr",
+    "text": "PR #735 opened: Task Queue panel (#711)",
+    "pr_number": 735,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/735"
+  },
+  {
+    "timestamp": "2026-02-27T13:20:20+00:00",
+    "source": "github_event",
+    "text": "Issue #711 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 711,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:23:58+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #734: test: stabilize workshop placement e2e",
+    "pr_number": 734,
+    "sha": "aaa79f6278d7f0bbcf66e8f25b9e3ba1d9e84405",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/aaa79f6278d7f0bbcf66e8f25b9e3ba1d9e84405"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:25+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #734 merged: Project placement flow (#712)",
+    "pr_number": 734,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/734"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:26+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #712 closed: Project placement flow",
+    "issue_number": 712,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/712"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:26+00:00",
+    "source": "github_event",
+    "text": "Issue #712 referenced by jessmartin",
+    "issue_number": 712,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:26+00:00",
+    "source": "github_event",
+    "text": "Issue #712 closed by jessmartin",
+    "issue_number": 712,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:27+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #735 merged: Task Queue panel (#711)",
+    "pr_number": 735,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/735"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:27+00:00",
+    "source": "github_event",
+    "text": "Issue #712 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 712,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:27+00:00",
+    "source": "github_event",
+    "text": "Issue #712 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 712,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:28+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #711 closed: Task Queue panel",
+    "issue_number": 711,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/711"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:28+00:00",
+    "source": "github_event",
+    "text": "Issue #711 closed by jessmartin",
+    "issue_number": 711,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:29+00:00",
+    "source": "github_event",
+    "text": "Issue #711 referenced by jessmartin",
+    "issue_number": 711,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:29+00:00",
+    "source": "github_event",
+    "text": "Issue #711 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 711,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:28:29+00:00",
+    "source": "github_event",
+    "text": "Issue #711 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 711,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:29:36+00:00",
+    "source": "github_event",
+    "text": "Issue #713 project_v2_item_status_changed by jessmartin",
+    "issue_number": 713,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:29:36+00:00",
+    "source": "github_event",
+    "text": "Issue #717 project_v2_item_status_changed by jessmartin",
+    "issue_number": 717,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:30:50+00:00",
+    "source": "github_event",
+    "text": "Issue #719 project_v2_item_status_changed by jessmartin",
+    "issue_number": 719,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:30:51+00:00",
+    "source": "github_event",
+    "text": "Issue #720 project_v2_item_status_changed by jessmartin",
+    "issue_number": 720,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:30:51+00:00",
+    "source": "github_event",
+    "text": "Issue #721 project_v2_item_status_changed by jessmartin",
+    "issue_number": 721,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:44:02+00:00",
+    "source": "github_event",
+    "text": "Issue #721 referenced by jessmartin",
+    "issue_number": 721,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:44:13+00:00",
+    "source": "github_pr",
+    "text": "PR #736 opened: First project open: Marvin offers to help (#721)",
+    "pr_number": 736,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/736"
+  },
+  {
+    "timestamp": "2026-02-27T13:44:15+00:00",
+    "source": "github_event",
+    "text": "Issue #721 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 721,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:45:12+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #737: feat: add statue sprites for placed projects on hex map",
+    "pr_number": 737,
+    "sha": "1390818e1b6ca112846fae697277492534271c34",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/1390818e1b6ca112846fae697277492534271c34"
+  },
+  {
+    "timestamp": "2026-02-27T13:45:50+00:00",
+    "source": "github_event",
+    "text": "Issue #717 referenced by jessmartin",
+    "issue_number": 717,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:46:02+00:00",
+    "source": "github_pr",
+    "text": "PR #737 opened: Statue sprites on placed projects (#717)",
+    "pr_number": 737,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/737"
+  },
+  {
+    "timestamp": "2026-02-27T13:46:05+00:00",
+    "source": "github_event",
+    "text": "Issue #717 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 717,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:47:26+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #734 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Seed Workshop stories through LiveStore events**",
+    "pr_number": 734,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Seed Workshop stories through LiveStore events**\n\n`packages/web/AGENTS.md` requires Storybook state to be created from real LiveStore events, but this story now hard-codes `unplacedProjects` presenter data directly. That bypasses the event/query path the UI depends on in production, so Storybook can drift from real behavior (for example, if unplaced-project materialization regresses) while still appearing healthy; this should be wired through a LiveStore-backed story setup instead.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/734#discussion_r2864425139"
+  },
+  {
+    "timestamp": "2026-02-27T13:47:26+00:00",
+    "source": "github_review",
+    "text": "Review on PR #734 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 734,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `aaa79f6278`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/734#pullrequestreview-3867038133"
+  },
+  {
+    "timestamp": "2026-02-27T13:52:26+00:00",
+    "source": "github_event",
+    "text": "Issue #720 referenced by jessmartin",
+    "issue_number": 720,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:52:30+00:00",
+    "source": "github_pr",
+    "text": "PR #738 opened: Sanctuary first visit: Jarvis guides Visioning (#720)",
+    "pr_number": 738,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/738"
+  },
+  {
+    "timestamp": "2026-02-27T13:52:32+00:00",
+    "source": "github_event",
+    "text": "Issue #720 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 720,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:53:39+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #737 merged: Statue sprites on placed projects (#717)",
+    "pr_number": 737,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/737"
+  },
+  {
+    "timestamp": "2026-02-27T13:53:40+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #717 closed: Statue sprites on placed projects",
+    "issue_number": 717,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/717"
+  },
+  {
+    "timestamp": "2026-02-27T13:53:40+00:00",
+    "source": "github_event",
+    "text": "Issue #717 closed by jessmartin",
+    "issue_number": 717,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T13:53:41+00:00",
+    "source": "github_event",
+    "text": "Issue #717 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 717,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:53:41+00:00",
+    "source": "github_event",
+    "text": "Issue #717 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 717,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T13:57:56+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #736 by chatgpt-codex-connector[bot]: **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Recompute first-open banner state after intro is completed**",
+    "pr_number": 736,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Recompute first-open banner state after intro is completed**\n\nThis effect freezes `showFirstOpenMarvinBanner` after the first settings load by guarding with `hasInitializedFirstOpenRef`, so the banner can stay visible for later project navigations in the same `/projects/:projectId` route instance even after `v1.SettingUpdated` marks the intro complete. In practice, a first-time user can see the \u201cfirst-open\u201d banner on subsequent projects during the same session because the state is never recalculated once initialized.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/736#discussion_r2864467670"
+  },
+  {
+    "timestamp": "2026-02-27T13:57:56+00:00",
+    "source": "github_review",
+    "text": "Review on PR #736 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 736,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `e7f3e2aaa3`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/736#pullrequestreview-3867084038"
+  },
+  {
+    "timestamp": "2026-02-27T14:00:19+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #738 by chatgpt-codex-connector[bot]: **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Delay first-visit completion until bootstrap message is delivered**",
+    "pr_number": 738,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Delay first-visit completion until bootstrap message is delivered**\n\nThis marks the Sanctuary journey as completed immediately, before the queued bootstrap prompt is actually sent to Jarvis. In this patch, delivery only happens later in `AttendantChatPanel` when `sendDirectMessage(...)` returns true (it returns false until worker/conversation readiness), so if the user leaves or reloads before that point, the in-memory queued message is lost but the persisted first-visit flag remains set. That causes subsequent visits to skip the onboarding prompt entirely.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/738#discussion_r2864478315"
+  },
+  {
+    "timestamp": "2026-02-27T14:00:19+00:00",
+    "source": "github_review",
+    "text": "Review on PR #738 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 738,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `f035a7a765`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/738#pullrequestreview-3867096190"
+  },
+  {
+    "timestamp": "2026-02-27T14:04:33+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #736: feat: first project open with Marvin help offer",
+    "pr_number": 736,
+    "sha": "2deda2149268c52d63d24567939dc7f86628d3a9",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/2deda2149268c52d63d24567939dc7f86628d3a9"
+  },
+  {
+    "timestamp": "2026-02-27T14:04:33+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #736: test: reduce flaky attendant route assertion",
+    "pr_number": 736,
+    "sha": "97ccff506ae2317912dcd954403b7fe1c72a2e24",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/97ccff506ae2317912dcd954403b7fe1c72a2e24"
+  },
+  {
+    "timestamp": "2026-02-27T14:05:02+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #736: test: harden flaky route e2e assertions",
+    "pr_number": 736,
+    "sha": "cf381198b9625d83fffa6e2c9d3139b2c9d8082c",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/cf381198b9625d83fffa6e2c9d3139b2c9d8082c"
+  },
+  {
+    "timestamp": "2026-02-27T14:05:03+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #736: style: format updated e2e routing spec",
+    "pr_number": 736,
+    "sha": "979d26d68d812c629fdce2fff50f7dbe119c2f19",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/979d26d68d812c629fdce2fff50f7dbe119c2f19"
+  },
+  {
+    "timestamp": "2026-02-27T14:05:20+00:00",
+    "source": "github_event",
+    "text": "Issue #721 referenced by jessmartin",
+    "issue_number": 721,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:11:13+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #736 merged: First project open: Marvin offers to help (#721)",
+    "pr_number": 736,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/736"
+  },
+  {
+    "timestamp": "2026-02-27T14:11:14+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #721 closed: First project open: Marvin offers to help craft project details",
+    "issue_number": 721,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/721"
+  },
+  {
+    "timestamp": "2026-02-27T14:11:14+00:00",
+    "source": "github_event",
+    "text": "Issue #721 closed by jessmartin",
+    "issue_number": 721,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:11:14+00:00",
+    "source": "github_event",
+    "text": "Issue #721 referenced by jessmartin",
+    "issue_number": 721,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:11:15+00:00",
+    "source": "github_event",
+    "text": "Issue #721 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 721,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:11:15+00:00",
+    "source": "github_event",
+    "text": "Issue #721 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 721,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:15:00+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #738: feat: sanctuary first visit with Jarvis greeting",
+    "pr_number": 738,
+    "sha": "bd54f769e28cc16ca8f175d7f8ca7893d7d6f436",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/bd54f769e28cc16ca8f175d7f8ca7893d7d6f436"
+  },
+  {
+    "timestamp": "2026-02-27T14:15:00+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #738: fix: remove nested router from sanctuary story",
+    "pr_number": 738,
+    "sha": "ad85bf09228ec992366c4d06f6f3b9a6162f1717",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/ad85bf09228ec992366c4d06f6f3b9a6162f1717"
+  },
+  {
+    "timestamp": "2026-02-27T14:15:00+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #738: test: increase e2e timeouts for route-context specs",
+    "pr_number": 738,
+    "sha": "c5612ad0980e3590d12458a6f4f961da53f8931c",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/c5612ad0980e3590d12458a6f4f961da53f8931c"
+  },
+  {
+    "timestamp": "2026-02-27T14:15:14+00:00",
+    "source": "github_event",
+    "text": "Issue #720 referenced by jessmartin",
+    "issue_number": 720,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:19:54+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #738 merged: Sanctuary first visit: Jarvis guides Visioning (#720)",
+    "pr_number": 738,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/738"
+  },
+  {
+    "timestamp": "2026-02-27T14:19:55+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #720 closed: Sanctuary first visit: Jarvis guides Visioning and charter creation",
+    "issue_number": 720,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/720"
+  },
+  {
+    "timestamp": "2026-02-27T14:19:55+00:00",
+    "source": "github_event",
+    "text": "Issue #720 closed by jessmartin",
+    "issue_number": 720,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:19:55+00:00",
+    "source": "github_event",
+    "text": "Issue #720 referenced by jessmartin",
+    "issue_number": 720,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:19:56+00:00",
+    "source": "github_event",
+    "text": "Issue #720 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 720,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:19:56+00:00",
+    "source": "github_event",
+    "text": "Issue #720 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 720,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:22:42+00:00",
+    "source": "github_review",
+    "text": "Review on PR #738 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 738,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nhttps://github.com/sociotechnica-org/lifebuild/blob/c5612ad0980e3590d12458a6f4f961da53f8931c/packages/web/src/components/layout/AttendantRailProvider.tsx#L81-L83\n**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Clear queued attendant prompt when chat is closed**\n\n`closeAttendant` only clears `activeAttendantId`, so any queued message is retained if the user closes Jarvis before `sendDirectMessage` succeeds (e.g., while the room is still provisioning). That stale first-visit bootstrap prompt is then sent the next time Jarvis is opened, producing a delayed/duplicate hidden kickoff message even though the visit was already marked complete.\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/738#pullrequestreview-3867203456"
+  },
+  {
+    "timestamp": "2026-02-27T14:23:15+00:00",
+    "source": "github_event",
+    "text": "Issue #719 referenced by jessmartin",
+    "issue_number": 719,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:23:32+00:00",
+    "source": "github_pr",
+    "text": "PR #739 opened: Workshop first visit: Marvin greets and guides Unburdening (#719)",
+    "pr_number": 739,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/739"
+  },
+  {
+    "timestamp": "2026-02-27T14:23:34+00:00",
+    "source": "github_event",
+    "text": "Issue #719 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 719,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:28:01+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #739: feat: workshop first visit with Marvin greeting",
+    "pr_number": 739,
+    "sha": "6efea4a9e8175f2d94e811bde5095695ed4c4807",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/6efea4a9e8175f2d94e811bde5095695ed4c4807"
+  },
+  {
+    "timestamp": "2026-02-27T14:28:14+00:00",
+    "source": "github_event",
+    "text": "Issue #719 referenced by jessmartin",
+    "issue_number": 719,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:29:17+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #739 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Recheck completion setting on later query updates**",
+    "pr_number": 739,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Recheck completion setting on later query updates**\n\nThe first-visit decision is permanently locked on the first non-`undefined` query result because `resolvedFirstVisitRef` is set before later updates can be observed. If the setting query initially resolves to an empty array (e.g., before remote sync catches up in a fresh session/device) and then later receives the persisted completion row, this hook still treats the user as first-visit, sends the bootstrap prompt, and rewrites the completion timestamp incorrectly. The guard should allow reevaluation until a definitive completion value is observed.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/739#discussion_r2864605050"
+  },
+  {
+    "timestamp": "2026-02-27T14:29:17+00:00",
+    "source": "github_review",
+    "text": "Review on PR #739 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 739,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `7e2d54904d`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/739#pullrequestreview-3867235758"
+  },
+  {
+    "timestamp": "2026-02-27T14:32:56+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #739 merged: Workshop first visit: Marvin greets and guides Unburdening (#719)",
+    "pr_number": 739,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/739"
+  },
+  {
+    "timestamp": "2026-02-27T14:32:57+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #719 closed: Workshop first visit: Marvin greets and guides Unburdening",
+    "issue_number": 719,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/719"
+  },
+  {
+    "timestamp": "2026-02-27T14:32:58+00:00",
+    "source": "github_event",
+    "text": "Issue #719 closed by jessmartin",
+    "issue_number": 719,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:32:58+00:00",
+    "source": "github_event",
+    "text": "Issue #719 referenced by jessmartin",
+    "issue_number": 719,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:32:59+00:00",
+    "source": "github_event",
+    "text": "Issue #719 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 719,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:32:59+00:00",
+    "source": "github_event",
+    "text": "Issue #719 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 719,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:33:16+00:00",
+    "source": "github_event",
+    "text": "Issue #713 referenced by jessmartin",
+    "issue_number": 713,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:33:24+00:00",
+    "source": "github_pr",
+    "text": "PR #740 opened: Onboarding sequence (#713)",
+    "pr_number": 740,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/740"
+  },
+  {
+    "timestamp": "2026-02-27T14:33:27+00:00",
+    "source": "github_event",
+    "text": "Issue #713 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 713,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:34:26+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #740: feat: add onboarding sequence with campfire, reveal, and first project beats",
+    "pr_number": 740,
+    "sha": "592615bf531112de4900bc334f33b11202a520f0",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/592615bf531112de4900bc334f33b11202a520f0"
+  },
+  {
+    "timestamp": "2026-02-27T14:34:39+00:00",
+    "source": "github_event",
+    "text": "Issue #713 referenced by jessmartin",
+    "issue_number": 713,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:39:24+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #740 merged: Onboarding sequence (#713)",
+    "pr_number": 740,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/740"
+  },
+  {
+    "timestamp": "2026-02-27T14:39:25+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #713 closed: Onboarding sequence",
+    "issue_number": 713,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/713"
+  },
+  {
+    "timestamp": "2026-02-27T14:39:25+00:00",
+    "source": "github_event",
+    "text": "Issue #713 referenced by jessmartin",
+    "issue_number": 713,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:39:25+00:00",
+    "source": "github_event",
+    "text": "Issue #713 closed by jessmartin",
+    "issue_number": 713,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:39:26+00:00",
+    "source": "github_event",
+    "text": "Issue #713 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 713,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:39:26+00:00",
+    "source": "github_event",
+    "text": "Issue #713 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 713,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T14:40:42+00:00",
+    "source": "github_event",
+    "text": "Issue #718 project_v2_item_status_changed by jessmartin",
+    "issue_number": 718,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:43:36+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #740 by chatgpt-codex-connector[bot]: **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Gate onboarding UI policy on readiness**",
+    "pr_number": 740,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Gate onboarding UI policy on readiness**\n\nWhen the onboarding setting is missing, this fallback immediately treats state as `completed` even while bootstrapping, so downstream UI (for example `NewUiShell` visibility gates) can briefly render the full rail/task queue before the campfire state is persisted and observed. On slower startup this creates a visible flash and momentary access to controls that onboarding is supposed to hide for first-time users.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/740#discussion_r2864672436"
+  },
+  {
+    "timestamp": "2026-02-27T14:43:36+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #740 by chatgpt-codex-connector[bot]: **<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Include archived projects in bootstrap activity detection**",
+    "pr_number": 740,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P2 Badge](https://img.shields.io/badge/P2-yellow?style=flat)</sub></sub>  Include archived projects in bootstrap activity detection**\n\nThis activity check uses `projects.length`, but `projects` comes from `getProjects$`, which filters out archived records (`archivedAt: null` in `packages/shared/src/livestore/queries.ts`). In existing stores whose only history is archived projects (and no current project placements), bootstrap will incorrectly write a campfire state and force returning users through onboarding again.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/740#discussion_r2864672441"
+  },
+  {
+    "timestamp": "2026-02-27T14:43:36+00:00",
+    "source": "github_review",
+    "text": "Review on PR #740 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 740,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `592615bf53`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/740#pullrequestreview-3867309171"
+  },
+  {
+    "timestamp": "2026-02-27T14:54:51+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #741: feat: campfire conversation with Jarvis for first project creation",
+    "pr_number": 741,
+    "sha": "656ce90459f8448d7a6eb53c0a27645bc51c2418",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/656ce90459f8448d7a6eb53c0a27645bc51c2418"
+  },
+  {
+    "timestamp": "2026-02-27T14:55:51+00:00",
+    "source": "github_event",
+    "text": "Issue #718 referenced by jessmartin",
+    "issue_number": 718,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T14:56:03+00:00",
+    "source": "github_pr",
+    "text": "PR #741 opened: Campfire conversation: Jarvis guides first project (#718)",
+    "pr_number": 741,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/741"
+  },
+  {
+    "timestamp": "2026-02-27T14:56:05+00:00",
+    "source": "github_event",
+    "text": "Issue #718 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 718,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T15:02:55+00:00",
+    "source": "github_commit",
+    "text": "Commit on PR #741: fix: wait for onboarding completion before reload in e2e test",
+    "pr_number": 741,
+    "sha": "fe19b5e645648b661ebf0b30419ac7f680416382",
+    "url": "https://github.com/sociotechnica-org/lifebuild/commit/fe19b5e645648b661ebf0b30419ac7f680416382"
+  },
+  {
+    "timestamp": "2026-02-27T15:08:45+00:00",
+    "source": "github_pr_merged",
+    "text": "PR #741 merged: Campfire conversation: Jarvis guides first project (#718)",
+    "pr_number": 741,
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/741"
+  },
+  {
+    "timestamp": "2026-02-27T15:08:46+00:00",
+    "source": "github_issue_closed",
+    "text": "Issue #718 closed: Campfire conversation: Jarvis guides first project creation",
+    "issue_number": 718,
+    "url": "https://github.com/sociotechnica-org/lifebuild/issues/718"
+  },
+  {
+    "timestamp": "2026-02-27T15:08:47+00:00",
+    "source": "github_event",
+    "text": "Issue #718 closed by jessmartin",
+    "issue_number": 718,
+    "event_type": "closed",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T15:08:47+00:00",
+    "source": "github_event",
+    "text": "Issue #718 referenced by jessmartin",
+    "issue_number": 718,
+    "event_type": "referenced",
+    "label": null,
+    "actor": "jessmartin"
+  },
+  {
+    "timestamp": "2026-02-27T15:08:48+00:00",
+    "source": "github_event",
+    "text": "Issue #718 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 718,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T15:08:48+00:00",
+    "source": "github_event",
+    "text": "Issue #718 project_v2_item_status_changed by github-project-automation[bot]",
+    "issue_number": 718,
+    "event_type": "project_v2_item_status_changed",
+    "label": null,
+    "actor": "github-project-automation[bot]"
+  },
+  {
+    "timestamp": "2026-02-27T15:10:21+00:00",
+    "source": "github_comment",
+    "text": "Comment on PR #741 by chatgpt-codex-connector[bot]: **<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Remove client-time gate from first-project detection**",
+    "pr_number": 741,
+    "user": "chatgpt-codex-connector[bot]",
+    "body": "**<sub><sub>![P1 Badge](https://img.shields.io/badge/P1-orange?style=flat)</sub></sub>  Remove client-time gate from first-project detection**\n\nThe onboarding promotion logic currently discards any project whose `createdAt` is earlier than `persistedState.startedAt`, but `startedAt` is written on the client while AI tool calls create projects on the server (`createProjectCore` uses server `new Date()`). If a user device clock is ahead (or server clock is behind), a valid first project from Campfire is filtered out, so onboarding never transitions out of `campfire` even after project/task creation succeeds.\n\nUseful? React with \ud83d\udc4d\u00a0/ \ud83d\udc4e.",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/741#discussion_r2864802503"
+  },
+  {
+    "timestamp": "2026-02-27T15:10:21+00:00",
+    "source": "github_review",
+    "text": "Review on PR #741 by chatgpt-codex-connector[bot]: COMMENTED",
+    "pr_number": 741,
+    "user": "chatgpt-codex-connector[bot]",
+    "state": "COMMENTED",
+    "body": "\n### \ud83d\udca1 Codex Review\n\nHere are some automated review suggestions for this pull request.\n\n**Reviewed commit:** `656ce90459`\n    \n\n<details> <summary>\u2139\ufe0f About Codex in GitHub</summary>\n<br/>\n\n[Your team has set up Codex to review pull requests in this repo](http://chatgpt.com/codex/settings/general). Reviews are triggered when you\n- Open a pull request for review\n- Mark a draft as ready\n- Comment \"@codex review\".\n\nIf Codex has suggestions, it will comment; otherwise it will react with \ud83d\udc4d.\n\n\n\n\nCodex can also answer questions or update the PR. Try commenting \"@codex address that feedback\".\n            \n</details>",
+    "url": "https://github.com/sociotechnica-org/lifebuild/pull/741#pullrequestreview-3867452325"
+  }
+]

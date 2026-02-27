@@ -1,0 +1,744 @@
+[
+  {
+    "timestamp": "2026-02-27T00:13:53.710000-05:00",
+    "source": "codex_start",
+    "text": "You are writing a technical implementation plan for a LifeBuild user story. Your plan will be handed to another agent for implementation, so it must be concrete and unambiguous.",
+    "session_size": 4183950,
+    "session_file": "rollout-2026-02-27T00-13-53-019c9d84-84f4-75d0-8453-f025d1a00ad2.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:01:32.557000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#699)",
+    "session_size": 4183950,
+    "session_file": "rollout-2026-02-27T00-13-53-019c9d84-84f4-75d0-8453-f025d1a00ad2.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:06:03.555000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #703: \"Remove Kanban, replace with task list\"",
+    "session_size": 675750,
+    "session_file": "rollout-2026-02-27T01-06-03-019c9db4-46fa-7a31-818a-6eca7babf847.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:06:04.354000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #707: \"Attendant Rail with attendant avatars\"",
+    "session_size": 702255,
+    "session_file": "rollout-2026-02-27T01-06-04-019c9db4-4a16-7790-b1c0-82a3f1f89ba9.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:06:05.200000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #711: \"Task Queue panel\"",
+    "session_size": 837800,
+    "session_file": "rollout-2026-02-27T01-06-05-019c9db4-4d68-7cf3-a368-228a0cb31f19.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:06:06.072000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #718: \"Campfire conversation: Jarvis guides first project creation\"",
+    "session_size": 1035333,
+    "session_file": "rollout-2026-02-27T01-06-06-019c9db4-50c5-7c12-a676-11022f5c9596.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:10:32.100000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#711)",
+    "session_size": 837800,
+    "session_file": "rollout-2026-02-27T01-06-05-019c9db4-4d68-7cf3-a368-228a0cb31f19.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:10:32.176000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #712: \"Project placement flow\"",
+    "session_size": 649211,
+    "session_file": "rollout-2026-02-27T01-10-32-019c9db8-604a-7a00-94f7-c10caf98c3ed.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:10:34.550000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#703)",
+    "session_size": 675750,
+    "session_file": "rollout-2026-02-27T01-06-03-019c9db4-46fa-7a31-818a-6eca7babf847.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:10:34.633000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #704: \"Map as full-bleed base layer\"",
+    "session_size": 803627,
+    "session_file": "rollout-2026-02-27T01-10-34-019c9db8-69dd-7b93-a451-d90760acf4bd.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:11:33.585000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#707)",
+    "session_size": 702255,
+    "session_file": "rollout-2026-02-27T01-06-04-019c9db4-4a16-7790-b1c0-82a3f1f89ba9.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:11:33.659000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #708: \"Project interface as building overlay\"",
+    "session_size": 845236,
+    "session_file": "rollout-2026-02-27T01-11-33-019c9db9-5074-7c53-b6c0-f7b82e89b244.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:12:52.429000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#718)",
+    "session_size": 1035333,
+    "session_file": "rollout-2026-02-27T01-06-06-019c9db4-50c5-7c12-a676-11022f5c9596.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:12:52.531000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #719: \"Workshop first visit: Marvin greets and guides Unburdening\"",
+    "session_size": 1286089,
+    "session_file": "rollout-2026-02-27T01-12-52-019c9dba-848b-7ad1-a874-0ce1647d1cf9.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:13:24.720000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#712)",
+    "session_size": 649211,
+    "session_file": "rollout-2026-02-27T01-10-32-019c9db8-604a-7a00-94f7-c10caf98c3ed.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:13:24.809000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #713: \"Onboarding sequence\"",
+    "session_size": 769076,
+    "session_file": "rollout-2026-02-27T01-13-24-019c9dbb-02a5-7d51-b594-d0a1419f64df.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:15:24.555000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#704)",
+    "session_size": 803627,
+    "session_file": "rollout-2026-02-27T01-10-34-019c9db8-69dd-7b93-a451-d90760acf4bd.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:15:24.652000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #705: \"Building overlay pattern and routing\"",
+    "session_size": 690538,
+    "session_file": "rollout-2026-02-27T01-15-24-019c9dbc-d6c4-7f82-a79e-9fa4ab84d934.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:16:41.467000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#708)",
+    "session_size": 845236,
+    "session_file": "rollout-2026-02-27T01-11-33-019c9db9-5074-7c53-b6c0-f7b82e89b244.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:16:41.556000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #709: \"Workshop overlay with coming soon sign\"",
+    "session_size": 754943,
+    "session_file": "rollout-2026-02-27T01-16-41-019c9dbe-032d-72f3-986b-f4933113afb1.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:17:52.717000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#713)",
+    "session_size": 769076,
+    "session_file": "rollout-2026-02-27T01-13-24-019c9dbb-02a5-7d51-b594-d0a1419f64df.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:17:52.800000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #717: \"Statue sprites on placed projects\"",
+    "session_size": 648318,
+    "session_file": "rollout-2026-02-27T01-17-52-019c9dbf-1972-77f2-9ba6-077bbfd85e7c.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:19:49.858000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#705)",
+    "session_size": 690538,
+    "session_file": "rollout-2026-02-27T01-15-24-019c9dbc-d6c4-7f82-a79e-9fa4ab84d934.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:19:49.935000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #706: \"Map navigation: zoom and pan\"",
+    "session_size": 442132,
+    "session_file": "rollout-2026-02-27T01-19-49-019c9dc0-e308-7501-9036-db129108e61a.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:20:24.598000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#709)",
+    "session_size": 754943,
+    "session_file": "rollout-2026-02-27T01-16-41-019c9dbe-032d-72f3-986b-f4933113afb1.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:20:24.699000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #710: \"Sanctuary overlay shell\"",
+    "session_size": 650056,
+    "session_file": "rollout-2026-02-27T01-20-24-019c9dc1-6ad2-7c93-a977-e3f02cdd10ac.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:20:25.420000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#719)",
+    "session_size": 1286089,
+    "session_file": "rollout-2026-02-27T01-12-52-019c9dba-848b-7ad1-a874-0ce1647d1cf9.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:20:25.518000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #720: \"Sanctuary first visit: Jarvis guides Visioning and charter creation\"",
+    "session_size": 1051514,
+    "session_file": "rollout-2026-02-27T01-20-25-019c9dc1-6dff-7031-996d-d650c81400b1.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:21:50.006000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#717)",
+    "session_size": 648318,
+    "session_file": "rollout-2026-02-27T01-17-52-019c9dbf-1972-77f2-9ba6-077bbfd85e7c.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:22:11.844000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#706)",
+    "session_size": 442132,
+    "session_file": "rollout-2026-02-27T01-19-49-019c9dc0-e308-7501-9036-db129108e61a.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:23:22.020000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#710)",
+    "session_size": 650056,
+    "session_file": "rollout-2026-02-27T01-20-24-019c9dc1-6ad2-7c93-a977-e3f02cdd10ac.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:26:24.157000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#720)",
+    "session_size": 1051514,
+    "session_file": "rollout-2026-02-27T01-20-25-019c9dc1-6dff-7031-996d-d650c81400b1.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:26:24.248000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #721: \"First project open: Marvin offers to help craft project details\"",
+    "session_size": 1050912,
+    "session_file": "rollout-2026-02-27T01-26-24-019c9dc6-e752-7c53-913d-d1f587bafc7e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:31:44.495000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#721)",
+    "session_size": 1050912,
+    "session_file": "rollout-2026-02-27T01-26-24-019c9dc6-e752-7c53-913d-d1f587bafc7e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:32:03.755000-05:00",
+    "source": "codex_start",
+    "text": "Now write a technical implementation plan for issue #712: \"Project placement flow\"",
+    "session_size": 836978,
+    "session_file": "rollout-2026-02-27T01-32-03-019c9dcc-1577-7371-9dd3-8563f46528d9.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T01:36:45.772000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#712)",
+    "session_size": 836978,
+    "session_file": "rollout-2026-02-27T01-32-03-019c9dcc-1577-7371-9dd3-8563f46528d9.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T02:37:49.476000-05:00",
+    "source": "codex_start",
+    "text": "You are implementing a LifeBuild user story. Implement the changes, open a pull request, get it to green, get it reviewed, and resolve all feedback.",
+    "session_size": 1765967,
+    "session_file": "rollout-2026-02-27T02-37-49-019c9e08-4a4a-7110-b61b-d85430c9ae6c.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T02:52:38.778000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#699)",
+    "session_size": 1765967,
+    "session_file": "rollout-2026-02-27T02-37-49-019c9e08-4a4a-7110-b61b-d85430c9ae6c.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T02:53:53.821000-05:00",
+    "source": "codex_start",
+    "text": "You are fixing a type error in the #699 (Remove the Table) implementation.",
+    "session_size": 374968,
+    "session_file": "rollout-2026-02-27T02-53-53-019c9e17-0163-7211-9f59-63ad5c327ff0.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T02:55:47.011000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#699)",
+    "session_size": 374968,
+    "session_file": "rollout-2026-02-27T02-53-53-019c9e17-0163-7211-9f59-63ad5c327ff0.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:02:43.777000-05:00",
+    "source": "codex_start",
+    "text": "Fix 3 failing E2E tests in the #699 (Remove the Table) PR.",
+    "session_size": 784765,
+    "session_file": "rollout-2026-02-27T03-02-43-019c9e1f-1781-7962-a19b-56e6f8a09bbf.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:12:11.210000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#699)",
+    "session_size": 784765,
+    "session_file": "rollout-2026-02-27T03-02-43-019c9e1f-1781-7962-a19b-56e6f8a09bbf.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:21:17.442000-05:00",
+    "source": "codex_start",
+    "text": "You are implementing a LifeBuild user story. Implement the changes, open a pull request, get it to green, get it reviewed, and resolve all feedback.",
+    "session_size": 571503,
+    "session_file": "rollout-2026-02-27T03-21-17-019c9e30-15d5-7371-936c-19915b30f850.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:21:18.779000-05:00",
+    "source": "codex_start",
+    "text": "You are implementing a LifeBuild user story. Implement the changes, open a pull request, get it to green, get it reviewed, and resolve all feedback.",
+    "session_size": 487736,
+    "session_file": "rollout-2026-02-27T03-21-18-019c9e30-1b0b-73e3-8a11-1f2d8ad63b85.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:21:20.048000-05:00",
+    "source": "codex_start",
+    "text": "You are implementing a LifeBuild user story. Implement the changes, open a pull request, get it to green, get it reviewed, and resolve all feedback.",
+    "session_size": 882050,
+    "session_file": "rollout-2026-02-27T03-21-20-019c9e30-2001-7c50-8961-4d3a8dde80aa.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:21:21.466000-05:00",
+    "source": "codex_start",
+    "text": "You are implementing a LifeBuild user story. Implement the changes, open a pull request, get it to green, get it reviewed, and resolve all feedback.",
+    "session_size": 525097,
+    "session_file": "rollout-2026-02-27T03-21-21-019c9e30-2581-72c2-b3fe-16d13ab9d317.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:22:25.666000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#701)",
+    "session_size": 487736,
+    "session_file": "rollout-2026-02-27T03-21-18-019c9e30-1b0b-73e3-8a11-1f2d8ad63b85.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:22:53.455000-05:00",
+    "source": "codex_start",
+    "text": "Implement issue #700: Remove the Sorting Room.",
+    "session_size": 794931,
+    "session_file": "rollout-2026-02-27T03-22-53-019c9e31-8ce5-7d21-8ff3-c55d5b264ca2.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:22:54.752000-05:00",
+    "source": "codex_start",
+    "text": "Implement issue #701: Remove the Drafting Room.",
+    "session_size": 321008,
+    "session_file": "rollout-2026-02-27T03-22-54-019c9e31-91f5-73c3-96b3-de7bd96a8c12.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:22:56.014000-05:00",
+    "source": "codex_start",
+    "text": "Implement issue #702: Remove Mesa from the map.",
+    "session_size": 1166269,
+    "session_file": "rollout-2026-02-27T03-22-55-019c9e31-96e3-73b0-8cb0-3f3737054a04.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:22:57.266000-05:00",
+    "source": "codex_start",
+    "text": "Implement issue #703: Remove Kanban, replace with task list.",
+    "session_size": 991532,
+    "session_file": "rollout-2026-02-27T03-22-57-019c9e31-9bb4-7fc3-bdff-19143f4d145e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:23:13.200000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#700)",
+    "session_size": 571503,
+    "session_file": "rollout-2026-02-27T03-21-17-019c9e30-15d5-7371-936c-19915b30f850.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:23:26.483000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#703)",
+    "session_size": 525097,
+    "session_file": "rollout-2026-02-27T03-21-21-019c9e30-2581-72c2-b3fe-16d13ab9d317.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:23:42.023000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#701)",
+    "session_size": 321008,
+    "session_file": "rollout-2026-02-27T03-22-54-019c9e31-91f5-73c3-96b3-de7bd96a8c12.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:26:05.596000-05:00",
+    "source": "codex_start",
+    "text": "Implement issue #700: Remove the Sorting Room.",
+    "session_size": 755915,
+    "session_file": "rollout-2026-02-27T03-26-05-019c9e34-7b6a-7ae1-aede-7f1fa288702e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:28:08.701000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#700)",
+    "session_size": 794931,
+    "session_file": "rollout-2026-02-27T03-22-53-019c9e31-8ce5-7d21-8ff3-c55d5b264ca2.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:29:27.091000-05:00",
+    "source": "codex_start",
+    "text": "Implement issue #701: Remove the Drafting Room.",
+    "session_size": 1488441,
+    "session_file": "rollout-2026-02-27T03-29-27-019c9e37-8e7e-7ca3-9743-034418ca3c96.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:29:52.924000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#703)",
+    "session_size": 991532,
+    "session_file": "rollout-2026-02-27T03-22-57-019c9e31-9bb4-7fc3-bdff-19143f4d145e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:29:53.028000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#700)",
+    "session_size": 755915,
+    "session_file": "rollout-2026-02-27T03-26-05-019c9e34-7b6a-7ae1-aede-7f1fa288702e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:33:58.173000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#702)",
+    "session_size": 882050,
+    "session_file": "rollout-2026-02-27T03-21-20-019c9e30-2001-7c50-8961-4d3a8dde80aa.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:37:45.324000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#702)",
+    "session_size": 1166269,
+    "session_file": "rollout-2026-02-27T03-22-55-019c9e31-96e3-73b0-8cb0-3f3737054a04.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:38:19.379000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#701)",
+    "session_size": 1488441,
+    "session_file": "rollout-2026-02-27T03-29-27-019c9e37-8e7e-7ca3-9743-034418ca3c96.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:47:55.725000-05:00",
+    "source": "codex_start",
+    "text": "Task: Map as full-bleed base layer (#704)",
+    "session_size": 150024,
+    "session_file": "rollout-2026-02-27T03-47-55-019c9e48-790e-7320-aa7b-3c6f7bbb4695.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:48:04.835000-05:00",
+    "source": "codex_start",
+    "text": "Task: Map as full-bleed base layer (#704)",
+    "session_size": 895467,
+    "session_file": "rollout-2026-02-27T03-48-04-019c9e48-9ca3-7c00-830f-88e786e106e2.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:48:33.451000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#704)",
+    "session_size": 150024,
+    "session_file": "rollout-2026-02-27T03-47-55-019c9e48-790e-7320-aa7b-3c6f7bbb4695.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T03:54:13.166000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#704)",
+    "session_size": 895467,
+    "session_file": "rollout-2026-02-27T03-48-04-019c9e48-9ca3-7c00-830f-88e786e106e2.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T05:05:22.591000-05:00",
+    "source": "codex_start",
+    "text": "Task: Rebase #704 onto latest main and resolve conflicts",
+    "session_size": 630202,
+    "session_file": "rollout-2026-02-27T05-05-22-019c9e8f-60b5-7003-8b85-6cae3f8a1340.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T05:08:38.616000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#704)",
+    "session_size": 630202,
+    "session_file": "rollout-2026-02-27T05-05-22-019c9e8f-60b5-7003-8b85-6cae3f8a1340.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T05:14:27.658000-05:00",
+    "source": "codex_start",
+    "text": "Task: Fix e2e test failures in PR #727 (#704 Map full-bleed)",
+    "session_size": 1389586,
+    "session_file": "rollout-2026-02-27T05-14-27-019c9e97-b215-7640-8cc1-c35d280c58ad.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T05:29:57.296000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#727)",
+    "session_size": 1389586,
+    "session_file": "rollout-2026-02-27T05-14-27-019c9e97-b215-7640-8cc1-c35d280c58ad.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T05:37:42.300000-05:00",
+    "source": "codex_start",
+    "text": "Task: Implement #705 - Building overlay pattern and routing",
+    "session_size": 1434171,
+    "session_file": "rollout-2026-02-27T05-37-42-019c9eac-f9e1-7c31-aa95-0a828f02d86c.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T05:50:52.528000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#705)",
+    "session_size": 1434171,
+    "session_file": "rollout-2026-02-27T05-37-42-019c9eac-f9e1-7c31-aa95-0a828f02d86c.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T05:56:33.200000-05:00",
+    "source": "codex_start",
+    "text": "Task: Fix e2e test failures in PR #728 (#705 Building overlay)",
+    "session_size": 702338,
+    "session_file": "rollout-2026-02-27T05-56-33-019c9ebe-3b7c-7cf3-9773-139619aa7c9c.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T06:03:12.872000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#728)",
+    "session_size": 702338,
+    "session_file": "rollout-2026-02-27T05-56-33-019c9ebe-3b7c-7cf3-9773-139619aa7c9c.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T06:09:44.388000-05:00",
+    "source": "codex_start",
+    "text": "Task: Fix remaining 2 e2e smoke test failures in PR #728",
+    "session_size": 464952,
+    "session_file": "rollout-2026-02-27T06-09-44-019c9eca-4e16-7843-8f52-c16426623d2e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T06:14:43.656000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#728)",
+    "session_size": 464952,
+    "session_file": "rollout-2026-02-27T06-09-44-019c9eca-4e16-7843-8f52-c16426623d2e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T06:23:17.344000-05:00",
+    "source": "codex_start",
+    "text": "Task: Implement #706 - Map navigation: zoom and pan",
+    "session_size": 939353,
+    "session_file": "rollout-2026-02-27T06-23-17-019c9ed6-b5a6-7fe1-857f-31abbb7f3c60.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T06:30:13.609000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#706)",
+    "session_size": 939353,
+    "session_file": "rollout-2026-02-27T06-23-17-019c9ed6-b5a6-7fe1-857f-31abbb7f3c60.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T06:37:54.857000-05:00",
+    "source": "codex_start",
+    "text": "Implement #707: Attendant Rail with attendant avatars",
+    "session_size": 2378766,
+    "session_file": "rollout-2026-02-27T06-37-54-019c9ee4-1976-7cf1-a33d-d9bfa42544e6.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:02:42.415000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#707)",
+    "session_size": 2378766,
+    "session_file": "rollout-2026-02-27T06-37-54-019c9ee4-1976-7cf1-a33d-d9bfa42544e6.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:05:53.585000-05:00",
+    "source": "codex_start",
+    "text": "Implement #708: Project interface as building overlay",
+    "session_size": 1878941,
+    "session_file": "rollout-2026-02-27T07-05-53-019c9efd-b6fd-7653-ae9b-93a9c966cf71.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:32:42.292000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#708)",
+    "session_size": 1878941,
+    "session_file": "rollout-2026-02-27T07-05-53-019c9efd-b6fd-7653-ae9b-93a9c966cf71.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:35:09.600000-05:00",
+    "source": "codex_start",
+    "text": "Implement #709: Workshop overlay with coming soon sign",
+    "session_size": 868891,
+    "session_file": "rollout-2026-02-27T07-35-09-019c9f18-825c-7f81-ad10-f11d1cc8f4f5.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:45:45.622000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#709)",
+    "session_size": 868891,
+    "session_file": "rollout-2026-02-27T07-35-09-019c9f18-825c-7f81-ad10-f11d1cc8f4f5.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:46:48.950000-05:00",
+    "source": "codex_start",
+    "text": "Implement #710: Sanctuary overlay shell",
+    "session_size": 700751,
+    "session_file": "rollout-2026-02-27T07-46-48-019c9f23-2e40-74d3-a652-701695ef7350.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:57:07.231000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#710)",
+    "session_size": 700751,
+    "session_file": "rollout-2026-02-27T07-46-48-019c9f23-2e40-74d3-a652-701695ef7350.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:58:22.239000-05:00",
+    "source": "codex_start",
+    "text": "Implement #711: Task Queue panel",
+    "session_size": 1831921,
+    "session_file": "rollout-2026-02-27T07-58-22-019c9f2d-c26b-73c2-9e8a-0835d26fa811.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T07:58:57.176000-05:00",
+    "source": "codex_start",
+    "text": "Implement #712: Project placement flow",
+    "session_size": 1811423,
+    "session_file": "rollout-2026-02-27T07-58-57-019c9f2e-4ade-7a23-bc38-562f917b7e26.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:26:14.615000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#711)",
+    "session_size": 1831921,
+    "session_file": "rollout-2026-02-27T07-58-22-019c9f2d-c26b-73c2-9e8a-0835d26fa811.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:30:24.626000-05:00",
+    "source": "codex_start",
+    "text": "Implement #713: Onboarding sequence",
+    "session_size": 534741,
+    "session_file": "rollout-2026-02-27T08-30-24-019c9f4b-17b6-75d1-855a-8780cef3a34e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:30:28.521000-05:00",
+    "source": "codex_start",
+    "text": "Implement #717: Statue sprites on placed projects",
+    "session_size": 1440312,
+    "session_file": "rollout-2026-02-27T08-30-28-019c9f4b-26e9-7351-903a-f6bd6aa20c86.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:30:56.362000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#712)",
+    "session_size": 1811423,
+    "session_file": "rollout-2026-02-27T07-58-57-019c9f2e-4ade-7a23-bc38-562f917b7e26.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:31:27.917000-05:00",
+    "source": "codex_start",
+    "text": "Implement #719: Workshop first visit \u2014 Marvin greets and guides Unburdening",
+    "session_size": 940608,
+    "session_file": "rollout-2026-02-27T08-31-27-019c9f4c-0ef4-7722-8e5f-4330aa2420e0.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:31:32.054000-05:00",
+    "source": "codex_start",
+    "text": "Implement #720: Sanctuary first visit \u2014 Jarvis guides Visioning and charter creation",
+    "session_size": 2383600,
+    "session_file": "rollout-2026-02-27T08-31-31-019c9f4c-1f19-7fb0-bfd5-9f853f1b386f.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:31:37.407000-05:00",
+    "source": "codex_start",
+    "text": "Implement #721: First project open \u2014 Marvin offers to help craft project details",
+    "session_size": 1963144,
+    "session_file": "rollout-2026-02-27T08-31-37-019c9f4c-3400-77d3-aa0d-d2af856eae1d.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:31:55.761000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#713)",
+    "session_size": 534741,
+    "session_file": "rollout-2026-02-27T08-30-24-019c9f4b-17b6-75d1-855a-8780cef3a34e.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:36:20.818000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#719)",
+    "session_size": 940608,
+    "session_file": "rollout-2026-02-27T08-31-27-019c9f4c-0ef4-7722-8e5f-4330aa2420e0.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T08:53:18.541000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#717)",
+    "session_size": 1440312,
+    "session_file": "rollout-2026-02-27T08-30-28-019c9f4b-26e9-7351-903a-f6bd6aa20c86.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T09:10:49.305000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#721)",
+    "session_size": 1963144,
+    "session_file": "rollout-2026-02-27T08-31-37-019c9f4c-3400-77d3-aa0d-d2af856eae1d.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T09:10:49.385000-05:00",
+    "source": "codex_start",
+    "text": "Implement #713: Onboarding sequence",
+    "session_size": 2044213,
+    "session_file": "rollout-2026-02-27T09-10-49-019c9f70-1778-73d2-a464-113f7046e9b5.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T09:10:54.405000-05:00",
+    "source": "codex_start",
+    "text": "Implement #719: Workshop first visit \u2014 Marvin greets and guides Unburdening",
+    "session_size": 1443197,
+    "session_file": "rollout-2026-02-27T09-10-54-019c9f70-2b0c-7f13-abdb-83bd97a9aa49.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T09:12:26.459000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#720)",
+    "session_size": 2383600,
+    "session_file": "rollout-2026-02-27T08-31-31-019c9f4c-1f19-7fb0-bfd5-9f853f1b386f.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T09:24:53.627000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#719)",
+    "session_size": 1443197,
+    "session_file": "rollout-2026-02-27T09-10-54-019c9f70-2b0c-7f13-abdb-83bd97a9aa49.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T09:33:57.467000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#713)",
+    "session_size": 2044213,
+    "session_file": "rollout-2026-02-27T09-10-49-019c9f70-1778-73d2-a464-113f7046e9b5.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T09:40:44.590000-05:00",
+    "source": "codex_start",
+    "text": "Implement #718: Campfire conversation \u2014 Jarvis guides first project creation",
+    "session_size": 2253789,
+    "session_file": "rollout-2026-02-27T09-40-44-019c9f8b-7bec-7101-8138-af70cf84ce01.jsonl"
+  },
+  {
+    "timestamp": "2026-02-27T10:01:10.935000-05:00",
+    "source": "codex_end",
+    "text": "Codex session ended (#718)",
+    "session_size": 2253789,
+    "session_file": "rollout-2026-02-27T09-40-44-019c9f8b-7bec-7101-8138-af70cf84ce01.jsonl"
+  }
+]

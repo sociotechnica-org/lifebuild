@@ -1,0 +1,821 @@
+[
+  {
+    "timestamp": "2026-02-25T06:26:30-05:00",
+    "source": "twitter",
+    "text": "battle lines being drawn\nhttps://t.co/vg40QxWxrM",
+    "tweet_id": "2026619810012905487",
+    "metrics": {
+      "replies": 0,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-25T12:31:24-05:00",
+    "source": "twitter",
+    "text": "someone should build a multiplayer Terminal and call it Terminally Online",
+    "tweet_id": "2026711640176030028",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 3
+    }
+  },
+  {
+    "timestamp": "2026-02-25T14:14:42-05:00",
+    "source": "twitter",
+    "text": "as someone who really enjoys working and has had some really fun jobs... I have never had this much fun working in my life.\n\nAI-software super powers means I get to build the projects I've only dreamed of.\n\nSo grateful! https://t.co/Zoqu1Dc1ns",
+    "tweet_id": "2026737636845511019",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 8
+    },
+    "images": [
+      "images/tweet-2026737636845511019-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-25T15:46:47-05:00",
+    "source": "twitter",
+    "text": "@chadfowler Cursor positioning as a factory-construction set.\nhttps://t.co/MmBluexdFs https://t.co/Dn8P5EnTCm",
+    "tweet_id": "2026760809611747811",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 2
+    },
+    "images": [
+      "images/tweet-2026760809611747811-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-25T16:54:29-05:00",
+    "source": "twitter",
+    "text": "https://t.co/qnlKPgvN1Z",
+    "tweet_id": "2026777849059844398",
+    "metrics": {
+      "replies": 0,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2026777849059844398-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-26T10:38:43-05:00",
+    "source": "twitter",
+    "text": "@chadfowler Notion as software factory\nhttps://t.co/HHASaxaTQp",
+    "tweet_id": "2027045672986251611",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 1
+    }
+  },
+  {
+    "timestamp": "2026-02-26T12:13:35-05:00",
+    "source": "twitter",
+    "text": "Working on The Campfire release for https://t.co/xvTTLklJfb - really starting to come together! https://t.co/a37Qs9cNnm",
+    "tweet_id": "2027069544456434051",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027069544456434051-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-26T12:14:36-05:00",
+    "source": "twitter",
+    "text": "that's your Attendant, waiting for you by the campfire, to guide you to The Sanctuary where he helps you build your life",
+    "tweet_id": "2027069803274371170",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-26T12:15:14-05:00",
+    "source": "twitter",
+    "text": "this is concept art, but here's the real thing https://t.co/qnIW446N2K",
+    "tweet_id": "2027069959315017906",
+    "metrics": {
+      "replies": 0,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-26T13:47:01-05:00",
+    "source": "twitter",
+    "text": "if you want to see into the future, follow @Wattenberger. \n\nHer demos are always 2-3 steps ahead of where we are, but if you look back at her tweets of a few months ago, she was pointing to where we are today!",
+    "tweet_id": "2027093057896677429",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 14
+    }
+  },
+  {
+    "timestamp": "2026-02-26T15:16:19-05:00",
+    "source": "twitter",
+    "text": "18 months ago.\nThe gap closed.\nThe game changed.",
+    "tweet_id": "2027115531573006761",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-26T19:17:04-05:00",
+    "source": "twitter",
+    "text": "@chadfowler And here’s the Linear play…\nhttps://t.co/UenPgYrnHf",
+    "tweet_id": "2027176118604681343",
+    "metrics": {
+      "replies": 0,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-26T22:31:22-05:00",
+    "source": "twitter",
+    "text": "today's attempt at raising my ambition: give Claude an entire release (~20-30 user stories) and have it ralph loop all night with codex as implementor.\n\nCan I hand off ~8 hours of work and have quality work come out?",
+    "tweet_id": "2027225015498813833",
+    "metrics": {
+      "replies": 16,
+      "retweets": 1,
+      "likes": 64
+    }
+  },
+  {
+    "timestamp": "2026-02-26T23:04:40-05:00",
+    "source": "twitter",
+    "text": "perhaps I'm being to finicky, but I want a more robust process for implementing each user story: technical planning, implementation, code review, browser-based QA. there's a bit more workflow here, which is why I was building Chip\n\nBut I just wanna try it anyways",
+    "tweet_id": "2027233395932025244",
+    "metrics": {
+      "replies": 2,
+      "retweets": 0,
+      "likes": 1
+    }
+  },
+  {
+    "timestamp": "2026-02-26T23:07:09-05:00",
+    "source": "twitter",
+    "text": "I remember handing off my first user story wholesale ~18 months ago and how magical it felt\n\nI remember in July 2025 when I finally got parallel user stories going\n\nhanding off entire releases to an agent (really, an agent team) feels like the next logical step",
+    "tweet_id": "2027234019423756570",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 1
+    }
+  },
+  {
+    "timestamp": "2026-02-26T23:07:28-05:00",
+    "source": "twitter",
+    "text": "this was such a magical moment for me\nhttps://t.co/KOXPiAiJo3",
+    "tweet_id": "2027234101049139289",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 1
+    }
+  },
+  {
+    "timestamp": "2026-02-26T23:52:06-05:00",
+    "source": "twitter",
+    "text": "ok, set of user stories written (20 in all) - a bunch of supporting documentation from our context library created for the release\n\nnow to test out the Claude -&gt; Codex flow https://t.co/QpPD3DNHVP",
+    "tweet_id": "2027245334624125127",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 1
+    },
+    "images": [
+      "images/tweet-2027245334624125127-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T00:16:36-05:00",
+    "source": "twitter",
+    "text": "next step in our process after is \"context briefings\"- we query our context docs to product extensive docs about the story so the implementing agent knows the larger product story around the feature.\n\nwe've been using them for a few weeks, and they are BIG.\n\nToo big https://t.co/MrSG7wsXmc",
+    "tweet_id": "2027251500372631796",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027251500372631796-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T00:16:56-05:00",
+    "source": "twitter",
+    "text": "Looks like I'm in extra innings tonight. Take my money, Anthropic.",
+    "tweet_id": "2027251582836813888",
+    "metrics": {
+      "replies": 2,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T00:21:39-05:00",
+    "source": "twitter",
+    "text": "But seriously, we don't even know if Context Briefings are actually worth their weight in tokens\n\nIt's an experiment, and a bit difficult to A/B test\n\nhere's an example: https://t.co/VqywRY1RlX",
+    "tweet_id": "2027252770009399412",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T00:24:25-05:00",
+    "source": "twitter",
+    "text": "Well, cost is paid. Context briefings are made. I'm probably way overspending on this, but hey, let's go.\n\nNext up: technical plans.\n\nI've been working with LLMs to write plans for this project since last July... lots has changed since then! https://t.co/C9vpSwToEz",
+    "tweet_id": "2027253467199263032",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027253467199263032-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T00:25:19-05:00",
+    "source": "twitter",
+    "text": "I prefer Codex for planning \n\n(actually, I prefer to have Opus AND Codex write plans and then have another Codex merge, but that seems too heavy for this pass)\n\nTypically, I review all plans, but this time, with 20, I'm gonna yolo them",
+    "tweet_id": "2027253691229540647",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T00:29:14-05:00",
+    "source": "twitter",
+    "text": "but what's cool about using Claude as orchestrator is I can have Claude shell out to Codex to write plans in parallel for all of these tickets",
+    "tweet_id": "2027254680015786391",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T00:30:08-05:00",
+    "source": "twitter",
+    "text": "oh geez. didn't se this coming. xhigh is CHEWING through tokens just to write a single plan. I'm sure in part due to the over-the-top context briefing.\n\nwe're gonna 🤑spend🤑 tonight! https://t.co/EJe70EX4Dt",
+    "tweet_id": "2027254904943689848",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 1
+    },
+    "images": [
+      "images/tweet-2027254904943689848-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T00:47:38-05:00",
+    "source": "twitter",
+    "text": "dropped down to `high` reasoning and I'm resuming the same codex session over-and-over to write each of the 20 tech plans, under the assumption that the session is full of useful context already.\n\nit's moving faster now. https://t.co/B7aGEoKbJD",
+    "tweet_id": "2027259308895826411",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027259308895826411-0.png"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T00:49:06-05:00",
+    "source": "twitter",
+    "text": "this is still gonna take like an hour though! I could do it in parallel, but it would be way more expensive in terms of tokens.\n\nI'll work on writing/testing out the ralph harness itself, getting ready for when all 20 cards are \"ready for dev\"",
+    "tweet_id": "2027259679672287409",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T00:55:02-05:00",
+    "source": "twitter",
+    "text": "I think at current rate I'm looking at 2 more hours, just to write tech plans. Did *not* see that as the bottleneck.\n\nI wonder if I can fork the same Codex session (primed with codebase context) and go parallel without incurring the \"research\" cost? https://t.co/JUhyK1A1Gg",
+    "tweet_id": "2027261172194398258",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027261172194398258-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T01:07:15-05:00",
+    "source": "twitter",
+    "text": "cannot fork continue a Codex session (according to Claude)\n\ntopped up Codex and now I'm batching parallelism into 4 batches for the remaining 16 tickets. That will cut time to create plans by 75% while keeping \"primed session\" for 4 tickets worth of planning, hopefully saving on tokens.",
+    "tweet_id": "2027264247051211146",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027264247051211146-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T01:14:57-05:00",
+    "source": "twitter",
+    "text": "well, see y'all in ~45 minutes or so once all of these tech plans complete...\n\nI'm determined to start the ralph/implement loop tonight, even if it's 3am when I hit \"go\"",
+    "tweet_id": "2027266182659686408",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 1
+    }
+  },
+  {
+    "timestamp": "2026-02-27T01:32:30-05:00",
+    "source": "twitter",
+    "text": "I now understand why the factory folks rock out multiple Claude Max accounts 😳💰🔥\n\nI've never seen my tokens 💸 like this before",
+    "tweet_id": "2027270598485856698",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T01:35:22-05:00",
+    "source": "twitter",
+    "text": "used 70% of my 5 hour limit just writing *tech plans*\n\ngood grief https://t.co/S7eSkYmJmF",
+    "tweet_id": "2027271320124174726",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027271320124174726-0.png"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T02:00:24-05:00",
+    "source": "twitter",
+    "text": "ok, switched to API key. LEARNING TIME. \n\nPut a $50 cap on Opus and $50 cap on Codex to limit the blast radius.\n\nI had planned to run a bash prompt ralph loop, but this experience of Opus orchestrating codex for plan-writing, I think it might work without an \"outer loop\"",
+    "tweet_id": "2027277620295991681",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T02:03:04-05:00",
+    "source": "twitter",
+    "text": "I really like Codex and BugBot for code review, but I've been having all kinds of trouble with their GitHub integrations reliably kicking off.\n\nMy @cursor_ai dashboard just spins forever. I can't even get to my settings! And I'm paying them $$$ for BugBot.",
+    "tweet_id": "2027278293976703348",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T02:04:54-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai An important part high quality agent-gen code is getting automated code review and fixing it all.\n\nFor tonight I'm going to have Claude manually request code review from Codex on each PR, which is annoying. This stuff should just work. https://t.co/17kchyw4y4",
+    "tweet_id": "2027278752594440239",
+    "metrics": {
+      "replies": 2,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027278752594440239-0.png"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T02:07:15-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai lol 8000 lines of plans\n\n1 release\n20 user stories\n20 context briefings (like extended product context)\n20 technical plans\n1 ralph loop plan doc\n\nthems a lot of tokens https://t.co/ZhG5FMff8x",
+    "tweet_id": "2027279345945846084",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 2
+    },
+    "images": [
+      "images/tweet-2027279345945846084-0.png"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T02:20:24-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai ok, I think i've settled on Opus as the Orchestrator, eschewing the bash setup.\n\nHere are the marching orders\n\nCAN OPUS KEEP WORKING??? https://t.co/6IOKvG0Kna",
+    "tweet_id": "2027282654509375876",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027282654509375876-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T02:30:12-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai I just put the Opus orchestrator in charge of QA using playwright MCP and Chrome.\n\nThis should be interesting... I realize this might cause it to stop in the middle of the night. Plus, ain't gonna be cheap on them tokens!v https://t.co/XHwj4k1vqE",
+    "tweet_id": "2027285121292763306",
+    "metrics": {
+      "replies": 2,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027285121292763306-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T02:35:42-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai ok, it's been ~5 hours getting prepped for this... moment.\n\nAbout ready to push the button... https://t.co/zb1ZVE7Ut7",
+    "tweet_id": "2027286505316573220",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027286505316573220-0.png"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T02:36:29-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai https://t.co/G9nqlc8Jv3",
+    "tweet_id": "2027286700511170976",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T02:42:45-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai ...and we're away! 🛤️\n\ncan't believe this is actually happening. now i'll have to resist the urge to just sit here and watch all night.\n\nThe whole point is for it to work while *I* sleep 😴 https://t.co/8DIrlgt48H",
+    "tweet_id": "2027288278085345690",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 2
+    },
+    "images": [
+      "images/tweet-2027288278085345690-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T02:46:09-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai But if *you* want to watch all night... you can! \n\nHere's a GitHub view for ya: https://t.co/haSTsFjOec",
+    "tweet_id": "2027289135736648004",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T03:06:54-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai It's friggin working!\n\nAnd I now understand this line from Yegge's Welcome to Gastown:\n&gt; You won’t like Gas Town if you ever have to think, even for a moment, about where money comes from https://t.co/AASJjjIMHx",
+    "tweet_id": "2027294355057176721",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027294355057176721-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T03:20:39-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai First PR merged!\n\nI'm going to bed https://t.co/KghvVBokPy",
+    "tweet_id": "2027297818235539956",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027297818235539956-0.png"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T03:26:08-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai ok... maybe a few more minutes.\n\n4x parallelism ... I'm scared. https://t.co/reCBHjSdQX",
+    "tweet_id": "2027299194600382819",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027299194600382819-0.png"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T03:27:40-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai wow, and I should be! 4 codexes hits rate limits immediately.\n\nlet's try 2x parallelism? https://t.co/B9bgnYpmBg",
+    "tweet_id": "2027299581612986634",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027299581612986634-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T03:32:24-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai there's some weird problem with \"turn limits\" and Codex when Opus dispatches.\n\nI admire Opus for trying a bunch of ways to work around it. But eventually it's like \"Codex isn't getting this done. You told me not to stop. I'll do it myself!\" https://t.co/xJp4Q87tlS",
+    "tweet_id": "2027300775349657949",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027300775349657949-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T03:52:45-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai Opus is jumping between worktrees like a madman, going all hero mode since the codex dispatch is failing...",
+    "tweet_id": "2027305896653529136",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T03:58:55-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai Ok, codex dispatching is working again. So I forced Opus back into orchestrator mode, but now it wants to finish up it's stack of tickets that it started on (4 at once! same context window!)\n\nsheesh. https://t.co/v1xyW3bagy",
+    "tweet_id": "2027307445278654841",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027307445278654841-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T03:59:33-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai I think Opus is on its 5th or 6th compaction?",
+    "tweet_id": "2027307606880948728",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T04:02:26-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai having to remind Opus to do things like clear code review comments, do manual QA. Opus is a capable problem solver, but not great at doing things consistently\n\nSo obvious that a software factory needs both! Deterministic flow and a capable LLM on hand to fix stuff",
+    "tweet_id": "2027308333623808248",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T04:06:55-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai and now... merge hell. 5 PRs hitting at once, all in similar parts of the codebase because this is all a single release.\n\nYa know, i'm not sure the parallelism is buying much here. pain, at no gain?\n\nspeed, sure, but I should be asleep now",
+    "tweet_id": "2027309460796903479",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T04:32:00-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai and so I shall go to sleep... removing parallelism slowed the factory down a lot. I think I can let it run untended fr the next few hours.\n\nWe'll find out in the morning! https://t.co/WFV4pcC1LN",
+    "tweet_id": "2027315773039874186",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 2
+    },
+    "images": [
+      "images/tweet-2027315773039874186-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T08:00:19-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai Woke up this morning, rolled over in bed, checked computer, and… we did it!\n\nOpus you beautiful beast! \n\n11/20 complete tickets. 5+ hour continuous runtime, no steering!!\n\nOh man… it was awful, but it’s a new world today… https://t.co/0qCMqYtiPP",
+    "tweet_id": "2027368195686879372",
+    "metrics": {
+      "replies": 2,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027368195686879372-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T08:04:00-05:00",
+    "source": "twitter",
+    "text": "Opus as Ralph Loop dispatching to Codex 5.3… just works. 🫣",
+    "tweet_id": "2027369121860460578",
+    "metrics": {
+      "replies": 2,
+      "retweets": 0,
+      "likes": 3
+    }
+  },
+  {
+    "timestamp": "2026-02-27T08:24:14-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai I'll post some reflections and learnings here ... but what a weird night",
+    "tweet_id": "2027374214836105220",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 2
+    }
+  },
+  {
+    "timestamp": "2026-02-27T08:31:13-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai Bumped the parallelism back up to 2x and we are quickly finishing off those last few tickets.",
+    "tweet_id": "2027375973373538668",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T09:38:56-05:00",
+    "source": "twitter",
+    "text": "@MatthewSchrager about to dig into that. pretty confident they will be meh, as I eschewed some of my normal eng process in order to make this work.",
+    "tweet_id": "2027393014948057289",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T09:40:48-05:00",
+    "source": "twitter",
+    "text": "I said 2x, Opus! Not 5x!\n\nOpus is REALLY bad as an orchestrator which tells me two things:\n- I didn't give it the right tools to be able to see what was going on. The GH project board + bash background jobs is not sufficient\n- I need deterministic rules for the factory just like linting/typechecking/tests in a codebase\n\nThis is on me, not Opus. Admire the determination though!",
+    "tweet_id": "2027393485045694615",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T09:41:13-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai we're almost there folks... wow. just one more ticket now... https://t.co/D3xvdtrY0W",
+    "tweet_id": "2027393589236424965",
+    "metrics": {
+      "replies": 2,
+      "retweets": 0,
+      "likes": 2
+    },
+    "images": [
+      "images/tweet-2027393589236424965-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T12:25:38-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai Ok folks, I've spent the last two hours digging through everything from last night:\n- claude + codex sessions\n- re-reading my tweets / notes\n- pull requests + code review\n- the app itself! using it, QA\n\nhere's my take-away...",
+    "tweet_id": "2027434965265268833",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 1
+    }
+  },
+  {
+    "timestamp": "2026-02-27T12:27:19-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai From a learning experience, this was GOLD. Confirmed a lot of my assumptions, highlighted some broken process stuff that's trivial to fix. \n\nMost importantly: I can orchestrate long-running tasks with a single top-level agent.",
+    "tweet_id": "2027435389951033521",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T12:27:59-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai 7 hrs of work, with guidance/tweaks from me in the first 2-3 hours. https://t.co/JgcsnTn9ww",
+    "tweet_id": "2027435556532080893",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027435556532080893-0.png"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T12:29:30-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai From an implementation perspective, it's a bust. The code is probably fine, and I can probably refactor and move forward, but the APP DOESN'T WORK now.\n\nFortunately, I know exactly what went wrong. I have all the traces :) https://t.co/blDZBACnoZ",
+    "tweet_id": "2027435940898123915",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027435940898123915-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T12:32:11-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai 2 big things, that I always do with agentic coding:\n- Opus stopped doing manual, browser-based QA for the last ~5 stories. \n- I didn't review the tech plans and give feedback.\n\nReally highlights the continued importance of human involvement in the Factory setting.",
+    "tweet_id": "2027436613580534217",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    }
+  },
+  {
+    "timestamp": "2026-02-27T12:34:13-05:00",
+    "source": "twitter",
+    "text": "@cursor_ai Here's a giant table with stats on every single issue.\n\n- Notice that Opus was letting \"CI\" do the QA. Big no-no.\n- Code review mostly worked!\n- Opus DID SOME WORK. next time I will take the code edit tool away from the orchestrator https://t.co/qCDCXEJANP",
+    "tweet_id": "2027437124874534927",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027437124874534927-0.jpg"
+    ]
+  },
+  {
+    "timestamp": "2026-02-27T12:37:11-05:00",
+    "source": "twitter",
+    "text": "This was EXPENSIVE. $115 on tokens over 9 hours.\nI burned through a Claude Max sub, a ChatGPT Pro sub, and then API tokens.\n\nJust Codex was 183M tokens!\n\nI was a bit surprised b/c I regularly run 5+ Conductors at the same time. But in that mode, they are largely working in bursts and then waiting on me. In the Factory, they are WORKING the whole time. \n\nVery different token expense.",
+    "tweet_id": "2027437871427113149",
+    "metrics": {
+      "replies": 1,
+      "retweets": 0,
+      "likes": 0
+    },
+    "images": [
+      "images/tweet-2027437871427113149-0.jpg"
+    ]
+  }
+]
