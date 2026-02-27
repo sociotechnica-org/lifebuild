@@ -7,7 +7,6 @@ import { BuildingOverlay } from '../layout/BuildingOverlay.js'
 import { events, schema } from '@lifebuild/shared/schema'
 import { LiveStoreProvider } from '../../livestore-compat.js'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { MemoryRouter } from 'react-router-dom'
 import { AttendantRailProvider } from '../layout/AttendantRailProvider.js'
 import { SANCTUARY_FIRST_VISIT_SETTING_KEY } from '../../constants/sanctuary.js'
 
@@ -36,24 +35,22 @@ const withLiveStore =
   (boot?: (store: Store) => void) =>
   (Story: React.ComponentType): React.ReactElement => {
     return (
-      <MemoryRouter initialEntries={['/sanctuary']}>
-        <LiveStoreProvider
-          schema={schema}
-          adapter={makeInMemoryAdapter()}
-          batchUpdates={batchUpdates}
-          boot={store => {
-            boot?.(store)
-          }}
-        >
-          <AttendantRailProvider>
-            <MapBackdrop>
-              <BuildingOverlay title='Sanctuary' onClose={() => {}}>
-                <Story />
-              </BuildingOverlay>
-            </MapBackdrop>
-          </AttendantRailProvider>
-        </LiveStoreProvider>
-      </MemoryRouter>
+      <LiveStoreProvider
+        schema={schema}
+        adapter={makeInMemoryAdapter()}
+        batchUpdates={batchUpdates}
+        boot={store => {
+          boot?.(store)
+        }}
+      >
+        <AttendantRailProvider>
+          <MapBackdrop>
+            <BuildingOverlay title='Sanctuary' onClose={() => {}}>
+              <Story />
+            </BuildingOverlay>
+          </MapBackdrop>
+        </AttendantRailProvider>
+      </LiveStoreProvider>
     )
   }
 
