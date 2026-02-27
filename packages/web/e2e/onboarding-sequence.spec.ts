@@ -62,6 +62,11 @@ test.describe('Onboarding sequence', () => {
     await page.keyboard.press('Escape')
     await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}(?:&onboarding=force)?$`))
 
+    // Wait for onboarding to complete (state persists async after navigating away from first project)
+    await expect(page.getByTestId('onboarding-first-project-banner')).toHaveCount(0, {
+      timeout: 10000,
+    })
+
     await page.reload()
     await waitForLiveStoreReady(page)
 
