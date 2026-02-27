@@ -55,8 +55,6 @@ test.describe('Smoke Tests', () => {
     // Test legacy room redirects to map-first route
     const storeId = 'test-smoke-' + Date.now()
     await page.goto(`/drafting-room?storeId=${storeId}`)
-    await waitForLiveStoreReady(page)
-
     const draftingLoading = await page
       .locator('text=Loading LiveStore')
       .isVisible()
@@ -69,8 +67,6 @@ test.describe('Smoke Tests', () => {
     }
 
     await page.goto(`/sorting-room/gold?storeId=${storeId}`)
-    await waitForLiveStoreReady(page)
-
     const sortingLoading = await page
       .locator('text=Loading LiveStore')
       .isVisible()
@@ -165,17 +161,6 @@ test.describe('Smoke Tests', () => {
     await expect(page.getByText('Table')).toHaveCount(0)
     await expectLifeMapSurface(page)
 
-    // Overlay routes are URL-addressable and map remains the base surface.
-    await page.goto(`/workshop?storeId=${storeId}`)
-    await expect(page).toHaveURL(new RegExp(`/workshop\\?storeId=${storeId}$`))
-    await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible()
-
-    await page.goto(`/sanctuary?storeId=${storeId}`)
-    await expect(page).toHaveURL(new RegExp(`/sanctuary\\?storeId=${storeId}$`))
-    await expect(page.getByRole('heading', { name: 'Sanctuary' })).toBeVisible()
-
-    await page.goto(`/projects/smoke-project?storeId=${storeId}`)
-    await expect(page).toHaveURL(new RegExp(`/projects/smoke-project\\?storeId=${storeId}$`))
-    await expect(page.getByText('Project not found')).toBeVisible()
+    // Overlay route behavior is covered by building-overlay-routing.spec.ts.
   })
 })
