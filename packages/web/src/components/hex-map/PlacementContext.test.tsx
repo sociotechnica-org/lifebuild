@@ -16,9 +16,21 @@ describe('PlacementContext', () => {
     })
 
     expect(result.current.placementProjectId).toBe('project-1')
+    expect(result.current.placementSource).toBe('panel')
     expect(result.current.isPlacing).toBe(true)
     expect(result.current.selectedPlacedProjectId).toBeNull()
     expect(result.current.isSelectingPlacedProject).toBe(false)
+  })
+
+  it('supports workshop-initiated placement source metadata', () => {
+    const { result } = renderHook(() => usePlacement(), { wrapper })
+
+    act(() => {
+      result.current.startPlacement('project-1', { source: 'workshop' })
+    })
+
+    expect(result.current.placementProjectId).toBe('project-1')
+    expect(result.current.placementSource).toBe('workshop')
   })
 
   it('handles placed-project selection mode for removal flow', () => {
@@ -56,5 +68,6 @@ describe('PlacementContext', () => {
     expect(result.current.selectedPlacedProjectId).toBeNull()
     expect(result.current.isSelectingPlacedProject).toBe(false)
     expect(result.current.isPlacing).toBe(false)
+    expect(result.current.placementSource).toBeNull()
   })
 })

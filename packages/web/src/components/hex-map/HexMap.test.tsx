@@ -7,6 +7,9 @@ import { HexMap } from './HexMap.js'
 const FIRST_PLACEMENT_PROMPT_KEY = 'life-map-placement-first-run-dismissed-v1'
 const clearPlacementMock = vi.fn()
 const clearPlacedProjectSelectionMock = vi.fn()
+const startPlacementMock = vi.fn()
+let mockPlacementSource: 'panel' | 'workshop' | null = null
+let mockIsPlacing = false
 
 vi.mock('@react-three/fiber', () => ({
   Canvas: ({ children }: { children: React.ReactNode }) => (
@@ -27,17 +30,18 @@ vi.mock('./UnplacedPanel.js', () => ({
 }))
 
 vi.mock('./PlacementContext.js', () => ({
-  PlacementProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   usePlacement: () => ({
     placementProjectId: null,
+    placementSource: mockPlacementSource,
     selectedPlacedProjectId: null,
     isSelectingPlacedProject: false,
-    isPlacing: false,
-    startPlacement: vi.fn(),
+    isPlacing: mockIsPlacing,
+    startPlacement: startPlacementMock,
     clearPlacement: clearPlacementMock,
     startSelectingPlacedProject: vi.fn(),
     selectPlacedProject: vi.fn(),
     clearPlacedProjectSelection: clearPlacedProjectSelectionMock,
+    clearAll: vi.fn(),
   }),
 }))
 
@@ -111,6 +115,9 @@ describe('HexMap escape handling', () => {
   beforeEach(() => {
     clearPlacementMock.mockClear()
     clearPlacedProjectSelectionMock.mockClear()
+    startPlacementMock.mockClear()
+    mockPlacementSource = null
+    mockIsPlacing = false
   })
 
   it('clears placement state on Escape when no overlay is open', () => {
@@ -138,5 +145,33 @@ describe('HexMap escape handling', () => {
 
     expect(clearPlacementMock).not.toHaveBeenCalled()
     expect(clearPlacedProjectSelectionMock).not.toHaveBeenCalled()
+  })
+
+  it('returns to workshop on Escape for workshop-initiated placement sessions', () => {
+    const onOpenWorkshop = vi.fn()
+    mockPlacementSource = 'workshop'
+    mockIsPlacing = true
+
+    render(<HexMap onOpenWorkshop={onOpenWorkshop} />)
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    expect(clearPlacementMock).toHaveBeenCalledTimes(1)
+    expect(clearPlacedProjectSelectionMock).toHaveBeenCalledTimes(1)
+    expect(onOpenWorkshop).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not open workshop on Escape for panel placement sessions', () => {
+    const onOpenWorkshop = vi.fn()
+    mockPlacementSource = 'panel'
+    mockIsPlacing = true
+
+    render(<HexMap onOpenWorkshop={onOpenWorkshop} />)
+
+    fireEvent.keyDown(window, { key: 'Escape' })
+
+    expect(clearPlacementMock).toHaveBeenCalledTimes(1)
+    expect(clearPlacedProjectSelectionMock).toHaveBeenCalledTimes(1)
+    expect(onOpenWorkshop).not.toHaveBeenCalled()
   })
 })

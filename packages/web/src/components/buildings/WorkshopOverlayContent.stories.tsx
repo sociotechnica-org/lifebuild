@@ -25,15 +25,32 @@ const MapBackdrop: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 }
 
 export const Default: Story = {
-  render: () => <WorkshopOverlayContent />,
+  render: () => (
+    <WorkshopOverlayContent
+      unplacedProjects={[
+        { id: 'project-1', name: 'Refine weekly reflection ritual', category: 'growth' },
+        { id: 'project-2', name: 'Rebuild apartment deep-clean routine', category: 'home' },
+        { id: 'project-3', name: 'Prepare Q2 budget reset', category: 'finances' },
+      ]}
+    />
+  ),
 }
 
 export const InBuildingOverlayFrame: Story = {
   render: () => (
     <MapBackdrop>
       <BuildingOverlay title='Workshop' onClose={() => {}}>
-        <WorkshopOverlayContent />
+        <WorkshopOverlayContent
+          unplacedProjects={[
+            { id: 'project-1', name: 'Refine weekly reflection ritual', category: 'growth' },
+            { id: 'project-2', name: 'Rebuild apartment deep-clean routine', category: 'home' },
+          ]}
+        />
       </BuildingOverlay>
     </MapBackdrop>
   ),
+}
+
+export const Empty: Story = {
+  render: () => <WorkshopOverlayContent unplacedProjects={[]} />,
 }

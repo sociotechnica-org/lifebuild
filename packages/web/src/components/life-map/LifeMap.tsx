@@ -24,6 +24,9 @@ type SeedProjectOnMapInput = {
   name: string
   description?: string
   category?: ProjectCategory | null
+}
+
+type SeedProjectPlacementInput = SeedProjectOnMapInput & {
   coord: {
     q: number
     r: number
@@ -31,7 +34,8 @@ type SeedProjectOnMapInput = {
 }
 
 type E2ELifeMapHooks = {
-  seedProjectOnMap: (input: SeedProjectOnMapInput) => Promise<void>
+  seedProjectOnMap: (input: SeedProjectPlacementInput) => Promise<void>
+  seedUnplacedProject: (input: SeedProjectOnMapInput) => Promise<void>
 }
 
 declare global {
@@ -89,12 +93,11 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
       return
     }
 
-    const seedProjectOnMap: E2ELifeMapHooks['seedProjectOnMap'] = async ({
+    const seedUnplacedProject: E2ELifeMapHooks['seedUnplacedProject'] = async ({
       projectId,
       name,
       description,
       category,
-      coord,
     }) => {
       const existingProject = await store.query(getProjectById$(projectId))
       if (!existingProject || existingProject.length === 0) {
@@ -110,22 +113,23 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
         )
       }
 
-      let latestHexPositions = await store.query(getHexPositions$)
+      const latestHexPositions = await store.query(getHexPositions$)
       const existingPlacement = latestHexPositions.find(
         position => position.entityType === 'project' && position.entityId === projectId
       )
 
       if (existingPlacement) {
-        if (existingPlacement.hexQ === coord.q && existingPlacement.hexR === coord.r) {
-          return
-        }
-
         await removeProjectFromHex(store, latestHexPositions, { projectId, actorId })
-        latestHexPositions = await store.query(getHexPositions$)
       }
+    }
+
+    const seedProjectOnMap: E2ELifeMapHooks['seedProjectOnMap'] = async ({ coord, ...project }) => {
+      await seedUnplacedProject(project)
+
+      const latestHexPositions = await store.query(getHexPositions$)
 
       await placeProjectOnHex(store, latestHexPositions, {
-        projectId,
+        projectId: project.projectId,
         hexQ: coord.q,
         hexR: coord.r,
         actorId,
@@ -135,6 +139,7 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
     window.__LIFEBUILD_E2E__ = {
       ...window.__LIFEBUILD_E2E__,
       seedProjectOnMap,
+      seedUnplacedProject,
     }
   }, [actorId, store])
 

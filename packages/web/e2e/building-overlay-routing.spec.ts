@@ -129,7 +129,7 @@ test.describe('Building overlay routing', () => {
 
     await expect(page.getByTestId('building-overlay')).toHaveCount(1)
     await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible()
-    await expect(page.getByTestId('workshop-coming-soon-sign')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Unplaced Projects' })).toBeVisible()
     await expect(page.getByTestId('attendant-rail-avatar-marvin')).toHaveAttribute(
       'aria-pressed',
       'true'

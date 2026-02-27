@@ -114,7 +114,6 @@ export function HexGrid({
 
   const handleTileClick = (tile: PlacedHexTile) => {
     if (isPlacementMode) {
-      onCancelPlacement?.()
       return
     }
 
@@ -185,8 +184,8 @@ export function HexGrid({
           workstream={tile.workstream}
           isCompleted={tile.isCompleted}
           isSelected={selectedPlacedProjectId === tile.projectId}
-          allowCompletedClick={isPlacementMode || isSelectingPlacedProject}
-          onClick={() => handleTileClick(tile)}
+          allowCompletedClick={isSelectingPlacedProject}
+          onClick={isPlacementMode ? undefined : () => handleTileClick(tile)}
         />
       ))}
       {FIXED_BUILDINGS.map(building => (
