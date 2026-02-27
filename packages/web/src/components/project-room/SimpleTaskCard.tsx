@@ -1,12 +1,22 @@
 import React from 'react'
-import { useDraggable, useDroppable } from '@dnd-kit/core'
-import type { Task } from '@lifebuild/shared/schema'
+import type { Task, TaskStatus } from '@lifebuild/shared/schema'
 import { formatDeadline } from './TaskDetailModal.js'
 
 interface SimpleTaskCardProps {
   task: Task
-  isDragOverlay?: boolean
   onClick?: (taskId: string) => void
+  onCycleStatus?: (task: Task) => void
+}
+
+const STATUS_LABELS: Record<TaskStatus, string> = {
+  todo: '[ ]',
+  doing: '[i]',
+  in_review: '[r]',
+  done: '[x]',
+}
+
+function formatStatus(status: string): string {
+  return status.charAt(0).toUpperCase() + status.slice(1).replace('_', ' ')
 }
 
 // Parse deadline from task attributes, handling both string (from DB) and object formats
@@ -21,66 +31,49 @@ function getTaskDeadline(task: Task): number | undefined {
   }
 }
 
-export function SimpleTaskCard({ task, isDragOverlay = false, onClick }: SimpleTaskCardProps) {
-  const {
-    attributes: dragAttributes,
-    listeners: dragListeners,
-    setNodeRef: setDragRef,
-    transform,
-    isDragging,
-  } = useDraggable({
-    id: task.id,
-  })
-
-  const { setNodeRef: setDropRef } = useDroppable({
-    id: task.id,
-  })
-
-  // Combine refs for both draggable and droppable
-  const setNodeRef = (node: HTMLElement | null) => {
-    setDragRef(node)
-    setDropRef(node)
+export function SimpleTaskCard({ task, onClick, onCycleStatus }: SimpleTaskCardProps) {
+  const handleClick = () => {
+    onClick?.(task.id)
   }
 
-  const style = transform
-    ? {
-        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-      }
-    : undefined
-
-  const handleClick = (e: React.MouseEvent) => {
-    // Only handle click if not dragging and click handler exists
-    if (!isDragging && onClick) {
-      e.stopPropagation()
-      onClick(task.id)
-    }
+  const handleCycleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.stopPropagation()
+    onCycleStatus?.(task)
   }
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      {...dragListeners}
-      {...dragAttributes}
+      data-task-id={task.id}
       onClick={handleClick}
-      className={`bg-white rounded-lg border border-[#e5e2dc] p-3 mb-2 transition-all cursor-grab active:cursor-grabbing ${
-        isDragging ? 'opacity-50' : 'hover:bg-[#f5f3f0]'
-      } ${isDragOverlay ? 'shadow-lg rotate-2' : ''}`}
+      className='flex items-start gap-3 bg-white rounded-lg border border-[#e5e2dc] p-3 transition-colors hover:bg-[#f5f3f0] cursor-pointer'
     >
-      <h3 className='text-sm font-medium text-[#2f2b27] line-clamp-2'>{task.title}</h3>
-      {(() => {
-        const deadline = getTaskDeadline(task)
-        if (!deadline) return null
-        // Deadline is stored as UTC midnight of the due date.
-        // Task is overdue only after the due date has fully passed (end of day).
-        const ONE_DAY_MS = 24 * 60 * 60 * 1000
-        const isOverdue = Date.now() >= deadline + ONE_DAY_MS
-        return (
-          <p className={`text-xs mt-1 ${isOverdue ? 'text-orange-500' : 'text-[#8b8680]'}`}>
-            {formatDeadline(deadline)}
-          </p>
-        )
-      })()}
+      <button
+        type='button'
+        onClick={handleCycleClick}
+        className='shrink-0 w-8 h-8 rounded-md border border-[#d4d0c8] text-xs font-mono text-[#2f2b27] hover:bg-[#f1efe9] transition-colors'
+        aria-label={`Cycle status for ${task.title}`}
+      >
+        {STATUS_LABELS[task.status as TaskStatus] ?? STATUS_LABELS.todo}
+      </button>
+      <div className='min-w-0 flex-1'>
+        <h3 className='text-sm font-medium text-[#2f2b27] line-clamp-2'>{task.title}</h3>
+        <div className='flex items-center gap-2 mt-1'>
+          <span className='text-xs text-[#8b8680]'>{formatStatus(task.status)}</span>
+          {(() => {
+            const deadline = getTaskDeadline(task)
+            if (!deadline) return null
+            // Deadline is stored as UTC midnight of the due date.
+            // Task is overdue only after the due date has fully passed (end of day).
+            const ONE_DAY_MS = 24 * 60 * 60 * 1000
+            const isOverdue = Date.now() >= deadline + ONE_DAY_MS
+            return (
+              <span className={`text-xs ${isOverdue ? 'text-orange-500' : 'text-[#8b8680]'}`}>
+                {formatDeadline(deadline)}
+              </span>
+            )
+          })()}
+        </div>
+      </div>
     </div>
   )
 }

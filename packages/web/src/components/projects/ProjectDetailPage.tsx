@@ -9,7 +9,7 @@ import { createProjectRoomDefinition } from '@lifebuild/shared/rooms'
 import { NewUiShell } from '../layout/NewUiShell.js'
 import { useProjectChatLifecycle } from '../../hooks/useProjectChatLifecycle.js'
 import { ProjectHeader } from '../project-room/ProjectHeader.js'
-import { ProjectKanban } from '../project-room/ProjectKanban.js'
+import { TaskList } from '../project-room/TaskList.js'
 import { TaskDetailModal } from '../project-room/TaskDetailModal.js'
 import { usePostHog } from '../../lib/analytics.js'
 
@@ -134,13 +134,9 @@ export const ProjectDetailPage: React.FC = () => {
         {/* Project Header */}
         <ProjectHeader project={project} />
 
-        {/* Kanban Board - fills remaining space */}
+        {/* Task list - fills remaining space */}
         <div className='flex-1 min-h-0'>
-          <ProjectKanban
-            tasks={tasks}
-            projectId={resolvedProjectId}
-            onTaskClick={handleTaskClick}
-          />
+          <TaskList tasks={tasks} projectId={resolvedProjectId} onTaskClick={handleTaskClick} />
         </div>
 
         {/* Task Detail Modal */}

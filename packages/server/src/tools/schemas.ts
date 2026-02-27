@@ -113,7 +113,7 @@ export const llmToolSchemas = [
   // Project Management Tools
   toolDef(
     'create_project',
-    'Create a new project with name and optional description (automatically creates default Kanban columns: To Do, In Progress, Done)',
+    'Create a new project with name and optional description (tasks use status-based workflow: todo, doing, in_review, done)',
     {
       type: 'object',
       properties: {

@@ -1,6 +1,6 @@
 # Web Package (@lifebuild/web)
 
-The React frontend application for LifeBuild, featuring real-time collaborative Kanban boards.
+The React frontend application for LifeBuild, featuring real-time collaborative project management.
 
 ## Overview
 
@@ -172,7 +172,7 @@ pnpm test:e2e --grep "validate.*form"
 ### Core Functionality
 
 - **JWT Authentication**: Secure user authentication with signup/login flows
-- **Real-time Kanban Boards**: Drag-and-drop task management
+- **Task Lists**: Status-based task management with click-to-cycle workflow
 - **Multi-user Collaboration**: Live updates across users with user attribution
 - **Project Workspaces**: Organized task and document management
 - **AI Workers**: Configurable AI assistants for tasks
@@ -247,12 +247,12 @@ Events are sent to PostHog via the `usePostHog` hook from `posthog-js/react` (re
 
 ### Tasks
 
-| Event                 | Trigger                             | Properties                | Source                    |
-| --------------------- | ----------------------------------- | ------------------------- | ------------------------- |
-| `task_created`        | New task created via kanban column  | `projectId`               | `ProjectKanbanColumn.tsx` |
-| `task_status_changed` | Task dragged between kanban columns | `from`, `to`, `projectId` | `ProjectKanban.tsx`       |
-| `task_detail_opened`  | Task detail modal opened            | `taskId`, `projectId`     | `ProjectDetailPage.tsx`   |
-| `task_detail_edited`  | Task detail saved after editing     | `projectId`               | `TaskDetailModal.tsx`     |
+| Event                 | Trigger                         | Properties                | Source                  |
+| --------------------- | ------------------------------- | ------------------------- | ----------------------- |
+| `task_created`        | New task created via task list  | `projectId`               | `TaskList.tsx`          |
+| `task_status_changed` | Task status cycled in task list | `from`, `to`, `projectId` | `TaskList.tsx`          |
+| `task_detail_opened`  | Task detail modal opened        | `taskId`, `projectId`     | `ProjectDetailPage.tsx` |
+| `task_detail_edited`  | Task detail saved after editing | `projectId`               | `TaskDetailModal.tsx`   |
 
 ### Life Map
 

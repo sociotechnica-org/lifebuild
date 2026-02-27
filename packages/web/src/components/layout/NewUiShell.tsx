@@ -13,9 +13,9 @@ type NewUiShellProps = {
   children: React.ReactNode
   isChatOpen?: boolean
   onChatToggle?: () => void
-  /** When true, uses h-screen flex layout for full-height content like kanban boards */
+  /** When true, uses h-screen flex layout for full-height content like project views */
   fullHeight?: boolean
-  /** When true, disables scrolling on main content (children handle their own scrolling, e.g. kanban boards) */
+  /** When true, disables scrolling on main content (children handle their own scrolling, e.g. project views) */
   noScroll?: boolean
 }
 
@@ -110,7 +110,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   const outerClasses = 'h-dvh flex flex-col overflow-hidden text-[#2f2b27] leading-relaxed'
 
   // fullHeight mode: full width content area
-  // noScroll mode: children handle their own scrolling (e.g. kanban boards with scrollable columns)
+  // noScroll mode: children handle their own scrolling (e.g. project views with scrollable columns)
   // normal mode: content scrolls within the main area
   const mainClasses = fullHeight
     ? `flex-1 min-h-0 w-full ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'}`
