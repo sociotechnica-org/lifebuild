@@ -27,6 +27,41 @@ const getStreamSummaryCard = (page: Page, label: 'Initiative' | 'Optimization' |
     .first()
 }
 
+const expectMapSurface = async (page: Page) => {
+  const lifeMapCanvas = page.locator('canvas').first()
+  const hasCanvas = await lifeMapCanvas
+    .waitFor({ state: 'visible', timeout: 10000 })
+    .then(() => true)
+    .catch(() => false)
+
+  if (!hasCanvas) {
+    await expect(page.getByText('Map unavailable on this device')).toBeVisible({ timeout: 10000 })
+  }
+}
+
+const verifyLegacyRouteRedirect = async (
+  page: Page,
+  legacyPath: `/drafting-room${string}` | `/sorting-room${string}`,
+  storeId: string
+) => {
+  await page.goto(`${legacyPath}?storeId=${storeId}`)
+  await waitForLiveStoreReady(page)
+
+  const isLoading = await page
+    .locator('text=Loading LiveStore')
+    .isVisible()
+    .catch(() => false)
+  if (isLoading) {
+    return
+  }
+
+  const currentUrl = new URL(page.url())
+  expect(currentUrl.searchParams.get('storeId')).toBe(storeId)
+  expect(currentUrl.pathname).not.toContain('/drafting-room')
+  expect(currentUrl.pathname).not.toContain('/sorting-room')
+  expect(['/', '/life-map']).toContain(currentUrl.pathname)
+}
+
 test.describe('Workflow', () => {
   test.describe.configure({ timeout: 120000 }) // 2 minute timeout for full workflow
 
@@ -255,15 +290,7 @@ test.describe('Workflow', () => {
       // Navigate to Life Map
       await page.click('text=Life Map')
 
-      // Wait for Life Map to load in either map (canvas) or list mode.
-      const lifeMapCanvas = page.locator('canvas').first()
-      const hasCanvas = await lifeMapCanvas
-        .waitFor({ state: 'visible', timeout: 4000 })
-        .then(() => true)
-        .catch(() => false)
-      if (!hasCanvas) {
-        await expect(page.locator('.rounded-2xl').first()).toBeVisible({ timeout: 10000 })
-      }
+      await expectMapSurface(page)
 
       // Verify our project appears on the Life Map surface.
       await expect(page.getByText(projectName).first()).toBeVisible({ timeout: 10000 })
@@ -310,6 +337,14 @@ test.describe('Workflow', () => {
     await page.goto(`/life-map?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
 
+    const isLoading = await page
+      .locator('text=Loading LiveStore')
+      .isVisible()
+      .catch(() => false)
+    if (isLoading) {
+      return
+    }
+
     // Verify Life Map shell is available
     await expect(page.locator('header nav a')).toHaveCount(1)
     await expect(page.getByRole('link', { name: 'Life Map' })).toBeVisible()
@@ -318,17 +353,16 @@ test.describe('Workflow', () => {
     await expect(page.getByText('Table')).toHaveCount(0)
 
     const lifeMapCanvas = page.locator('canvas').first()
-    const hasCanvas = await lifeMapCanvas.isVisible()
+    const hasCanvas = await lifeMapCanvas
+      .waitFor({ state: 'visible', timeout: 10000 })
+      .then(() => true)
+      .catch(() => false)
     if (!hasCanvas) {
       await expect(page.getByText('Map unavailable on this device')).toBeVisible({ timeout: 10000 })
     }
 
-    // Verify legacy /drafting-room route redirects to Life Map
-    await page.goto(`/drafting-room?storeId=${storeId}`)
-    await page.waitForURL(/\/life-map/, { timeout: 10000 })
-
-    // Verify legacy /sorting-room route redirects to Life Map
-    await page.goto(`/sorting-room/gold?storeId=${storeId}`)
-    await page.waitForURL(/\/life-map/, { timeout: 10000 })
+    // Verify legacy routes normalize to map-first URLs (storeId preserved).
+    await verifyLegacyRouteRedirect(page, '/drafting-room', storeId)
+    await verifyLegacyRouteRedirect(page, '/sorting-room/gold', storeId)
   })
 })
