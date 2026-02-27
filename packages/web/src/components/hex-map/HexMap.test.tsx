@@ -130,4 +130,13 @@ describe('HexMap escape handling', () => {
     expect(clearPlacementMock).not.toHaveBeenCalled()
     expect(clearPlacedProjectSelectionMock).not.toHaveBeenCalled()
   })
+
+  it('does not clear placement state on arrow keys', () => {
+    render(<HexMap />)
+
+    fireEvent.keyDown(window, { key: 'ArrowUp' })
+
+    expect(clearPlacementMock).not.toHaveBeenCalled()
+    expect(clearPlacedProjectSelectionMock).not.toHaveBeenCalled()
+  })
 })

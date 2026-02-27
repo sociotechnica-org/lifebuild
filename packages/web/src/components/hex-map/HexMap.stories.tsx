@@ -15,7 +15,7 @@ const meta: Meta<typeof HexMap> = {
     docs: {
       description: {
         component:
-          'Map-first Three.js surface with fixed landmarks (campfire, sanctuary, workshop), project tiles, and overlay panels.',
+          'Map-first Three.js surface with fixed landmarks (campfire, sanctuary, workshop), project tiles, and overlay panels. Use scroll wheel to zoom and arrow keys to pan.',
       },
     },
   },
@@ -130,4 +130,39 @@ export const PlacementFlow: Story = {
       </div>
     )
   },
+}
+
+export const NavigationControls: Story = {
+  render: () => (
+    <div className='h-dvh w-full'>
+      <HexMap
+        tiles={[
+          {
+            id: 'tile-nav-1',
+            projectId: 'project-nav-1',
+            coord: createHex(-2, 0),
+            projectName: 'Quarterly roadmap',
+            categoryColor: '#f59e0b',
+            category: 'growth',
+          },
+          {
+            id: 'tile-nav-2',
+            projectId: 'project-nav-2',
+            coord: createHex(2, 1),
+            projectName: 'Community sprint',
+            categoryColor: '#06b6d4',
+            category: 'contribution',
+          },
+          {
+            id: 'tile-nav-3',
+            projectId: 'project-nav-3',
+            coord: createHex(1, -2),
+            projectName: 'Refactor rituals',
+            categoryColor: '#22c55e',
+            category: 'health',
+          },
+        ]}
+      />
+    </div>
+  ),
 }
