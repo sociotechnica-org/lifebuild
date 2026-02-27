@@ -44,6 +44,7 @@ type HexGridProps = {
   onCancelPlacement?: () => void
   onOpenWorkshop?: () => void
   onOpenSanctuary?: () => void
+  disableLandmarkInteractions?: boolean
 }
 
 export function HexGrid({
@@ -56,11 +57,13 @@ export function HexGrid({
   onCancelPlacement,
   onOpenWorkshop,
   onOpenSanctuary,
+  disableLandmarkInteractions = false,
 }: HexGridProps) {
   const cells = useMemo(() => generateHexGrid(GRID_RADIUS), [])
   const [hoveredPlacementKey, setHoveredPlacementKey] = useState<string | null>(null)
   const isPlacementMode = Boolean(placementProject && onPlaceProject)
-  const allowBuildingOverlayOpen = !isPlacementMode && !isSelectingPlacedProject
+  const allowBuildingOverlayOpen =
+    !disableLandmarkInteractions && !isPlacementMode && !isSelectingPlacedProject
 
   const cellByKey = useMemo(() => {
     return new Map(cells.map(cell => [cell.key, cell]))

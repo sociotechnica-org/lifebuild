@@ -18,6 +18,8 @@ import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
+import { OnboardingSequence } from '../onboarding/OnboardingSequence.js'
+import { useOnboarding } from '../onboarding/useOnboarding.js'
 
 type SeedLifecycleStatus = 'planning' | 'backlog' | 'active' | 'completed'
 
@@ -102,6 +104,7 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   const posthog = usePostHog()
   const actorId = user?.id
   const [hasWebGLSupport] = useState(() => supportsWebGL())
+  const onboarding = useOnboarding()
 
   useEffect(() => {
     posthog?.capture('life_map_viewed')
@@ -305,6 +308,46 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
     })
   }, [activeProjectIds, allProjectsIncludingArchived, hexPositions, navigateToOverlayRoute])
 
+  const isCampfireBeat = onboarding.isReady && onboarding.phase === 'campfire'
+  const isRevealBeat = onboarding.isReady && onboarding.phase === 'reveal'
+  const isFirstProjectBeat = onboarding.isReady && onboarding.phase === 'first_project'
+  const shouldScaleMap = isCampfireBeat
+  const shouldHideMapPanels = onboarding.isActive && (isCampfireBeat || isRevealBeat)
+  const disableLandmarkInteractions = onboarding.isActive && (isCampfireBeat || isRevealBeat)
+
+  const placedHexTilesWithOnboarding = useMemo(() => {
+    const allowProjectClicks =
+      !onboarding.isActive ||
+      onboarding.phase === 'completed' ||
+      onboarding.phase === 'first_project'
+
+    return placedHexTiles.map(tile => {
+      if (!tile.onClick) {
+        return tile
+      }
+
+      if (!allowProjectClicks) {
+        return { ...tile, onClick: undefined }
+      }
+
+      if (
+        isFirstProjectBeat &&
+        onboarding.firstProjectId &&
+        tile.projectId !== onboarding.firstProjectId
+      ) {
+        return { ...tile, onClick: undefined }
+      }
+
+      return tile
+    })
+  }, [
+    isFirstProjectBeat,
+    onboarding.firstProjectId,
+    onboarding.isActive,
+    onboarding.phase,
+    placedHexTiles,
+  ])
+
   const unplacedProjects = useMemo(() => {
     return unplacedProjectsFromQuery.map(project => ({
       id: project.id,
@@ -347,24 +390,33 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
 
   return (
     <div className='relative h-full w-full overflow-hidden bg-[#efe2cd]'>
-      <Suspense fallback={renderHexMapLoadingState()}>
-        <LazyHexMap
-          tiles={placedHexTiles}
-          unplacedProjects={unplacedProjects}
-          completedProjects={completedProjectsForPanel}
-          archivedProjects={archivedProjectsForPanel}
-          onPlaceProject={handlePlaceProjectOnMap}
-          onRemovePlacedProject={handleRemoveProjectFromMap}
-          onSelectUnplacedProject={projectId =>
-            navigateToOverlayRoute(generateRoute.project(projectId))
-          }
-          onOpenProject={projectId => navigateToOverlayRoute(generateRoute.project(projectId))}
-          onOpenWorkshop={() => navigateToOverlayRoute(ROUTES.WORKSHOP)}
-          onOpenSanctuary={() => navigateToOverlayRoute(ROUTES.SANCTUARY)}
-          onUnarchiveProject={handleUnarchive}
-          isOverlayOpen={isOverlayOpen}
-        />
-      </Suspense>
+      <div
+        className={`h-full w-full transition-transform duration-700 ${
+          shouldScaleMap ? 'scale-[0.82]' : 'scale-100'
+        }`}
+      >
+        <Suspense fallback={renderHexMapLoadingState()}>
+          <LazyHexMap
+            tiles={placedHexTilesWithOnboarding}
+            unplacedProjects={unplacedProjects}
+            completedProjects={completedProjectsForPanel}
+            archivedProjects={archivedProjectsForPanel}
+            onPlaceProject={handlePlaceProjectOnMap}
+            onRemovePlacedProject={handleRemoveProjectFromMap}
+            onSelectUnplacedProject={projectId =>
+              navigateToOverlayRoute(generateRoute.project(projectId))
+            }
+            onOpenProject={projectId => navigateToOverlayRoute(generateRoute.project(projectId))}
+            onOpenWorkshop={() => navigateToOverlayRoute(ROUTES.WORKSHOP)}
+            onOpenSanctuary={() => navigateToOverlayRoute(ROUTES.SANCTUARY)}
+            onUnarchiveProject={handleUnarchive}
+            isOverlayOpen={isOverlayOpen}
+            showUnplacedPanel={!shouldHideMapPanels}
+            disableLandmarkInteractions={disableLandmarkInteractions}
+          />
+        </Suspense>
+      </div>
+      <OnboardingSequence />
     </div>
   )
 }
