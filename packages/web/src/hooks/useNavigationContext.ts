@@ -15,18 +15,6 @@ import type { NavigationContext } from '../../../server/src/services/pi/types.js
  * Detect which page/view the user is on based on the route
  */
 function detectCurrentView(pathname: string): string | undefined {
-  if (pathname.includes('/stage1') || pathname === '/drafting-room/new') {
-    return 'Stage 1: Identifying - User is naming and categorizing a new project'
-  }
-  if (pathname.includes('/stage2')) {
-    return 'Stage 2: Scoping - User is defining objectives, archetype, and tier'
-  }
-  if (pathname.includes('/stage3')) {
-    return 'Stage 3: Detailing - User is creating an actionable task list'
-  }
-  if (pathname === '/drafting-room') {
-    return 'Drafting Room - Overview of all projects in planning stages 1-3'
-  }
   if (pathname === '/life-map') {
     return 'Life Map - Overview of all life categories and active projects'
   }

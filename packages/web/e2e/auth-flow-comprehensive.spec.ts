@@ -22,7 +22,7 @@ test.describe('Authentication Flow E2E', () => {
     test.skip(!REQUIRE_AUTH, 'This test requires REQUIRE_AUTH=true environment')
 
     // Step 1: Verify protected routes redirect to login
-    await page.goto(`${APP_URL}/drafting-room`)
+    await page.goto(`${APP_URL}/life-map`)
 
     // Should be redirected to login
     await page.waitForURL(/\/login/, { timeout: 15000 })
@@ -37,7 +37,7 @@ test.describe('Authentication Flow E2E', () => {
 
     // Should see main navigation
     await expect(page.locator('nav')).toBeVisible()
-    await expect(page.locator('text=Drafting Room')).toBeVisible()
+    await expect(page.locator('text=Life Map')).toBeVisible()
 
     // Should NOT see "Sign in" button
     await expect(page.locator('text=Sign in')).not.toBeVisible()
@@ -47,7 +47,7 @@ test.describe('Authentication Flow E2E', () => {
     await logoutViaUI(page)
 
     // Step 7: Verify protection is restored
-    await page.goto(`${APP_URL}/drafting-room`)
+    await page.goto(`${APP_URL}/life-map`)
     await page.waitForURL(/\/login/, { timeout: 10000 })
   })
 
@@ -58,7 +58,7 @@ test.describe('Authentication Flow E2E', () => {
     // Testing development mode behavior
 
     // In dev mode, should be able to access protected routes
-    await page.goto(`${APP_URL}/drafting-room`)
+    await page.goto(`${APP_URL}/life-map`)
     await page.waitForLoadState('load', { timeout: 30000 })
 
     // Should NOT redirect to login in dev mode
@@ -72,8 +72,8 @@ test.describe('Authentication Flow E2E', () => {
       // LiveStore loading timeout - continuing with test
     }
 
-    // Should see main app interface - check for Drafting Room nav link
-    await expect(page.locator('nav a:has-text("Drafting Room")')).toBeVisible({
+    // Should see main app interface - check for Life Map nav link
+    await expect(page.locator('nav a:has-text("Life Map")')).toBeVisible({
       timeout: 10000,
     })
 

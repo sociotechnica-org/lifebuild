@@ -69,7 +69,7 @@ export async function navigateToAppWithUniqueStore(page: Page) {
     await page.waitForLoadState('networkidle', { timeout: 15000 })
   }
 
-  await page.goto(`/drafting-room?storeId=${storeId}`)
+  await page.goto(`/life-map?storeId=${storeId}`)
   await waitForLiveStoreReady(page)
 
   if (REQUIRE_AUTH) {

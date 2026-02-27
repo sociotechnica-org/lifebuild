@@ -6,11 +6,8 @@ export const ROUTES = {
   HOME: '/',
   // App routes
   LIFE_MAP: '/life-map',
-  DRAFTING_ROOM: '/drafting-room',
-  PROJECT_CREATE: '/drafting-room/new',
-  PROJECT_STAGE1: '/drafting-room/:projectId/stage1',
-  PROJECT_STAGE2: '/drafting-room/:projectId/stage2',
-  PROJECT_STAGE3: '/drafting-room/:projectId/stage3',
+  SORTING_ROOM: '/sorting-room',
+  SORTING_ROOM_STREAM: '/sorting-room/:stream',
   PROJECTS: '/projects',
   PROJECT: '/projects/:projectId',
   // Auth and admin routes (unchanged)
@@ -26,11 +23,8 @@ export const ROUTES = {
 export const generateRoute = {
   // App routes
   lifeMap: () => '/life-map',
-  draftingRoom: () => '/drafting-room',
-  projectCreate: () => '/drafting-room/new',
-  projectStage1: (projectId: string) => `/drafting-room/${projectId}/stage1`,
-  projectStage2: (projectId: string) => `/drafting-room/${projectId}/stage2`,
-  projectStage3: (projectId: string) => `/drafting-room/${projectId}/stage3`,
+  sortingRoom: (stream?: 'gold' | 'silver' | 'bronze') =>
+    stream ? `/sorting-room/${stream}` : '/sorting-room',
   project: (id: string) => `/projects/${id}`,
   // Admin routes
   adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,
