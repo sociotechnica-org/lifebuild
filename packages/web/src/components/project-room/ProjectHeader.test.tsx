@@ -3,15 +3,6 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, createMockProject } from '../../../tests/test-utils.js'
 import { ProjectHeader } from './ProjectHeader.js'
 
-const mockNavigate = vi.fn()
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual('react-router-dom')
-  return {
-    ...actual,
-    useNavigate: () => mockNavigate,
-  }
-})
-
 vi.mock('../../livestore-compat.js', () => ({
   useQuery: () => [],
   useStore: () => ({ store: { commit: vi.fn() } }),

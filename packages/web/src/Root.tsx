@@ -4,7 +4,16 @@ import { LiveStoreProvider, useStore } from './livestore-compat.js'
 import LiveStoreWorker from './livestore.worker.ts?worker'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom'
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+  Outlet,
+  useLocation,
+  useNavigate,
+  matchPath,
+} from 'react-router-dom'
 
 import { AuthProvider, useAuth } from './contexts/AuthContext.js'
 import { useChorusNavigation } from './hooks/useChorusNavigation.js'
@@ -28,6 +37,9 @@ import { ROUTES } from './constants/routes.js'
 import { ProjectDetailPage } from './components/projects/ProjectDetailPage.js'
 import { LifeMap } from './components/life-map/LifeMap.js'
 import { RoomLayout } from './components/layout/RoomLayout.js'
+import { BuildingOverlay } from './components/layout/BuildingOverlay.js'
+import { WorkshopOverlayContent } from './components/buildings/WorkshopOverlayContent.js'
+import { SanctuaryOverlayContent } from './components/buildings/SanctuaryOverlayContent.js'
 import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
 import { determineStoreIdFromUser } from './utils/navigation.js'
 import {
@@ -371,13 +383,84 @@ const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const LegacyDraftingRoomRedirect: React.FC = () => {
   const location = useLocation()
-  return <Navigate to={{ pathname: ROUTES.LIFE_MAP, search: location.search }} replace />
+  return <Navigate to={{ pathname: ROUTES.HOME, search: location.search }} replace />
 }
 
-/** Redirect /sorting-room/* → /life-map preserving query params (e.g. storeId) */
+/** Redirect /sorting-room/* → / preserving query params (e.g. storeId) */
 const LegacySortingRoomRedirect: React.FC = () => {
   const location = useLocation()
-  return <Navigate to={`${ROUTES.LIFE_MAP}${location.search}`} replace />
+  return <Navigate to={`${ROUTES.HOME}${location.search}`} replace />
+}
+
+const MAP_OVERLAY_PATH_PATTERNS = [ROUTES.WORKSHOP, ROUTES.SANCTUARY, ROUTES.PROJECT] as const
+
+const isMapOverlayPath = (pathname: string): boolean => {
+  return MAP_OVERLAY_PATH_PATTERNS.some(pattern => Boolean(matchPath(pattern, pathname)))
+}
+
+const useCloseOverlayRoute = () => {
+  const navigate = useNavigate()
+  const location = useLocation()
+  const openedFromMap = Boolean(
+    (location.state as { openedFromMap?: boolean } | null)?.openedFromMap
+  )
+
+  return useCallback(() => {
+    if (openedFromMap && window.history.length > 1) {
+      navigate(-1)
+      return
+    }
+
+    navigate({ pathname: ROUTES.HOME, search: location.search }, { replace: true })
+  }, [location.search, navigate, openedFromMap])
+}
+
+const MapOverlayLayoutRoute: React.FC = () => {
+  const location = useLocation()
+  const overlayOpen = useMemo(() => isMapOverlayPath(location.pathname), [location.pathname])
+
+  return (
+    <ErrorBoundary>
+      <RoomLayout room={LIFE_MAP_ROOM}>
+        <div className='relative h-full w-full'>
+          <LifeMap isOverlayOpen={overlayOpen} />
+          <Outlet />
+        </div>
+      </RoomLayout>
+    </ErrorBoundary>
+  )
+}
+
+const WorkshopOverlayRoute: React.FC = () => {
+  const closeOverlay = useCloseOverlayRoute()
+  return (
+    <BuildingOverlay title='Workshop' onClose={closeOverlay}>
+      <WorkshopOverlayContent />
+    </BuildingOverlay>
+  )
+}
+
+const SanctuaryOverlayRoute: React.FC = () => {
+  const closeOverlay = useCloseOverlayRoute()
+  return (
+    <BuildingOverlay title='Sanctuary' onClose={closeOverlay}>
+      <SanctuaryOverlayContent />
+    </BuildingOverlay>
+  )
+}
+
+const ProjectOverlayRoute: React.FC = () => {
+  const closeOverlay = useCloseOverlayRoute()
+  return (
+    <BuildingOverlay title='Project Board' onClose={closeOverlay} panelClassName='max-w-[1100px]'>
+      <ProjectDetailPage onCloseOverlay={closeOverlay} />
+    </BuildingOverlay>
+  )
+}
+
+const MapCompatibilityRedirect: React.FC = () => {
+  const location = useLocation()
+  return <Navigate to={{ pathname: ROUTES.HOME, search: location.search }} replace />
 }
 
 // Protected app wrapper - includes LiveStore and all protected routes
@@ -391,51 +474,20 @@ const ProtectedApp: React.FC = () => {
               <SettingsInitializer>
                 <ErrorBoundary>
                   <Routes>
-                    {/* App routes */}
-                    <Route
-                      path={ROUTES.HOME}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={LIFE_MAP_ROOM}>
-                            <LifeMap />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.LIFE_MAP}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={LIFE_MAP_ROOM}>
-                            <LifeMap />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
-                    {/* Redirect legacy drafting-room routes to life-map */}
+                    <Route path={ROUTES.HOME} element={<MapOverlayLayoutRoute />}>
+                      <Route index element={null} />
+                      <Route path={ROUTES.WORKSHOP.slice(1)} element={<WorkshopOverlayRoute />} />
+                      <Route path={ROUTES.SANCTUARY.slice(1)} element={<SanctuaryOverlayRoute />} />
+                      <Route path={ROUTES.PROJECT.slice(1)} element={<ProjectOverlayRoute />} />
+                    </Route>
+                    <Route path={ROUTES.LIFE_MAP} element={<MapCompatibilityRedirect />} />
+                    <Route path={ROUTES.PROJECTS} element={<MapCompatibilityRedirect />} />
+                    {/* Redirect legacy drafting-room routes to map root */}
                     <Route path='/drafting-room/*' element={<LegacyDraftingRoomRedirect />} />
-                    {/* Redirect legacy sorting-room routes to life-map (preserving query params) */}
+                    {/* Redirect legacy sorting-room routes to map root (preserving query params) */}
                     <Route path='/sorting-room/*' element={<LegacySortingRoomRedirect />} />
-                    <Route
-                      path={ROUTES.PROJECTS}
-                      element={
-                        <ErrorBoundary>
-                          <RoomLayout room={LIFE_MAP_ROOM}>
-                            <LifeMap />
-                          </RoomLayout>
-                        </ErrorBoundary>
-                      }
-                    />
-                    <Route
-                      path={ROUTES.PROJECT}
-                      element={
-                        <ErrorBoundary>
-                          <ProjectDetailPage />
-                        </ErrorBoundary>
-                      }
-                    />
-                    {/* Redirect legacy /old/* routes to life-map */}
-                    <Route path='/old/*' element={<Navigate to={ROUTES.LIFE_MAP} replace />} />
+                    {/* Redirect legacy /old/* routes to map root */}
+                    <Route path='/old/*' element={<Navigate to={ROUTES.HOME} replace />} />
                   </Routes>
                 </ErrorBoundary>
               </SettingsInitializer>

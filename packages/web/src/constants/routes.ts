@@ -6,6 +6,8 @@ export const ROUTES = {
   HOME: '/',
   // App routes
   LIFE_MAP: '/life-map',
+  WORKSHOP: '/workshop',
+  SANCTUARY: '/sanctuary',
   PROJECTS: '/projects',
   PROJECT: '/projects/:projectId',
   // Auth and admin routes (unchanged)
@@ -20,7 +22,9 @@ export const ROUTES = {
  */
 export const generateRoute = {
   // App routes
-  lifeMap: () => '/life-map',
+  lifeMap: () => '/',
+  workshop: () => '/workshop',
+  sanctuary: () => '/sanctuary',
   project: (id: string) => `/projects/${id}`,
   // Admin routes
   adminUser: (userEmail: string) => `/admin/users/${encodeURIComponent(userEmail)}`,

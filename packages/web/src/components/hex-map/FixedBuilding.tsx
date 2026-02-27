@@ -1,6 +1,6 @@
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { hexToWorld } from '@lifebuild/shared/hex'
-import { Text } from '@react-three/drei'
+import { Html, Text } from '@react-three/drei'
 import React, { useMemo } from 'react'
 import type { FixedBuildingType } from './placementRules.js'
 
@@ -33,17 +33,27 @@ const BUILDING_THEME: Record<
 type FixedBuildingProps = {
   type: FixedBuildingType
   coord: HexCoord
+  onActivate?: () => void
 }
 
-export const FixedBuilding: React.FC<FixedBuildingProps> = ({ type, coord }) => {
+export const FixedBuilding: React.FC<FixedBuildingProps> = ({ type, coord, onActivate }) => {
   const [x, z] = useMemo(() => hexToWorld(coord, BASE_HEX_SIZE), [coord.q, coord.r, coord.s])
   const theme = BUILDING_THEME[type]
+  const isInteractive = type !== 'campfire' && Boolean(onActivate)
 
   return (
     <group
       position={[x, 0.28, z]}
       data-testid={`fixed-building-${type}`}
       userData={{ type: 'fixed-building', building: type, coord }}
+      onClick={
+        isInteractive
+          ? event => {
+              event.stopPropagation()
+              onActivate?.()
+            }
+          : undefined
+      }
     >
       <mesh raycast={() => null}>
         <cylinderGeometry args={[0.52, 0.62, 0.46, 6]} />
@@ -78,6 +88,22 @@ export const FixedBuilding: React.FC<FixedBuildingProps> = ({ type, coord }) => 
       >
         {theme.label}
       </Text>
+      {isInteractive && (
+        <Html position={[0, 0.34, 0]} center>
+          <button
+            type='button'
+            aria-label={`Open ${theme.label}`}
+            data-testid={`fixed-building-${type}-button`}
+            className='h-9 w-9 rounded-full border border-transparent bg-transparent p-0 text-[0] transition-colors focus-visible:border-[#2f2b27] focus-visible:bg-[#fff8ec]/85'
+            onClick={event => {
+              event.stopPropagation()
+              onActivate?.()
+            }}
+          >
+            {theme.label}
+          </button>
+        </Html>
+      )}
     </group>
   )
 }

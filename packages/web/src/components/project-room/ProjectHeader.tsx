@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useQuery, useStore } from '../../livestore-compat.js'
 import type { Project } from '@lifebuild/shared/schema'
 import { events } from '@lifebuild/shared/schema'
@@ -10,17 +9,15 @@ import {
   type ProjectLifecycleState,
   type PlanningAttributes,
 } from '@lifebuild/shared'
-import { generateRoute } from '../../constants/routes.js'
-import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 
 interface ProjectHeaderProps {
   project: Project
+  onClose?: () => void
 }
 
-export function ProjectHeader({ project }: ProjectHeaderProps) {
-  const navigate = useNavigate()
+export function ProjectHeader({ project, onClose }: ProjectHeaderProps) {
   const { store } = useStore()
   const { user } = useAuth()
   const actorId = user?.id
@@ -62,16 +59,6 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
   // Get lifecycle description
   const lifecycleDescription = describeProjectLifecycleState(lifecycleState)
 
-  const handleClose = () => {
-    // Use browser history if available, otherwise navigate to Life Map
-    // This handles deep-linking scenarios where there's no history to go back to
-    if (window.history.length > 1) {
-      navigate(-1)
-    } else {
-      navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
-    }
-  }
-
   const handleCompleteProject = () => {
     // Update lifecycle to completed
     store.commit(
@@ -89,7 +76,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
     posthog?.capture('project_completed', { projectId: project.id })
 
     setShowCompleteConfirm(false)
-    navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+    onClose?.()
   }
 
   const handleUncompleteProject = () => {
@@ -121,7 +108,7 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
     posthog?.capture('project_archived', { projectId: project.id })
 
     setShowArchiveConfirm(false)
-    navigate(preserveStoreIdInUrl(generateRoute.lifeMap()))
+    onClose?.()
   }
 
   return (
@@ -176,22 +163,6 @@ export function ProjectHeader({ project }: ProjectHeaderProps) {
               Archive
             </button>
           )}
-
-          {/* Close button */}
-          <button
-            onClick={handleClose}
-            className='p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-md transition-colors'
-            aria-label='Close and go back'
-          >
-            <svg className='w-6 h-6' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={2}
-                d='M6 18L18 6M6 6l12 12'
-              />
-            </svg>
-          </button>
         </div>
       </div>
 

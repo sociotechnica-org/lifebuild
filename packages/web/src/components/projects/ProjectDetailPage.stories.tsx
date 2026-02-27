@@ -6,6 +6,7 @@ import { makeInMemoryAdapter } from '@livestore/adapter-web'
 import { unstable_batchedUpdates as batchUpdates } from 'react-dom'
 import { Store } from '@livestore/livestore'
 import { schema, events } from '@lifebuild/shared/schema'
+import { BuildingOverlay } from '../layout/BuildingOverlay.js'
 import { ProjectDetailPage } from './ProjectDetailPage.js'
 import { ROOM_CHAT_OVERRIDE_STORAGE_KEY } from '../../constants/featureFlags.js'
 
@@ -22,7 +23,7 @@ const withProjectProviders =
   (projectId: string, boot?: (store: Store) => void) =>
   (Story: React.ComponentType): React.ReactElement => {
     if (typeof window !== 'undefined') {
-      window.history.replaceState({}, '', `/new/projects/${projectId}`)
+      window.history.replaceState({}, '', `/projects/${projectId}`)
     }
 
     return (
@@ -35,7 +36,20 @@ const withProjectProviders =
         }}
       >
         <Routes>
-          <Route path='/new/projects/:projectId' element={<Story />} />
+          <Route
+            path='/projects/:projectId'
+            element={
+              <div className='h-dvh w-full bg-[#efe2cd] p-4'>
+                <BuildingOverlay
+                  title='Project Board'
+                  onClose={() => {}}
+                  panelClassName='max-w-[1100px]'
+                >
+                  <Story />
+                </BuildingOverlay>
+              </div>
+            }
+          />
         </Routes>
       </LiveStoreProvider>
     )

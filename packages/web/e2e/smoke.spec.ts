@@ -50,9 +50,9 @@ test.describe('Smoke Tests', () => {
     // Test legacy room redirects to map-first route
     const storeId = 'test-smoke-' + Date.now()
     await page.goto(`/drafting-room?storeId=${storeId}`)
-    await page.waitForURL(new RegExp(`/life-map\\?storeId=${storeId}`), { timeout: 10000 })
+    await page.waitForURL(new RegExp(`/\\?storeId=${storeId}$`), { timeout: 10000 })
     await page.goto(`/sorting-room/gold?storeId=${storeId}`)
-    await page.waitForURL(new RegExp(`/life-map\\?storeId=${storeId}`), { timeout: 10000 })
+    await page.waitForURL(new RegExp(`/\\?storeId=${storeId}$`), { timeout: 10000 })
   })
 
   test('LiveStore sync is working', async ({ page }) => {
@@ -113,9 +113,9 @@ test.describe('Smoke Tests', () => {
     await page.goto(`/?storeId=${storeId}`)
     await expect(page).toHaveURL(new RegExp(`\\/\\?storeId=${storeId}$`))
 
-    // Navigate to life-map route directly
+    // Navigate to compatibility life-map route directly
     await page.goto(`/life-map?storeId=${storeId}`)
-    await page.waitForURL(new RegExp(`/life-map\\?storeId=${storeId}$`), { timeout: 10000 })
+    await page.waitForURL(new RegExp(`/\\?storeId=${storeId}$`), { timeout: 10000 })
 
     // In CI without sync server, LiveStore can remain on loading shell
     const isLoading = await page.locator('text=Loading LiveStore').isVisible()
@@ -130,6 +130,17 @@ test.describe('Smoke Tests', () => {
     await expect(page.getByText('Table')).toHaveCount(0)
     await expectLifeMapSurface(page)
 
-    // Basic navigation is working
+    // Overlay routes are URL-addressable and map remains the base surface.
+    await page.goto(`/workshop?storeId=${storeId}`)
+    await expect(page).toHaveURL(new RegExp(`/workshop\\?storeId=${storeId}$`))
+    await expect(page.getByRole('heading', { name: 'Workshop' })).toBeVisible()
+
+    await page.goto(`/sanctuary?storeId=${storeId}`)
+    await expect(page).toHaveURL(new RegExp(`/sanctuary\\?storeId=${storeId}$`))
+    await expect(page.getByRole('heading', { name: 'Sanctuary' })).toBeVisible()
+
+    await page.goto(`/projects/smoke-project?storeId=${storeId}`)
+    await expect(page).toHaveURL(new RegExp(`/projects/smoke-project\\?storeId=${storeId}$`))
+    await expect(page.getByText('Project not found')).toBeVisible()
   })
 })

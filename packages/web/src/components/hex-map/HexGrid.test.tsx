@@ -75,9 +75,14 @@ vi.mock('./HexCell.js', () => ({
 }))
 
 vi.mock('./FixedBuilding.js', () => ({
-  FixedBuilding: ({ type }: { type: string }) => (
-    <div data-testid={`fixed-building-${type}`}>{type}</div>
-  ),
+  FixedBuilding: ({ type, onActivate }: { type: string; onActivate?: () => void }) =>
+    onActivate ? (
+      <button data-testid={`fixed-building-${type}`} onClick={onActivate} type='button'>
+        {type}
+      </button>
+    ) : (
+      <div data-testid={`fixed-building-${type}`}>{type}</div>
+    ),
 }))
 
 describe('HexGrid placement behavior', () => {
@@ -87,6 +92,26 @@ describe('HexGrid placement behavior', () => {
     expect(screen.getByTestId('fixed-building-campfire')).toBeInTheDocument()
     expect(screen.getByTestId('fixed-building-sanctuary')).toBeInTheDocument()
     expect(screen.getByTestId('fixed-building-workshop')).toBeInTheDocument()
+  })
+
+  it('opens sanctuary and workshop overlays via fixed-building callbacks', () => {
+    const onOpenSanctuary = vi.fn()
+    const onOpenWorkshop = vi.fn()
+
+    render(<HexGrid onOpenSanctuary={onOpenSanctuary} onOpenWorkshop={onOpenWorkshop} />)
+
+    fireEvent.click(screen.getByTestId('fixed-building-sanctuary'))
+    fireEvent.click(screen.getByTestId('fixed-building-workshop'))
+
+    expect(onOpenSanctuary).toHaveBeenCalledTimes(1)
+    expect(onOpenWorkshop).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps campfire non-interactive', () => {
+    render(<HexGrid onOpenSanctuary={vi.fn()} onOpenWorkshop={vi.fn()} />)
+
+    expect(screen.queryByRole('button', { name: /campfire/i })).toBeNull()
+    expect(screen.getByTestId('fixed-building-campfire')).toBeInTheDocument()
   })
 
   it('marks all reserved landmark cells as blocked in placement mode', () => {
