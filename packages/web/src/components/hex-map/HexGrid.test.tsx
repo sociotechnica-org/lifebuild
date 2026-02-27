@@ -74,7 +74,34 @@ vi.mock('./HexCell.js', () => ({
   ),
 }))
 
+vi.mock('./FixedBuilding.js', () => ({
+  FixedBuilding: ({ type }: { type: string }) => (
+    <div data-testid={`fixed-building-${type}`}>{type}</div>
+  ),
+}))
+
 describe('HexGrid placement behavior', () => {
+  it('renders fixed buildings at reserved coordinates', () => {
+    render(<HexGrid />)
+
+    expect(screen.getByTestId('fixed-building-campfire')).toBeInTheDocument()
+    expect(screen.getByTestId('fixed-building-sanctuary')).toBeInTheDocument()
+    expect(screen.getByTestId('fixed-building-workshop')).toBeInTheDocument()
+  })
+
+  it('marks all reserved landmark cells as blocked in placement mode', () => {
+    render(
+      <HexGrid
+        placementProject={{ id: 'project-1', name: 'Project Alpha' }}
+        onPlaceProject={vi.fn()}
+      />
+    )
+
+    expect(screen.getByTestId('hex-cell-0,0,0')).toHaveAttribute('data-state', 'blocked')
+    expect(screen.getByTestId('hex-cell-0,-1,1')).toHaveAttribute('data-state', 'blocked')
+    expect(screen.getByTestId('hex-cell-1,-1,0')).toHaveAttribute('data-state', 'blocked')
+  })
+
   it('does not cancel placement mode when a blocked cell is clicked', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     const onCancelPlacement = vi.fn()

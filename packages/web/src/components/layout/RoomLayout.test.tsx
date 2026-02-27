@@ -110,7 +110,7 @@ describe('RoomLayout', () => {
     expect(screen.queryByText('Send')).not.toBeInTheDocument()
   })
 
-  it('preserves shell padding for full-height room layouts', () => {
+  it('uses full-bleed shell mode for life map layouts', () => {
     render(
       <MemoryRouter>
         <RoomLayout room={LIFE_MAP_ROOM}>
@@ -119,6 +119,6 @@ describe('RoomLayout', () => {
       </MemoryRouter>
     )
 
-    expect(screen.getByRole('main')).toHaveClass('p-3.5')
+    expect(screen.getByRole('main')).not.toHaveClass('p-3.5')
   })
 })

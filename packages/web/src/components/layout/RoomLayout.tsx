@@ -52,6 +52,7 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children, noScroll
   const posthog = usePostHog()
   const [isChatOpen, setIsChatOpen] = usePersistentChatToggle(room.roomId)
   const chat = useRoomChat(room)
+  const isLifeMapRoom = room.roomId === 'life-map'
   const previousOpenRef = React.useRef(isChatOpen)
   const previousRoomIdRef = React.useRef(room.roomId)
   const disabledReason = chat.isConversationArchived
@@ -93,6 +94,9 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children, noScroll
     conversationId: chat.conversation?.id ?? null,
     sendDirectMessage: chat.sendDirectMessage,
   }
+  const contentContainerClasses = isLifeMapRoom
+    ? 'h-full flex'
+    : `h-full flex gap-4 ${isChatOpen ? 'mr-[25rem]' : ''}`
 
   return (
     <RoomChatContext.Provider value={chatContextValue}>
@@ -100,9 +104,10 @@ export const RoomLayout: React.FC<RoomLayoutProps> = ({ room, children, noScroll
         isChatOpen={isChatOpen}
         onChatToggle={() => setIsChatOpen(open => !open)}
         fullHeight
-        noScroll={noScroll}
+        noScroll={noScroll || isLifeMapRoom}
+        fullBleed={isLifeMapRoom}
       >
-        <div className={`h-full flex gap-4 ${isChatOpen ? 'mr-[25rem]' : ''}`}>
+        <div className={contentContainerClasses}>
           <div className='h-full flex-1 min-w-0'>{children}</div>
         </div>
         {isChatOpen && (

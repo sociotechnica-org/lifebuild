@@ -2,9 +2,6 @@ import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from
 import { useQuery, useStore } from '../../livestore-compat.js'
 import { useNavigate } from 'react-router-dom'
 import {
-  getProjectsByCategory$,
-  getAllWorkerProjects$,
-  getAllTasks$,
   getProjects$,
   getAllProjectsIncludingArchived$,
   getHexPositions$,
@@ -14,17 +11,12 @@ import { events } from '@lifebuild/shared/schema'
 import { createHex } from '@lifebuild/shared/hex'
 import type { HexCoord } from '@lifebuild/shared/hex'
 import { PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
-import { CategoryCard } from './CategoryCard.js'
 import { generateRoute } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
-
-type LifeMapViewMode = 'map' | 'list'
-
-const DESKTOP_BREAKPOINT_QUERY = '(min-width: 768px)'
 
 const LazyHexMap = lazy(() =>
   import('../hex-map/HexMap.js').then(module => ({ default: module.HexMap }))
@@ -43,66 +35,16 @@ const supportsWebGL = (): boolean => {
   }
 }
 
-const getDesktopMediaQueryList = (): MediaQueryList | null => {
-  if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-    return null
-  }
-
-  return window.matchMedia(DESKTOP_BREAKPOINT_QUERY)
-}
-
-const getInitialDesktopValue = () => {
-  return getDesktopMediaQueryList()?.matches ?? false
-}
-
-const useIsDesktopViewport = () => {
-  const [isDesktopViewport, setIsDesktopViewport] = useState(getInitialDesktopValue)
-
-  useEffect(() => {
-    const mediaQueryList = getDesktopMediaQueryList()
-    if (!mediaQueryList) {
-      return
-    }
-    const handleChange = (event: MediaQueryListEvent) => {
-      setIsDesktopViewport(event.matches)
-    }
-
-    setIsDesktopViewport(mediaQueryList.matches)
-    if (typeof mediaQueryList.addEventListener === 'function') {
-      mediaQueryList.addEventListener('change', handleChange)
-    } else {
-      mediaQueryList.addListener(handleChange)
-    }
-
-    return () => {
-      if (typeof mediaQueryList.removeEventListener === 'function') {
-        mediaQueryList.removeEventListener('change', handleChange)
-      } else {
-        mediaQueryList.removeListener(handleChange)
-      }
-    }
-  }, [])
-
-  return isDesktopViewport
-}
-
 const renderHexMapLoadingState = () => {
   return (
-    <div className='h-full min-h-[520px] flex items-center justify-center bg-[#efe2cd]'>
-      <div className='text-center'>
-        <div className='text-sm font-semibold text-[#6f5b44]'>Loading map...</div>
-      </div>
+    <div className='h-full w-full flex items-center justify-center bg-[#efe2cd]'>
+      <div className='text-sm font-semibold text-[#6f5b44]'>Loading map...</div>
     </div>
   )
 }
 
 /**
- * Life Map - The overview of all eight life categories
- * Displays categories in a responsive grid with project/worker stats.
- *
- * Grid layout (2x4 on desktop):
- * Row 1: Health, Relationships, Finances, Growth
- * Row 2: Leisure, Spirituality, Home, Contribution
+ * Life Map renders the full-bleed hex map as the primary surface.
  */
 export const LifeMap: React.FC = () => {
   const navigate = useNavigate()
@@ -110,66 +52,17 @@ export const LifeMap: React.FC = () => {
   const { user } = useAuth()
   const posthog = usePostHog()
   const actorId = user?.id
-  const isDesktopViewport = useIsDesktopViewport()
   const [hasWebGLSupport] = useState(() => supportsWebGL())
-  const [viewMode, setViewMode] = useState<LifeMapViewMode>('map')
-  const [completedExpanded, setCompletedExpanded] = useState(false)
-  const [archivedExpanded, setArchivedExpanded] = useState(false)
 
   useEffect(() => {
     posthog?.capture('life_map_viewed')
-  }, [])
+  }, [posthog])
 
-  useEffect(() => {
-    if (!isDesktopViewport || !hasWebGLSupport) {
-      setViewMode('list')
-      return
-    }
-
-    setViewMode('map')
-  }, [hasWebGLSupport, isDesktopViewport])
-
-  const allWorkerProjects = useQuery(getAllWorkerProjects$) ?? []
-  const allTasks = useQuery(getAllTasks$) ?? []
   const allProjects = useQuery(getProjects$) ?? []
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
 
-  // Query projects for each category.
-  const healthProjects = useQuery(getProjectsByCategory$('health')) ?? []
-  const relationshipsProjects = useQuery(getProjectsByCategory$('relationships')) ?? []
-  const financesProjects = useQuery(getProjectsByCategory$('finances')) ?? []
-  const growthProjects = useQuery(getProjectsByCategory$('growth')) ?? []
-  const leisureProjects = useQuery(getProjectsByCategory$('leisure')) ?? []
-  const spiritualityProjects = useQuery(getProjectsByCategory$('spirituality')) ?? []
-  const homeProjects = useQuery(getProjectsByCategory$('home')) ?? []
-  const contributionProjects = useQuery(getProjectsByCategory$('contribution')) ?? []
-
-  // Create a map of category to projects.
-  const categoryProjectsMap = useMemo(() => {
-    return {
-      health: healthProjects,
-      relationships: relationshipsProjects,
-      finances: financesProjects,
-      growth: growthProjects,
-      leisure: leisureProjects,
-      spirituality: spiritualityProjects,
-      home: homeProjects,
-      contribution: contributionProjects,
-    }
-  }, [
-    healthProjects,
-    relationshipsProjects,
-    financesProjects,
-    growthProjects,
-    leisureProjects,
-    spiritualityProjects,
-    homeProjects,
-    contributionProjects,
-  ])
-
-  // Build a set of project IDs that are in an active lifecycle state.
   const activeProjectIds = useMemo(() => {
     return new Set(
       allProjects
@@ -180,53 +73,6 @@ export const LifeMap: React.FC = () => {
     )
   }, [allProjects])
 
-  // Calculate workers for each category.
-  const categoryWorkersMap = useMemo(() => {
-    const workersMap: Record<string, number> = {}
-    PROJECT_CATEGORIES.forEach(category => {
-      const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
-      const projectIds = projects.map(project => project.id)
-      const workerIds = new Set<string>()
-      projectIds.forEach(projectId => {
-        const projectWorkers = allWorkerProjects.filter(
-          workerProject => workerProject.projectId === projectId
-        )
-        projectWorkers.forEach(workerProject => workerIds.add(workerProject.workerId))
-      })
-      workersMap[category.value] = workerIds.size
-    })
-    return workersMap
-  }, [categoryProjectsMap, allWorkerProjects])
-
-  // Build a map of projectId -> task completion percentage.
-  const projectCompletionMap = useMemo(() => {
-    const completionMap = new Map<string, number>()
-
-    // Group tasks by project (excluding archived tasks for consistency with project detail views).
-    const tasksByProject = new Map<string, (typeof allTasks)[number][]>()
-    allTasks.forEach(task => {
-      if (task.projectId && task.archivedAt === null) {
-        const existing = tasksByProject.get(task.projectId) ?? []
-        tasksByProject.set(task.projectId, [...existing, task])
-      }
-    })
-
-    // Calculate completion for each project.
-    tasksByProject.forEach((tasks, projectId) => {
-      const totalTasks = tasks.length
-      if (totalTasks === 0) {
-        completionMap.set(projectId, 0)
-        return
-      }
-      const completedTasks = tasks.filter(task => task.status === 'done').length
-      const percentage = Math.round((completedTasks / totalTasks) * 100)
-      completionMap.set(projectId, percentage)
-    })
-
-    return completionMap
-  }, [allTasks])
-
-  // Get completed projects.
   const completedProjects = useMemo(() => {
     return allProjects
       .filter(project => {
@@ -234,26 +80,22 @@ export const LifeMap: React.FC = () => {
         return lifecycle.status === 'completed'
       })
       .sort((projectA, projectB) => {
-        // Sort by completion date, most recent first.
         const lifecycleA = resolveLifecycleState(projectA.projectLifecycleState, null)
         const lifecycleB = resolveLifecycleState(projectB.projectLifecycleState, null)
         return (lifecycleB.completedAt ?? 0) - (lifecycleA.completedAt ?? 0)
       })
   }, [allProjects])
 
-  // Get archived projects (filter from all projects including archived).
   const archivedProjects = useMemo(() => {
     return allProjectsIncludingArchived
       .filter(project => project.archivedAt !== null)
       .sort((projectA, projectB) => {
-        // Sort by archive date, most recent first.
         const projectADate = projectA.archivedAt ? new Date(projectA.archivedAt).getTime() : 0
         const projectBDate = projectB.archivedAt ? new Date(projectB.archivedAt).getTime() : 0
         return projectBDate - projectADate
       })
   }, [allProjectsIncludingArchived])
 
-  // Handler for unarchiving a project.
   const handleUnarchive = (projectId: string) => {
     store.commit(
       events.projectUnarchived({
@@ -370,293 +212,36 @@ export const LifeMap: React.FC = () => {
     }))
   }, [archivedProjects])
 
-  // Check if there are any categories with projects.
-  const categoriesWithProjects = PROJECT_CATEGORIES.filter(category => {
-    const projects = categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
-    return projects.length > 0
-  })
-
-  const hasNoProjects = categoriesWithProjects.length === 0
-  const canRenderHexMap = isDesktopViewport && hasWebGLSupport
-  const canShowViewModeToggle = canRenderHexMap && !hasNoProjects
-  const shouldRenderHexMap = canShowViewModeToggle && viewMode === 'map'
-
-  const renderCategoryCardLayout = () => {
-    if (hasNoProjects) {
-      return (
-        <div className='flex min-h-[calc(100vh-300px)] items-center justify-center'>
-          <div className='text-center'>
-            <p className='mb-4 text-lg text-gray-500'>No projects yet</p>
-            <p className='text-sm text-gray-500'>
-              Project creation is currently unavailable from this view.
-            </p>
-          </div>
-        </div>
-      )
-    }
-
+  if (!hasWebGLSupport) {
     return (
-      <div className='bg-white rounded-2xl p-4 border border-[#e8e4de]'>
-        <div className='grid grid-cols-[repeat(auto-fit,minmax(280px,1fr))] gap-4'>
-          {categoriesWithProjects.map(category => {
-            const projects =
-              categoryProjectsMap[category.value as keyof typeof categoryProjectsMap] || []
-            const workers = categoryWorkersMap[category.value] || 0
-
-            // Split projects based on lifecycle status:
-            // - Active: projects with lifecycle status='active'
-            // - Backlog: projects with status='backlog'
-            const activeProjects = projects.filter(project => activeProjectIds.has(project.id))
-
-            // Count backlog projects (status='backlog', stage 4).
-            const backlogProjects = projects.filter(project => {
-              const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
-              return lifecycle.status === 'backlog' && lifecycle.stage === 4
-            })
-
-            // Count early-stage planning projects (stages 1-3).
-            const planningProjects = projects.filter(project => {
-              const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
-              return (
-                (lifecycle.status === 'planning' || lifecycle.status === 'backlog') &&
-                lifecycle.stage >= 1 &&
-                lifecycle.stage <= 3
-              )
-            })
-
-            return (
-              <CategoryCard
-                key={category.value}
-                categoryValue={category.value}
-                categoryName={category.name}
-                categoryIcon={category.icon}
-                categoryColor={category.colorHex}
-                projectCount={projects.length}
-                workerCount={workers}
-                activeProjects={activeProjects}
-                backlogCount={backlogProjects.length}
-                planningCount={planningProjects.length}
-                projectCompletionMap={projectCompletionMap}
-              />
-            )
-          })}
+      <div className='h-full w-full flex items-center justify-center bg-[#efe2cd]'>
+        <div className='rounded-xl border border-[#d8cab3] bg-[#fff8ec] px-4 py-3 text-center'>
+          <p className='text-sm font-semibold text-[#2f2b27]'>Map unavailable on this device</p>
+          <p className='mt-1 text-xs text-[#7f6952]'>WebGL is required to render the Life Map.</p>
         </div>
-
-        {/* Completed Projects Section */}
-        {completedProjects.length > 0 && (
-          <div className='mt-4 border border-[#e8e4de] rounded-xl overflow-hidden'>
-            <button
-              type='button'
-              className='w-full flex items-center justify-between p-4 bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors cursor-pointer border-none text-left'
-              onClick={() => setCompletedExpanded(!completedExpanded)}
-            >
-              <div className='flex items-center gap-2'>
-                <span className='text-sm font-semibold text-[#2f2b27]'>
-                  Completed ({completedProjects.length})
-                </span>
-              </div>
-              <svg
-                className={`w-5 h-5 text-[#8b8680] transition-transform ${completedExpanded ? 'rotate-180' : ''}`}
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M19 9l-7 7-7-7'
-                />
-              </svg>
-            </button>
-
-            {completedExpanded && (
-              <div className='bg-white divide-y divide-[#e8e4de]'>
-                {completedProjects.map(project => {
-                  const lifecycle = resolveLifecycleState(project.projectLifecycleState, null)
-                  const completedDate = lifecycle.completedAt
-                    ? new Date(lifecycle.completedAt).toLocaleDateString()
-                    : null
-                  const category = PROJECT_CATEGORIES.find(item => item.value === project.category)
-
-                  return (
-                    <div
-                      key={project.id}
-                      className='flex items-center justify-between p-4 hover:bg-[#faf9f7] cursor-pointer transition-colors'
-                      onClick={() =>
-                        navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
-                      }
-                    >
-                      <div className='flex items-center gap-3'>
-                        {category && (
-                          <span
-                            className='w-2 h-2 rounded-full flex-shrink-0'
-                            style={{ backgroundColor: category.colorHex }}
-                          />
-                        )}
-                        <div>
-                          <div className='text-sm font-medium text-[#2f2b27]'>{project.name}</div>
-                          <div className='text-xs text-[#8b8680]'>
-                            {category?.name}
-                            {completedDate && ` · Completed ${completedDate}`}
-                          </div>
-                        </div>
-                      </div>
-                      <svg
-                        className='w-5 h-5 text-green-600'
-                        fill='none'
-                        stroke='currentColor'
-                        viewBox='0 0 24 24'
-                      >
-                        <path
-                          strokeLinecap='round'
-                          strokeLinejoin='round'
-                          strokeWidth={2}
-                          d='M5 13l4 4L19 7'
-                        />
-                      </svg>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Archived Projects Section */}
-        {archivedProjects.length > 0 && (
-          <div className='mt-4 border border-[#e8e4de] rounded-xl overflow-hidden'>
-            <button
-              type='button'
-              className='w-full flex items-center justify-between p-4 bg-[#faf9f7] hover:bg-[#f5f3f0] transition-colors cursor-pointer border-none text-left'
-              onClick={() => setArchivedExpanded(!archivedExpanded)}
-            >
-              <div className='flex items-center gap-2'>
-                <span className='text-sm font-semibold text-[#2f2b27]'>
-                  Archived ({archivedProjects.length})
-                </span>
-              </div>
-              <svg
-                className={`w-5 h-5 text-[#8b8680] transition-transform ${archivedExpanded ? 'rotate-180' : ''}`}
-                fill='none'
-                stroke='currentColor'
-                viewBox='0 0 24 24'
-              >
-                <path
-                  strokeLinecap='round'
-                  strokeLinejoin='round'
-                  strokeWidth={2}
-                  d='M19 9l-7 7-7-7'
-                />
-              </svg>
-            </button>
-
-            {archivedExpanded && (
-              <div className='bg-white divide-y divide-[#e8e4de]'>
-                {archivedProjects.map(project => {
-                  const archivedDate = project.archivedAt
-                    ? new Date(project.archivedAt).toLocaleDateString()
-                    : null
-                  const category = PROJECT_CATEGORIES.find(item => item.value === project.category)
-
-                  return (
-                    <div
-                      key={project.id}
-                      className='flex items-center justify-between p-4 hover:bg-[#faf9f7] cursor-pointer transition-colors'
-                      onClick={() =>
-                        navigate(preserveStoreIdInUrl(generateRoute.project(project.id)))
-                      }
-                    >
-                      <div className='flex items-center gap-3'>
-                        {category && (
-                          <span
-                            className='w-2 h-2 rounded-full flex-shrink-0'
-                            style={{ backgroundColor: category.colorHex }}
-                          />
-                        )}
-                        <div>
-                          <div className='text-sm font-medium text-[#2f2b27]'>{project.name}</div>
-                          <div className='text-xs text-[#8b8680]'>
-                            {category?.name}
-                            {archivedDate && ` · Archived ${archivedDate}`}
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        type='button'
-                        className='text-xs py-1.5 px-3 rounded-lg bg-transparent border border-[#e8e4de] text-[#8b8680] cursor-pointer transition-all duration-150 hover:bg-[#faf9f7] hover:border-[#8b8680] hover:text-[#2f2b27]'
-                        onClick={event => {
-                          event.stopPropagation()
-                          handleUnarchive(project.id)
-                        }}
-                      >
-                        Unarchive
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-          </div>
-        )}
       </div>
     )
   }
 
   return (
-    <div className='relative h-full'>
-      {canShowViewModeToggle && (
-        <div className='pointer-events-none absolute top-2 left-1/2 z-[3] -translate-x-1/2'>
-          <div className='pointer-events-auto inline-flex items-center gap-1 rounded-full border border-[#d8cab3] bg-[#faf4e9]/90 p-1 shadow-sm backdrop-blur-sm'>
-            <button
-              type='button'
-              className={`rounded-full border-none px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors ${
-                viewMode === 'map'
-                  ? 'bg-[#2f2b27] text-[#faf9f7]'
-                  : 'bg-transparent text-[#7f6952] hover:bg-[#f0e3cf]'
-              }`}
-              onClick={() => setViewMode('map')}
-            >
-              Map
-            </button>
-            <button
-              type='button'
-              className={`rounded-full border-none px-3 py-1.5 text-xs font-semibold cursor-pointer transition-colors ${
-                viewMode === 'list'
-                  ? 'bg-[#2f2b27] text-[#faf9f7]'
-                  : 'bg-transparent text-[#7f6952] hover:bg-[#f0e3cf]'
-              }`}
-              onClick={() => setViewMode('list')}
-            >
-              List
-            </button>
-          </div>
-        </div>
-      )}
-
-      {shouldRenderHexMap ? (
-        <div className='absolute -inset-3.5 min-h-[520px] overflow-hidden bg-[#efe2cd]'>
-          <Suspense fallback={renderHexMapLoadingState()}>
-            <LazyHexMap
-              tiles={placedHexTiles}
-              unplacedProjects={unplacedProjects}
-              completedProjects={completedProjectsForPanel}
-              archivedProjects={archivedProjectsForPanel}
-              onPlaceProject={handlePlaceProjectOnMap}
-              onRemovePlacedProject={handleRemoveProjectFromMap}
-              onSelectUnplacedProject={projectId =>
-                navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
-              }
-              onOpenProject={projectId =>
-                navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
-              }
-              onUnarchiveProject={handleUnarchive}
-            />
-          </Suspense>
-        </div>
-      ) : (
-        <div className={canShowViewModeToggle ? 'pt-12' : ''}>{renderCategoryCardLayout()}</div>
-      )}
+    <div className='relative h-full w-full overflow-hidden bg-[#efe2cd]'>
+      <Suspense fallback={renderHexMapLoadingState()}>
+        <LazyHexMap
+          tiles={placedHexTiles}
+          unplacedProjects={unplacedProjects}
+          completedProjects={completedProjectsForPanel}
+          archivedProjects={archivedProjectsForPanel}
+          onPlaceProject={handlePlaceProjectOnMap}
+          onRemovePlacedProject={handleRemoveProjectFromMap}
+          onSelectUnplacedProject={projectId =>
+            navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+          }
+          onOpenProject={projectId =>
+            navigate(preserveStoreIdInUrl(generateRoute.project(projectId)))
+          }
+          onUnarchiveProject={handleUnarchive}
+        />
+      </Suspense>
     </div>
   )
 }

@@ -15,7 +15,7 @@ import type { NavigationContext } from '../../../server/src/services/pi/types.js
  * Detect which page/view the user is on based on the route
  */
 function detectCurrentView(pathname: string): string | undefined {
-  if (pathname === '/life-map') {
+  if (pathname === '/' || pathname === '/life-map') {
     return 'Life Map - Overview of all life categories and active projects'
   }
   return undefined

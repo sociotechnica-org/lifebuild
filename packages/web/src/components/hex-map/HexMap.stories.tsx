@@ -15,7 +15,7 @@ const meta: Meta<typeof HexMap> = {
     docs: {
       description: {
         component:
-          'Three.js Life Map shell for PR1. Renders a 3-ring (37 cell) hex grid with fixed orthographic camera.',
+          'Map-first Three.js surface with fixed landmarks (campfire, sanctuary, workshop), project tiles, and overlay panels.',
       },
     },
   },
@@ -27,7 +27,7 @@ type Story = StoryObj<typeof meta>
 
 export const EmptyGrid: Story = {
   render: () => (
-    <div className='h-[680px] w-full'>
+    <div className='h-dvh w-full'>
       <HexMap />
     </div>
   ),
@@ -35,13 +35,13 @@ export const EmptyGrid: Story = {
 
 export const WithProjectTiles: Story = {
   render: () => (
-    <div className='h-[680px] w-full'>
+    <div className='h-dvh w-full'>
       <HexMap
         tiles={[
           {
             id: 'tile-1',
             projectId: 'project-1',
-            coord: createHex(0, 0),
+            coord: createHex(-1, 1),
             projectName: 'Launch beta map',
             categoryColor: '#10B981',
             category: 'growth',
@@ -49,7 +49,7 @@ export const WithProjectTiles: Story = {
           {
             id: 'tile-2',
             projectId: 'project-2',
-            coord: createHex(1, -1),
+            coord: createHex(2, -1),
             projectName: 'Complete handbook',
             categoryColor: '#3B82F6',
             isCompleted: true,
@@ -120,7 +120,7 @@ export const PlacementFlow: Story = {
     }
 
     return (
-      <div className='h-[680px] w-full'>
+      <div className='h-dvh w-full'>
         <HexMap
           tiles={tiles}
           unplacedProjects={unplacedProjects}
