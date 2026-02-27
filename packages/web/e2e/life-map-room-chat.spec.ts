@@ -8,7 +8,10 @@ test.describe('Life Map room chat', () => {
     await page.goto(`/life-map?storeId=${storeId}&roomChat=1`)
     await waitForLiveStoreReady(page)
 
-    const toggle = page.getByRole('button', { name: /open chat/i })
+    await expect(page.getByText('Drafting Room')).toHaveCount(0)
+    await expect(page.getByText('Sorting Room')).toHaveCount(0)
+
+    const toggle = page.getByRole('button', { name: /open chat|close chat/i })
     await expect(toggle).toBeVisible()
     await toggle.click()
 

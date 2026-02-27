@@ -17,12 +17,13 @@ type NewUiShellProps = {
   fullHeight?: boolean
   /** When true, disables scrolling on main content (children handle their own scrolling, e.g. project views) */
   noScroll?: boolean
+  /** When true, removes content padding/max-width so children can render edge-to-edge */
+  fullBleed?: boolean
 }
 
 /**
  * Minimal shell for the next-generation UI surfaces.
- * Keeps legacy navigation/chat chrome out of new routes while providing
- * a consistent canvas and spacing baseline with persistent navigation.
+ * Keeps the app header/chat chrome while providing configurable content geometry.
  */
 export const NewUiShell: React.FC<NewUiShellProps> = ({
   children,
@@ -30,6 +31,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
   onChatToggle,
   fullHeight = false,
   noScroll = false,
+  fullBleed = false,
 }) => {
   const location = useLocation()
   const { user: authUser, isAuthenticated, logout } = useAuth()
@@ -116,7 +118,11 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
     ? `flex-1 min-h-0 w-full ${noScroll ? 'overflow-hidden' : 'overflow-y-auto'}`
     : 'flex-1 min-h-0 overflow-y-auto'
 
-  const contentClasses = fullHeight ? 'h-full' : 'max-w-[1200px] mx-auto p-2'
+  const contentClasses = fullBleed
+    ? 'h-full w-full'
+    : fullHeight
+      ? 'h-full'
+      : 'max-w-[1200px] mx-auto p-2'
 
   return (
     <div
@@ -218,7 +224,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           )}
         </div>
       </header>
-      <main className={`${mainClasses} p-3.5`}>
+      <main className={`${mainClasses} ${fullBleed ? '' : 'p-3.5'}`}>
         <div className={contentClasses}>{children}</div>
       </main>
     </div>

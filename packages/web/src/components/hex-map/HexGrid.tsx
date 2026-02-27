@@ -4,10 +4,11 @@ import type { HexCoord } from '@lifebuild/shared/hex'
 import { Html } from '@react-three/drei'
 import React from 'react'
 import { useEffect, useMemo, useState } from 'react'
+import { FixedBuilding } from './FixedBuilding.js'
 import { HexCell } from './HexCell.js'
 import { HexTile, type HexTileVisualState, type HexTileWorkstream } from './HexTile.js'
 import { truncateLabel } from './labelUtils.js'
-import { isReservedProjectCoord } from './placementRules.js'
+import { FIXED_BUILDINGS, isReservedProjectCoord } from './placementRules.js'
 
 const GRID_RADIUS = 3
 const MAX_PLACEMENT_LABEL_LENGTH = 30
@@ -166,6 +167,9 @@ export function HexGrid({
           allowCompletedClick={isPlacementMode || isSelectingPlacedProject}
           onClick={() => handleTileClick(tile)}
         />
+      ))}
+      {FIXED_BUILDINGS.map(building => (
+        <FixedBuilding key={building.type} type={building.type} coord={building.coord} />
       ))}
       {isPlacementMode &&
         hoveredPlacementCell &&

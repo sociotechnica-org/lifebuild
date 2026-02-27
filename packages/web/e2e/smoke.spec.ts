@@ -30,25 +30,12 @@ test.describe('Smoke Tests', () => {
       await expect(chatElement).toBeVisible()
     }
 
-    // Test navigation by going to life map route
+    // Test legacy room redirects to map-first route
     const storeId = 'test-smoke-' + Date.now()
-    await page.goto(`/life-map?storeId=${storeId}`)
-    await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/life-map\?storeId=[^&]+/)
-
-    // Verify main interface renders
-    const lifeMapHeading = page.locator('text=Life Map').first()
-    if (await lifeMapHeading.isVisible()) {
-      await expect(lifeMapHeading).toBeVisible()
-    }
-
-    // Legacy drafting route should redirect to life map and preserve storeId
     await page.goto(`/drafting-room?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/life-map\?storeId=[^&]+/)
-
-    // Navigate directly to life map
-    await page.goto(`/life-map?storeId=${storeId}`)
+    await page.goto(`/sorting-room/gold?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/life-map\?storeId=[^&]+/)
   })
@@ -68,7 +55,7 @@ test.describe('Smoke Tests', () => {
     }
 
     // Basic functionality should be available (this tests that LiveStore has loaded)
-    // Try to access the life map page which requires LiveStore data
+    // Try to access the map page which requires LiveStore data
     await page.goto('/life-map')
     await waitForLiveStoreReady(page)
 
@@ -111,13 +98,8 @@ test.describe('Smoke Tests', () => {
     await page.goto(`/?storeId=${storeId}`)
     await expect(page).toHaveURL(/\?storeId=[^&]+$/)
 
-    // Navigate to life map route directly
+    // Navigate to life-map route directly
     await page.goto(`/life-map?storeId=${storeId}`)
-    await waitForLiveStoreReady(page)
-    await expect(page).toHaveURL(/\/life-map\?storeId=[^&]+/)
-
-    // Drafting sub-routes should also redirect to life map
-    await page.goto(`/drafting-room/new?storeId=${storeId}`)
     await waitForLiveStoreReady(page)
     await expect(page).toHaveURL(/\/life-map\?storeId=[^&]+/)
 
