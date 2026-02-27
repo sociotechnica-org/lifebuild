@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   CATEGORY_ROOMS,
   LIFE_MAP_ROOM,
+  JARVIS_ATTENDANT_ROOM,
+  MARVIN_ATTENDANT_ROOM,
   createProjectRoomDefinition,
   getCategoryRoomDefinition,
 } from '../src/rooms.js'
@@ -12,6 +14,18 @@ describe('rooms definitions', () => {
     expect(LIFE_MAP_ROOM.worker.id).toBe('life-map-mesa')
     expect(LIFE_MAP_ROOM.worker.status).toBe('inactive')
     expect(LIFE_MAP_ROOM.scope).toBe('workspace')
+  })
+
+  it('provides deterministic attendant rooms', () => {
+    expect(JARVIS_ATTENDANT_ROOM.roomId).toBe('attendant:jarvis')
+    expect(JARVIS_ATTENDANT_ROOM.worker.id).toBe('attendant-jarvis')
+    expect(JARVIS_ATTENDANT_ROOM.worker.name).toBe('Jarvis')
+    expect(JARVIS_ATTENDANT_ROOM.scope).toBe('workspace')
+
+    expect(MARVIN_ATTENDANT_ROOM.roomId).toBe('attendant:marvin')
+    expect(MARVIN_ATTENDANT_ROOM.worker.id).toBe('attendant-marvin')
+    expect(MARVIN_ATTENDANT_ROOM.worker.name).toBe('Marvin')
+    expect(MARVIN_ATTENDANT_ROOM.scope).toBe('workspace')
   })
 
   it('exposes category rooms keyed by slug', () => {

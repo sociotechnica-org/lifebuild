@@ -2,8 +2,9 @@ import React from 'react'
 import { render, screen, fireEvent } from '../../../tests/test-utils.js'
 import { describe, expect, it, beforeEach, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { RoomLayout } from './RoomLayout.js'
 import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
+import { AttendantRailProvider } from './AttendantRailProvider.js'
+import { RoomLayout } from './RoomLayout.js'
 
 vi.mock('../../lib/analytics.js', () => ({
   usePostHog: () => ({
@@ -70,54 +71,49 @@ vi.mock('../../hooks/useRoomChat.js', () => ({
   }),
 }))
 
+const renderLayout = () => {
+  return render(
+    <MemoryRouter>
+      <AttendantRailProvider>
+        <RoomLayout room={LIFE_MAP_ROOM}>
+          <div>Life Map Content</div>
+        </RoomLayout>
+      </AttendantRailProvider>
+    </MemoryRouter>
+  )
+}
+
 describe('RoomLayout', () => {
   beforeEach(() => {
-    window.localStorage.clear()
     mockSendMessage.mockReset()
     mockSetMessageText.mockReset()
   })
 
-  it('renders children and toggles chat panel', () => {
-    render(
-      <MemoryRouter>
-        <RoomLayout room={LIFE_MAP_ROOM}>
-          <div>Life Map Content</div>
-        </RoomLayout>
-      </MemoryRouter>
-    )
+  it('renders children and attendant rail interactions', () => {
+    renderLayout()
 
     expect(screen.getByText('Life Map Content')).toBeInTheDocument()
+    expect(screen.getByTestId('attendant-rail-avatar-jarvis')).toBeInTheDocument()
+    expect(screen.getByTestId('attendant-rail-avatar-marvin')).toBeInTheDocument()
 
-    const toggle = screen.getByRole('button', { name: /open chat/i })
-    fireEvent.click(toggle)
+    const jarvisToggle = screen.getByRole('button', { name: /open jarvis chat/i })
+    fireEvent.click(jarvisToggle)
 
-    expect(screen.getByRole('button', { name: /close chat/i })).toBeInTheDocument()
-    expect(screen.getByText('Send')).toBeInTheDocument()
+    expect(screen.getByTestId('attendant-chat-panel')).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: /close jarvis chat/i }))
+    expect(screen.queryByTestId('attendant-chat-panel')).not.toBeInTheDocument()
   })
 
-  it('renders chat panel in closed state by default', () => {
-    render(
-      <MemoryRouter>
-        <RoomLayout room={LIFE_MAP_ROOM}>
-          <div>Life Map Content</div>
-        </RoomLayout>
-      </MemoryRouter>
-    )
+  it('does not render the legacy header chat bubble', () => {
+    renderLayout()
 
-    expect(screen.getByText('Life Map Content')).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /open chat/i })).toBeInTheDocument()
-    // Chat panel should not be visible when closed
-    expect(screen.queryByText('Send')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /open chat/i })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /close chat/i })).not.toBeInTheDocument()
   })
 
   it('uses full-bleed shell mode for life map layouts', () => {
-    render(
-      <MemoryRouter>
-        <RoomLayout room={LIFE_MAP_ROOM}>
-          <div>Life Map Content</div>
-        </RoomLayout>
-      </MemoryRouter>
-    )
+    renderLayout()
 
     expect(screen.getByRole('main')).not.toHaveClass('p-3.5')
   })

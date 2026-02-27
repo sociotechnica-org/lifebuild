@@ -8,6 +8,7 @@ import { Store } from '@livestore/livestore'
 import { events, schema } from '@lifebuild/shared/schema'
 import { LifeMap } from './LifeMap.js'
 import { RoomLayout } from '../layout/RoomLayout.js'
+import { AttendantRailProvider } from '../layout/AttendantRailProvider.js'
 import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
 
 const storyConversationId = 'story-conversation-life-map'
@@ -16,8 +17,7 @@ const withLifeMapProviders =
   (boot?: (store: Store) => void) =>
   (StoryComponent: React.ComponentType): React.ReactElement => {
     if (typeof window !== 'undefined') {
-      window.localStorage.setItem(`room-chat:${LIFE_MAP_ROOM.roomId}:open`, 'true')
-      window.history.replaceState({}, '', `/new/life-map?roomChat=1&storeId=storybook`)
+      window.history.replaceState({}, '', '/new/life-map?storeId=storybook')
     }
 
     return (
@@ -34,9 +34,11 @@ const withLifeMapProviders =
           <Route
             path='/new/life-map'
             element={
-              <RoomLayout room={LIFE_MAP_ROOM}>
-                <StoryComponent />
-              </RoomLayout>
+              <AttendantRailProvider>
+                <RoomLayout room={LIFE_MAP_ROOM}>
+                  <StoryComponent />
+                </RoomLayout>
+              </AttendantRailProvider>
             }
           />
         </Routes>
@@ -226,7 +228,7 @@ const meta: Meta<typeof LifeMap> = {
     docs: {
       description: {
         component:
-          'Life Map surface rendered inside RoomLayout so the room chat sidebar can be toggled on/off while exploring categories.',
+          'Life Map surface rendered inside RoomLayout with the global attendant rail available while exploring categories.',
       },
     },
   },

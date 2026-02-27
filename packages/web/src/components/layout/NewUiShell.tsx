@@ -7,12 +7,13 @@ import { usePostHog } from '../../lib/analytics.js'
 import { getUsers$ } from '@lifebuild/shared/queries'
 import type { User } from '@lifebuild/shared/schema'
 import { getInitials, isCurrentUserAdmin } from '../utils/helpers.js'
+import { AttendantChatPanel } from './AttendantChatPanel.js'
+import { AttendantRail } from './AttendantRail.js'
+import { useAttendantRail } from './AttendantRailProvider.js'
 import { LiveStoreStatus } from './LiveStoreStatus.js'
 
 type NewUiShellProps = {
   children: React.ReactNode
-  isChatOpen?: boolean
-  onChatToggle?: () => void
   /** When true, uses h-screen flex layout for full-height content like project views */
   fullHeight?: boolean
   /** When true, disables scrolling on main content (children handle their own scrolling, e.g. project views) */
@@ -27,12 +28,11 @@ type NewUiShellProps = {
  */
 export const NewUiShell: React.FC<NewUiShellProps> = ({
   children,
-  isChatOpen = false,
-  onChatToggle,
   fullHeight = false,
   noScroll = false,
   fullBleed = false,
 }) => {
+  const { activeAttendantId, toggleAttendant } = useAttendantRail()
   const location = useLocation()
   const { user: authUser, isAuthenticated, logout } = useAuth()
   const users = useQuery(getUsers$) ?? []
@@ -157,18 +157,7 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           >
             Feedback
           </button>
-          {isAuthenticated && onChatToggle && <LiveStoreStatus />}
-          {onChatToggle && (
-            <button
-              type='button'
-              onClick={onChatToggle}
-              className='bg-transparent border-none text-2xl cursor-pointer p-1 rounded-lg transition-all duration-[160ms] leading-none hover:bg-black/[0.04]'
-              aria-label={isChatOpen ? 'Close chat' : 'Open chat'}
-              title={isChatOpen ? 'Close chat' : 'Open chat'}
-            >
-              💬
-            </button>
-          )}
+          {isAuthenticated && <LiveStoreStatus />}
           {isAuthenticated ? (
             <div className='flex flex-col items-end gap-1'>
               <button
@@ -227,6 +216,8 @@ export const NewUiShell: React.FC<NewUiShellProps> = ({
           )}
         </div>
       </header>
+      <AttendantRail activeAttendantId={activeAttendantId} onAttendantClick={toggleAttendant} />
+      <AttendantChatPanel />
       <main className={`${mainClasses} ${fullBleed ? '' : 'p-3.5'}`}>
         <div className={contentClasses}>{children}</div>
       </main>

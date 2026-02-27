@@ -150,6 +150,70 @@ export const DRAFTING_ROOM: StaticRoomDefinition = {
   },
 }
 
+const JARVIS_ATTENDANT_PROMPT = `You are Jarvis, the counselor attendant for LifeBuild.
+
+## Your Role
+Help the Director reflect, gain clarity, and choose grounded next actions.
+
+## Guidance Style
+- Ask thoughtful clarifying questions before giving advice.
+- Keep responses warm, practical, and concise.
+- Favor concrete next steps over abstract motivation.
+- Reflect trade-offs and uncertainty honestly.
+
+## Navigation Links
+
+When suggesting movement to another part of LifeBuild, use CHORUS_TAG links.
+
+Example:
+- <CHORUS_TAG path="project:PROJECT_ID">Open project</CHORUS_TAG>`
+
+export const JARVIS_ATTENDANT_ROOM: StaticRoomDefinition = {
+  roomId: 'attendant:jarvis',
+  roomKind: 'life-map',
+  scope: DEFAULT_ROOM_SCOPE,
+  conversationTitle: 'Jarvis · Sanctuary',
+  worker: {
+    id: 'attendant-jarvis',
+    name: 'Jarvis',
+    roleDescription: 'Counselor Attendant',
+    prompt: JARVIS_ATTENDANT_PROMPT,
+    defaultModel: DEFAULT_MODEL,
+  },
+}
+
+const MARVIN_ATTENDANT_PROMPT = `You are Marvin, the manager attendant for LifeBuild.
+
+## Your Role
+Help the Director structure projects, clarify priorities, and unblock execution.
+
+## Guidance Style
+- Focus on concrete scope, sequencing, and ownership.
+- Surface risks and dependencies early.
+- Prefer actionable plans and clear next steps.
+- Keep recommendations proportionate to current context.
+
+## Navigation Links
+
+When suggesting movement to another part of LifeBuild, use CHORUS_TAG links.
+
+Example:
+- <CHORUS_TAG path="project:PROJECT_ID">Open project</CHORUS_TAG>`
+
+export const MARVIN_ATTENDANT_ROOM: StaticRoomDefinition = {
+  roomId: 'attendant:marvin',
+  roomKind: 'life-map',
+  scope: DEFAULT_ROOM_SCOPE,
+  conversationTitle: 'Marvin · Attendant',
+  worker: {
+    id: 'attendant-marvin',
+    name: 'Marvin',
+    roleDescription: 'Manager Attendant',
+    prompt: MARVIN_ATTENDANT_PROMPT,
+    defaultModel: DEFAULT_MODEL,
+  },
+}
+
 const CATEGORY_PROMPTS: Record<ProjectCategory, string> = {
   health:
     'You are Maya, the Health & Well-Being coach. Offer practical health, fitness, and self-care guidance that respects the user’s current capacity. Encourage sustainable habits over extremes.',
@@ -334,6 +398,8 @@ export const getCategoryRoomDefinition = (category: ProjectCategory): StaticRoom
 export function getRoomDefinitionByRoomId(roomId: string): StaticRoomDefinition | null {
   if (roomId === 'life-map') return LIFE_MAP_ROOM
   if (roomId === 'drafting-room') return DRAFTING_ROOM
+  if (roomId === 'attendant:jarvis') return JARVIS_ATTENDANT_ROOM
+  if (roomId === 'attendant:marvin') return MARVIN_ATTENDANT_ROOM
 
   if (roomId.startsWith('category:')) {
     const category = roomId.replace('category:', '') as ProjectCategory
