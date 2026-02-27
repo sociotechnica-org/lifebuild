@@ -4,6 +4,7 @@ import { render, screen } from '../../../tests/test-utils.js'
 import { RoomChatMessageList } from './RoomChatMessageList.js'
 import type { ChatMessage } from '@lifebuild/shared/schema'
 import { SANCTUARY_FIRST_VISIT_BOOTSTRAP_PREFIX } from '../../constants/sanctuary.js'
+import { WORKSHOP_FIRST_VISIT_BOOTSTRAP_PREFIX } from './internalMessages.js'
 
 const baseMessage: ChatMessage = {
   id: 'msg',
@@ -62,5 +63,30 @@ describe('RoomChatMessageList', () => {
 
     expect(screen.queryByText(/hidden bootstrap/i)).not.toBeInTheDocument()
     expect(screen.getByText('Welcome to your Sanctuary.')).toBeInTheDocument()
+  })
+
+  it('hides internal workshop bootstrap messages from the transcript', () => {
+    render(
+      <RoomChatMessageList
+        messages={[
+          {
+            ...baseMessage,
+            id: 'internal-bootstrap',
+            message: `${WORKSHOP_FIRST_VISIT_BOOTSTRAP_PREFIX}\nBootstrap`,
+          },
+          {
+            ...baseMessage,
+            id: 'assistant-visible',
+            role: 'assistant',
+            message: 'Welcome to the Workshop.',
+          },
+        ]}
+        workerName='Marvin'
+        isProcessing={false}
+      />
+    )
+
+    expect(screen.queryByText(/Bootstrap/i)).not.toBeInTheDocument()
+    expect(screen.getByText('Welcome to the Workshop.')).toBeInTheDocument()
   })
 })

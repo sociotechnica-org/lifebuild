@@ -32,4 +32,11 @@ describe('WorkshopOverlayContent', () => {
     expect(screen.getByTestId('workshop-empty-unplaced-projects')).toBeInTheDocument()
     expect(screen.getByText('No unplaced projects right now.')).toBeInTheDocument()
   })
+
+  it('renders Marvin first-visit greeting when enabled', () => {
+    render(<WorkshopOverlayContent showFirstVisitGreeting />)
+
+    expect(screen.getByTestId('workshop-first-visit-greeting')).toBeInTheDocument()
+    expect(screen.getByText(/Marvin:/i)).toBeInTheDocument()
+  })
 })
