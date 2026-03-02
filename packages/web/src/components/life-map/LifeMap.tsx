@@ -357,6 +357,16 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   const shouldHideMapPanels = onboarding.isActive && (isCampfireBeat || isRevealBeat)
   const disableLandmarkInteractions = onboarding.isActive && (isCampfireBeat || isRevealBeat)
 
+  // R3F Canvas uses getBoundingClientRect() on mount but ResizeObserver doesn't
+  // fire for CSS transform changes. When the scale transition ends, dispatch a
+  // resize event so the Three.js canvas recalculates its dimensions.
+  useEffect(() => {
+    if (shouldScaleMap) return
+    // Wait for the 700ms CSS transition to finish, then nudge R3F.
+    const id = window.setTimeout(() => window.dispatchEvent(new Event('resize')), 750)
+    return () => window.clearTimeout(id)
+  }, [shouldScaleMap])
+
   const placedHexTilesWithOnboarding = useMemo(() => {
     const allowProjectClicks =
       !onboarding.isActive ||

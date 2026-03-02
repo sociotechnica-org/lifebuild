@@ -33,7 +33,7 @@ export const CampfireConversation: React.FC<CampfireConversationProps> = ({ onKe
 
   return (
     <section
-      className='pointer-events-none absolute inset-x-0 bottom-4 z-[22] flex justify-center px-4 md:inset-y-4 md:left-[4.75rem] md:right-auto md:bottom-auto md:justify-start md:px-0'
+      className='pointer-events-none absolute inset-x-0 bottom-4 z-[22] flex justify-center px-4 md:inset-y-4 md:left-[4.75rem] md:right-auto md:justify-start md:px-0'
       data-testid='onboarding-campfire-panel'
     >
       <div className='pointer-events-auto h-[min(70vh,560px)] w-full max-w-xl md:h-full md:w-96 md:max-w-[calc(100vw-5.5rem)]'>
