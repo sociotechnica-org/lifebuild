@@ -8,24 +8,24 @@ export type FixedBuildingPlacement = {
   readonly coord: HexCoord
 }
 
-export const FIXED_BUILDINGS: readonly FixedBuildingPlacement[] = [
-  { type: 'campfire', coord: createHex(0, 0) },
-  { type: 'sanctuary', coord: createHex(0, -1) },
-  { type: 'workshop', coord: createHex(1, -1) },
-] as const
-
-const RESERVED_PROJECT_HEX_COORDS_INTERNAL: readonly HexCoord[] = FIXED_BUILDINGS.map(
-  building => building.coord
-)
-
-export const CAMPFIRE_PROJECT_HEX_COORD = createHex(3, 0)
 export const SANCTUARY_PROJECT_HEX_COORDS: readonly HexCoord[] = [
   createHex(0, 0),
   createHex(0, -1),
   createHex(1, -1),
 ]
 
-export const RESERVED_PROJECT_HEX_COORDS = RESERVED_PROJECT_HEX_COORDS_INTERNAL
+export const CAMPFIRE_PROJECT_HEX_COORD = createHex(3, 0)
+
+export const FIXED_BUILDINGS: readonly FixedBuildingPlacement[] = [
+  { type: 'campfire', coord: CAMPFIRE_PROJECT_HEX_COORD },
+  { type: 'sanctuary', coord: SANCTUARY_PROJECT_HEX_COORDS[1]! },
+  { type: 'workshop', coord: SANCTUARY_PROJECT_HEX_COORDS[2]! },
+] as const
+
+export const RESERVED_PROJECT_HEX_COORDS = [
+  ...SANCTUARY_PROJECT_HEX_COORDS,
+  CAMPFIRE_PROJECT_HEX_COORD,
+] as const
 
 const RESERVED_PROJECT_HEX_KEYS = new Set(RESERVED_PROJECT_HEX_COORDS.map(coord => hexToKey(coord)))
 
