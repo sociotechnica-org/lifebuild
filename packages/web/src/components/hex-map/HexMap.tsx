@@ -110,7 +110,6 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   const [showFirstPlacementPrompt, setShowFirstPlacementPrompt] = useState(() =>
     shouldShowFirstPlacementPrompt(unplacedProjects.length > 0)
   )
-  const showCampfire = unplacedProjects.length > 0
 
   const unplacedProjectsById = useMemo(() => {
     return new Map(unplacedProjects.map(project => [project.id, project]))
@@ -284,7 +283,6 @@ const HexMapSurface: React.FC<HexMapProps> = ({
           <HexGrid
             tiles={tiles}
             parchmentSeed={parchmentSeed}
-            showCampfire={showCampfire}
             placementProject={
               selectedPlacementProject
                 ? { id: selectedPlacementProject.id, name: selectedPlacementProject.name }

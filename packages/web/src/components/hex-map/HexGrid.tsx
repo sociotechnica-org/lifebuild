@@ -34,7 +34,6 @@ export type PlacedHexTile = {
 type HexGridProps = {
   tiles?: readonly PlacedHexTile[]
   parchmentSeed?: number
-  showCampfire?: boolean
   placementProject?: {
     id: string
     name: string
