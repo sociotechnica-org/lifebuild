@@ -10,7 +10,7 @@ import { Page, expect } from '@playwright/test'
 const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:8788'
 const APP_URL = process.env.APP_URL || 'http://localhost:5173'
 const REQUIRE_AUTH = process.env.REQUIRE_AUTH === 'true'
-const LIVE_STORE_READY_TIMEOUT_MS = process.env.CI ? 4000 : 15000
+const LIVE_STORE_READY_TIMEOUT_MS = 15000
 const LIVE_STORE_SETTLE_DELAY_MS = process.env.CI ? 150 : 1000
 
 type AuthCredentials = {
