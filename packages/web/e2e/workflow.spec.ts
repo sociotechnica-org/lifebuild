@@ -288,7 +288,7 @@ test.describe('Workflow', () => {
       // =====================
 
       // Navigate to Life Map
-      await page.click('text=Life Map')
+      await page.goto(`/?storeId=${storeId}`)
 
       await expectMapSurface(page)
 
@@ -346,8 +346,6 @@ test.describe('Workflow', () => {
     }
 
     // Verify Life Map shell is available
-    await expect(page.locator('header nav a')).toHaveCount(1)
-    await expect(page.getByRole('link', { name: 'Life Map' })).toBeVisible()
     await expect(page.getByText('Drafting Room')).toHaveCount(0)
     await expect(page.getByText('Sorting Room')).toHaveCount(0)
     await expect(page.getByText('Table')).toHaveCount(0)

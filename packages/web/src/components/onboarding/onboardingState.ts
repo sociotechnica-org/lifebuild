@@ -136,7 +136,7 @@ export const getOnboardingUiPolicy = (
     case 'campfire':
     case 'not_started':
       return {
-        showAttendantRail: false,
+        showAttendantRail: true,
         showTaskQueue: false,
         railFadingIn: false,
         showFogOverlay: true,

@@ -25,7 +25,9 @@ test.describe('Onboarding sequence', () => {
     await expect(page.getByTestId('onboarding-campfire-panel')).toBeVisible()
     await expect(page.getByTestId('onboarding-fog-overlay')).toBeVisible()
     await expect(page.getByTestId('room-chat-panel')).toBeVisible()
-    await expect(page.getByTestId('attendant-rail')).toHaveCount(0)
+    await expect(page.getByTestId('attendant-rail')).toBeVisible()
+    await expect(page.getByTestId('attendant-rail-avatar-jarvis')).toBeVisible()
+    await expect(page.getByTestId('attendant-rail-avatar-marvin')).toHaveCount(0)
     await expect(page.getByTestId('task-queue-panel')).toHaveCount(0)
 
     const seededProjectId = await page.evaluate(async () => {

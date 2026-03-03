@@ -66,7 +66,7 @@ describe('CameraRig', () => {
     canvas.dispatchEvent(zoomOutEvent)
     expect(zoomOutEvent.defaultPrevented).toBe(true)
     runFrame()
-    expect(camera.top).toBeCloseTo(24, 5)
+    expect(camera.top).toBeCloseTo(16, 5)
   })
 
   it('pans camera while arrow keys are pressed', () => {

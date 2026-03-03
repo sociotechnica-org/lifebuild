@@ -87,4 +87,14 @@ describe('BuildingOverlay', () => {
 
     expect(onClose).not.toHaveBeenCalled()
   })
+
+  it('adds left inset spacing when configured to respect attendant chat', () => {
+    render(
+      <BuildingOverlay title='Workshop' onClose={vi.fn()} respectAttendantChat>
+        <div>Overlay content</div>
+      </BuildingOverlay>
+    )
+
+    expect(screen.getByTestId('building-overlay')).toHaveClass('lg:pl-[30rem]')
+  })
 })

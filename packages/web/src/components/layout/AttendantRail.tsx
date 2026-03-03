@@ -6,6 +6,8 @@ type NotificationMap = Partial<Record<AttendantId, boolean>>
 type AttendantRailProps = {
   activeAttendantId: AttendantId | null
   notifications?: NotificationMap
+  statusPip?: React.ReactNode
+  visibleAttendantIds?: readonly AttendantId[]
   onAttendantClick: (id: AttendantId) => void
 }
 
@@ -17,6 +19,8 @@ const ATTENDANT_META: Record<AttendantId, { label: string; shortLabel: string }>
 export const AttendantRail: React.FC<AttendantRailProps> = ({
   activeAttendantId,
   notifications,
+  statusPip,
+  visibleAttendantIds = ATTENDANT_IDS,
   onAttendantClick,
 }) => {
   return (
@@ -26,7 +30,7 @@ export const AttendantRail: React.FC<AttendantRailProps> = ({
       data-testid='attendant-rail'
     >
       <div className='flex flex-col items-center gap-3 rounded-2xl border border-[#d8cab3] bg-[#fff8ec]/95 p-2 shadow-[0_14px_30px_rgba(0,0,0,0.14)] backdrop-blur'>
-        {ATTENDANT_IDS.map(id => {
+        {visibleAttendantIds.map(id => {
           const attendant = ATTENDANT_META[id]
           const isActive = activeAttendantId === id
           const hasNotification = Boolean(notifications?.[id])
@@ -56,6 +60,11 @@ export const AttendantRail: React.FC<AttendantRailProps> = ({
             </button>
           )
         })}
+        {statusPip ? (
+          <div className='mt-1 pt-2 border-t border-[#dfd0bc]' data-testid='attendant-rail-status'>
+            {statusPip}
+          </div>
+        ) : null}
       </div>
     </aside>
   )

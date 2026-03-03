@@ -4,13 +4,18 @@ import { Html } from '@react-three/drei'
 import React, { useMemo } from 'react'
 import { LandmarkSprite } from './LandmarkSprite.js'
 import type { FixedBuildingType } from './placementRules.js'
+import type { MapSpriteOrigin } from '../life-map/mapSpriteDebugConfig.js'
 
 const BASE_HEX_SIZE = 1
 const LANDMARK_TEXTURE_URL = '/landmarks/white-rectangle.png'
+const SANCTUARY_TEXTURE_URL = '/sprites/sanctuary.png'
+const WORKSHOP_TEXTURE_URL = '/sprites/house2.png'
+const SANCTUARY_TEXTURE_ASPECT = 539 / 516
+const WORKSHOP_TEXTURE_ASPECT = 310 / 329
 
 const BUILDING_THEME: Record<
   FixedBuildingType,
-  { label: string; width: number; height: number; tint: string }
+  { label: string; width?: number; height: number; textureAspect?: number; tint: string }
 > = {
   campfire: {
     label: 'Campfire',
@@ -20,14 +25,14 @@ const BUILDING_THEME: Record<
   },
   sanctuary: {
     label: 'Sanctuary',
-    width: 1.7,
     height: 0.9,
+    textureAspect: SANCTUARY_TEXTURE_ASPECT,
     tint: '#ffffff',
   },
   workshop: {
     label: 'Workshop',
-    width: 1.58,
     height: 0.86,
+    textureAspect: WORKSHOP_TEXTURE_ASPECT,
     tint: '#f6eee3',
   },
 }
@@ -35,13 +40,37 @@ const BUILDING_THEME: Record<
 type FixedBuildingProps = {
   type: FixedBuildingType
   coord: HexCoord
+  sanctuaryScale?: number
+  workshopScale?: number
+  sanctuaryOrigin?: MapSpriteOrigin
+  workshopOrigin?: MapSpriteOrigin
   onActivate?: () => void
 }
 
-export const FixedBuilding: React.FC<FixedBuildingProps> = ({ type, coord, onActivate }) => {
+export const FixedBuilding: React.FC<FixedBuildingProps> = ({
+  type,
+  coord,
+  sanctuaryScale = 1,
+  workshopScale = 1,
+  sanctuaryOrigin = { x: 0, y: 0.45 },
+  workshopOrigin = { x: 0, y: 0.45 },
+  onActivate,
+}) => {
   const [x, z] = useMemo(() => hexToWorld(coord, BASE_HEX_SIZE), [coord.q, coord.r, coord.s])
   const theme = BUILDING_THEME[type]
   const isInteractive = type !== 'campfire' && Boolean(onActivate)
+  const landmarkTextureUrl =
+    type === 'sanctuary'
+      ? SANCTUARY_TEXTURE_URL
+      : type === 'workshop'
+        ? WORKSHOP_TEXTURE_URL
+        : LANDMARK_TEXTURE_URL
+  const spriteScale =
+    type === 'sanctuary' ? sanctuaryScale : type === 'workshop' ? workshopScale : 1
+  const spriteOrigin =
+    type === 'sanctuary' ? sanctuaryOrigin : type === 'workshop' ? workshopOrigin : undefined
+  const baseSpriteWidth =
+    theme.width ?? (theme.textureAspect ? theme.height * theme.textureAspect : theme.height)
 
   return (
     <group
@@ -50,9 +79,10 @@ export const FixedBuilding: React.FC<FixedBuildingProps> = ({ type, coord, onAct
     >
       <LandmarkSprite
         coord={coord}
-        textureUrl={LANDMARK_TEXTURE_URL}
-        width={theme.width}
-        height={theme.height}
+        textureUrl={landmarkTextureUrl}
+        width={baseSpriteWidth * spriteScale}
+        height={theme.height * spriteScale}
+        origin={spriteOrigin}
         tint={theme.tint}
         opacity={0.96}
         onClick={isInteractive ? onActivate : undefined}

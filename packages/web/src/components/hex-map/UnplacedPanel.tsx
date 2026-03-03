@@ -87,7 +87,7 @@ export function UnplacedPanel({
 
   if (isCollapsed) {
     return (
-      <div className='pointer-events-auto absolute right-4 top-4 z-[5]'>
+      <div className='pointer-events-auto absolute right-4 top-[86px] z-[5]'>
         <button
           type='button'
           className='inline-flex items-center gap-2 rounded-full border border-[#d8cab3] bg-[#faf4e9]/95 px-3 py-2 text-xs font-semibold text-[#2f2b27] shadow-sm backdrop-blur-sm'
@@ -103,7 +103,7 @@ export function UnplacedPanel({
   }
 
   return (
-    <aside className='pointer-events-auto absolute right-0 top-0 z-[5] flex h-full w-[320px] flex-col border-l border-[#d8cab3] bg-[#faf4e9]/95 shadow-xl backdrop-blur-sm'>
+    <aside className='pointer-events-auto absolute bottom-4 right-4 top-[86px] z-[5] flex w-[320px] max-w-[calc(100vw-2rem)] flex-col overflow-hidden rounded-2xl border border-[#d8cab3] bg-[#faf4e9]/95 shadow-[0_14px_30px_rgba(0,0,0,0.18)] backdrop-blur-sm'>
       <div className='flex items-center justify-between border-b border-[#e8dcc8] px-4 py-3'>
         <div>
           <p className='text-sm font-semibold text-[#2f2b27]'>Unplaced Projects</p>

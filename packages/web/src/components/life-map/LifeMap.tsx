@@ -6,12 +6,18 @@ import {
   getAllProjectsIncludingArchived$,
   getHexPositions$,
   getProjectById$,
+  getSettingByKey$,
   getUnplacedProjects$,
 } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
 import { createHex } from '@lifebuild/shared/hex'
 import type { HexCoord } from '@lifebuild/shared/hex'
-import { type ProjectCategory, PROJECT_CATEGORIES, resolveLifecycleState } from '@lifebuild/shared'
+import {
+  SETTINGS_KEYS,
+  type ProjectCategory,
+  PROJECT_CATEGORIES,
+  resolveLifecycleState,
+} from '@lifebuild/shared'
 import { generateRoute, ROUTES } from '../../constants/routes.js'
 import { preserveStoreIdInUrl } from '../../utils/navigation.js'
 import { useAuth } from '../../contexts/AuthContext.js'
@@ -24,6 +30,12 @@ import {
 } from '../hex-map/placementRules.js'
 import { OnboardingSequence } from '../onboarding/OnboardingSequence.js'
 import { useOnboarding } from '../onboarding/useOnboarding.js'
+import { useMapSpriteDebugSettings } from '../layout/MapSpriteDebugContext.js'
+import {
+  createInitialMapShaderSeed,
+  getStoreIdFromSearch,
+  parseMapShaderSeed,
+} from './mapShaderSeed.js'
 
 type SeedLifecycleStatus = 'planning' | 'backlog' | 'active' | 'completed'
 
@@ -120,6 +132,7 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   const attemptedCampfireMigrationProjectIdsRef = useRef<Set<string>>(new Set())
   const campfireMigrationInFlightRef = useRef(false)
   const onboarding = useOnboarding()
+  const mapSpriteDebugSettings = useMapSpriteDebugSettings()
 
   useEffect(() => {
     posthog?.capture('life_map_viewed')
@@ -229,6 +242,18 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+  const mapShaderSeedSetting = useQuery(getSettingByKey$(SETTINGS_KEYS.MAP_SHADER_SEED))
+
+  const fallbackMapShaderSeed = useMemo(() => {
+    const storeId =
+      typeof window === 'undefined' ? null : getStoreIdFromSearch(window.location.search)
+    return createInitialMapShaderSeed(storeId)
+  }, [])
+
+  const mapShaderSeed = useMemo(() => {
+    const persistedSeed = parseMapShaderSeed(mapShaderSeedSetting?.[0]?.value)
+    return persistedSeed ?? fallbackMapShaderSeed
+  }, [fallbackMapShaderSeed, mapShaderSeedSetting])
 
   useEffect(() => {
     if (campfireMigrationInFlightRef.current) {
@@ -432,19 +457,8 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   const isCampfireBeat = onboarding.isReady && onboarding.phase === 'campfire'
   const isRevealBeat = onboarding.isReady && onboarding.phase === 'reveal'
   const isFirstProjectBeat = onboarding.isReady && onboarding.phase === 'first_project'
-  const shouldScaleMap = isCampfireBeat
   const shouldHideMapPanels = onboarding.isActive && (isCampfireBeat || isRevealBeat)
   const disableLandmarkInteractions = onboarding.isActive && (isCampfireBeat || isRevealBeat)
-
-  // R3F Canvas uses getBoundingClientRect() on mount but ResizeObserver doesn't
-  // fire for CSS transform changes. When the scale transition ends, dispatch a
-  // resize event so the Three.js canvas recalculates its dimensions.
-  useEffect(() => {
-    if (shouldScaleMap) return
-    // Wait for the 700ms CSS transition to finish, then nudge R3F.
-    const id = window.setTimeout(() => window.dispatchEvent(new Event('resize')), 750)
-    return () => window.clearTimeout(id)
-  }, [shouldScaleMap])
 
   const placedHexTilesWithOnboarding = useMemo(() => {
     const allowProjectClicks =
@@ -521,17 +535,15 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
 
   return (
     <div className='relative h-full w-full overflow-hidden bg-[#efe2cd]'>
-      <div
-        className={`h-full w-full transition-transform duration-700 ${
-          shouldScaleMap ? 'scale-[0.82]' : 'scale-100'
-        }`}
-      >
+      <div className='h-full w-full'>
         <Suspense fallback={renderHexMapLoadingState()}>
           <LazyHexMap
             tiles={placedHexTilesWithOnboarding}
+            parchmentSeed={mapShaderSeed}
             unplacedProjects={unplacedProjects}
             completedProjects={completedProjectsForPanel}
             archivedProjects={archivedProjectsForPanel}
+            spriteDebugSettings={mapSpriteDebugSettings}
             onPlaceProject={handlePlaceProjectOnMap}
             onRemovePlacedProject={handleRemoveProjectFromMap}
             onSelectUnplacedProject={projectId =>

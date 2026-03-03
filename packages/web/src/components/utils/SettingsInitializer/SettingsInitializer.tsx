@@ -2,7 +2,12 @@ import React, { useEffect } from 'react'
 import { useQuery, useStore } from '../../../livestore-compat.js'
 import { getAllSettings$ } from '@lifebuild/shared/queries'
 import { events } from '@lifebuild/shared/schema'
-import { DEFAULT_SETTINGS } from '@lifebuild/shared'
+import { DEFAULT_SETTINGS, SETTINGS_KEYS } from '@lifebuild/shared'
+import {
+  createInitialMapShaderSeed,
+  formatMapShaderSeed,
+  getStoreIdFromSearch,
+} from '../../life-map/mapShaderSeed.js'
 
 interface SettingsInitializerProps {
   children: React.ReactNode
@@ -36,6 +41,15 @@ export const SettingsInitializer: React.FC<SettingsInitializerProps> = ({ childr
           missingSettings.push({ key, value })
         }
       })
+
+      if (!(SETTINGS_KEYS.MAP_SHADER_SEED in settingsMap)) {
+        const storeId =
+          typeof window === 'undefined' ? null : getStoreIdFromSearch(window.location.search)
+        missingSettings.push({
+          key: SETTINGS_KEYS.MAP_SHADER_SEED,
+          value: formatMapShaderSeed(createInitialMapShaderSeed(storeId)),
+        })
+      }
 
       // If all settings exist, no need to initialize
       if (missingSettings.length === 0) {

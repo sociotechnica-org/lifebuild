@@ -2,6 +2,7 @@ export const SETTINGS_KEYS = {
   INSTANCE_NAME: 'instanceName',
   SYSTEM_PROMPT: 'systemPrompt',
   RECURRING_TASK_PROMPT: 'recurringTaskPrompt',
+  MAP_SHADER_SEED: 'map.shaderSeed',
   JOURNEY_FIRST_PROJECT_MARVIN_INTRO_COMPLETED_AT: 'journey.firstProjectMarvinIntroCompletedAt',
   JOURNEY_WORKSHOP_UNBURDENING_COMPLETED_AT: 'journey.workshopUnburdeningCompletedAt',
   ONBOARDING_STATE: 'onboardingStateV1',

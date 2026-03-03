@@ -62,6 +62,10 @@ vi.mock('./Campfire.js', () => ({
   Campfire: () => null,
 }))
 
+vi.mock('./LandmarkSprite.js', () => ({
+  LandmarkSprite: () => null,
+}))
+
 vi.mock('./HexCell.js', () => ({
   HexCell: (props: MockHexCellProps) => (
     <button
