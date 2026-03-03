@@ -80,6 +80,20 @@ describe('hexPositionCommands', () => {
     expect(commit).not.toHaveBeenCalled()
   })
 
+  it('throws when trying to place on the reserved campfire hex', async () => {
+    const { store, commit } = createStoreMock()
+
+    await expect(
+      placeProjectOnHex(store, basePositions, {
+        projectId: 'project-2',
+        hexQ: 3,
+        hexR: 0,
+      })
+    ).rejects.toBeInstanceOf(HexPlacementConflictError)
+
+    expect(commit).not.toHaveBeenCalled()
+  })
+
   it('does not commit when the project is already on the target hex', async () => {
     const { store, commit } = createStoreMock()
 

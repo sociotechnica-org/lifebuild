@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
+import React, { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQuery, useStore } from '../../livestore-compat.js'
 import { useNavigate } from 'react-router-dom'
 import {
@@ -18,6 +18,10 @@ import { useAuth } from '../../contexts/AuthContext.js'
 import { usePostHog } from '../../lib/analytics.js'
 import { placeProjectOnHex, removeProjectFromHex } from '../hex-map/hexPositionCommands.js'
 import type { HexTileVisualState, HexTileWorkstream } from '../hex-map/HexTile.js'
+import {
+  CAMPFIRE_PROJECT_HEX_COORD,
+  findLegacyCampfireRelocationCoord,
+} from '../hex-map/placementRules.js'
 import { OnboardingSequence } from '../onboarding/OnboardingSequence.js'
 import { useOnboarding } from '../onboarding/useOnboarding.js'
 
@@ -113,6 +117,8 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   const posthog = usePostHog()
   const actorId = user?.id
   const [hasWebGLSupport] = useState(() => supportsWebGL())
+  const attemptedCampfireMigrationProjectIdsRef = useRef<Set<string>>(new Set())
+  const campfireMigrationInFlightRef = useRef(false)
   const onboarding = useOnboarding()
 
   useEffect(() => {
@@ -223,6 +229,79 @@ export const LifeMap: React.FC<LifeMapProps> = ({ isOverlayOpen = false }) => {
   const allProjectsIncludingArchived = useQuery(getAllProjectsIncludingArchived$) ?? []
   const hexPositions = useQuery(getHexPositions$) ?? []
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
+
+  useEffect(() => {
+    if (campfireMigrationInFlightRef.current) {
+      return
+    }
+
+    const pendingLegacyCampfirePlacements = hexPositions.filter(
+      position =>
+        position.entityType === 'project' &&
+        position.hexQ === CAMPFIRE_PROJECT_HEX_COORD.q &&
+        position.hexR === CAMPFIRE_PROJECT_HEX_COORD.r &&
+        !attemptedCampfireMigrationProjectIdsRef.current.has(position.entityId)
+    )
+
+    if (pendingLegacyCampfirePlacements.length === 0) {
+      return
+    }
+
+    campfireMigrationInFlightRef.current = true
+
+    void (async () => {
+      try {
+        for (const placement of pendingLegacyCampfirePlacements) {
+          attemptedCampfireMigrationProjectIdsRef.current.add(placement.entityId)
+
+          const latestHexPositions = await store.query(getHexPositions$)
+          const currentPlacement = latestHexPositions.find(
+            position =>
+              position.entityType === 'project' &&
+              position.entityId === placement.entityId &&
+              position.hexQ === CAMPFIRE_PROJECT_HEX_COORD.q &&
+              position.hexR === CAMPFIRE_PROJECT_HEX_COORD.r
+          )
+
+          if (!currentPlacement) {
+            continue
+          }
+
+          const occupiedCoords = latestHexPositions
+            .filter(
+              position =>
+                position.entityType === 'project' && position.entityId !== placement.entityId
+            )
+            .map(position => createHex(position.hexQ, position.hexR))
+          const relocationCoord = findLegacyCampfireRelocationCoord(occupiedCoords)
+
+          if (!relocationCoord) {
+            console.warn(
+              `[LifeMap] Unable to relocate project '${placement.entityId}' from legacy campfire coordinate`
+            )
+            continue
+          }
+
+          await removeProjectFromHex(store, latestHexPositions, {
+            projectId: placement.entityId,
+            actorId,
+          })
+
+          const refreshedHexPositions = await store.query(getHexPositions$)
+          await placeProjectOnHex(store, refreshedHexPositions, {
+            projectId: placement.entityId,
+            hexQ: relocationCoord.q,
+            hexR: relocationCoord.r,
+            actorId,
+          })
+        }
+      } catch (error) {
+        console.error('[LifeMap] Failed to migrate legacy campfire placements', error)
+      } finally {
+        campfireMigrationInFlightRef.current = false
+      }
+    })()
+  }, [actorId, hexPositions, store])
 
   const navigateToOverlayRoute = useCallback(
     (path: string) => {

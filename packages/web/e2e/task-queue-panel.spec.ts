@@ -41,12 +41,29 @@ const isLoadingLiveStore = async (page: Page): Promise<boolean> => {
 
 const expectMapLayerVisible = async (page: Page) => {
   const canvas = page.locator('canvas').first()
+  const fallback = page.getByText('Map unavailable on this device')
+
+  await expect
+    .poll(
+      async () => {
+        const hasCanvas = await canvas.isVisible().catch(() => false)
+        if (hasCanvas) {
+          return 'canvas'
+        }
+
+        const hasFallback = await fallback.isVisible().catch(() => false)
+        return hasFallback ? 'fallback' : 'pending'
+      },
+      { timeout: 15000 }
+    )
+    .toMatch(/canvas|fallback/)
+
   if (await canvas.isVisible().catch(() => false)) {
     await expect(canvas).toBeVisible()
     return
   }
 
-  await expect(page.getByText('Map unavailable on this device')).toBeVisible()
+  await expect(fallback).toBeVisible()
 }
 
 const addTaskFromProjectOverlay = async (

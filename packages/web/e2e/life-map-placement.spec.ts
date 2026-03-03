@@ -8,6 +8,21 @@ type SeedUnplacedProjectInput = {
   category?: string | null
 }
 
+type SeedProjectOnMapInput = SeedUnplacedProjectInput & {
+  coord: {
+    q: number
+    r: number
+  }
+}
+
+const blockRemoteTextFontRequests = async (page: Page) => {
+  await page.route('**://cdn.jsdelivr.net/gh/lojjic/unicode-font-resolver@*/**', route =>
+    route.abort()
+  )
+  await page.route('**://fonts.googleapis.com/**', route => route.abort())
+  await page.route('**://fonts.gstatic.com/**', route => route.abort())
+}
+
 const isLoadingLiveStore = async (page: Page): Promise<boolean> => {
   return page
     .locator('text=Loading LiveStore')
@@ -36,7 +51,7 @@ const seedUnplacedProject = async (page: Page, input: SeedUnplacedProjectInput) 
     const testHooks = (
       window as {
         __LIFEBUILD_E2E__?: {
-          seedUnplacedProject?: (input: SeedUnplacedProjectInput) => Promise<void>
+          seedUnplacedProject?: (payload: SeedUnplacedProjectInput) => Promise<void>
         }
       }
     ).__LIFEBUILD_E2E__
@@ -46,6 +61,32 @@ const seedUnplacedProject = async (page: Page, input: SeedUnplacedProjectInput) 
     }
 
     await testHooks.seedUnplacedProject(seedInput)
+  }, input)
+}
+
+const seedProjectOnMap = async (page: Page, input: SeedProjectOnMapInput) => {
+  await page.waitForFunction(
+    () =>
+      typeof (window as { __LIFEBUILD_E2E__?: { seedProjectOnMap?: unknown } }).__LIFEBUILD_E2E__
+        ?.seedProjectOnMap === 'function',
+    undefined,
+    { timeout: 15000 }
+  )
+
+  await page.evaluate(async seedInput => {
+    const testHooks = (
+      window as {
+        __LIFEBUILD_E2E__?: {
+          seedProjectOnMap?: (payload: SeedProjectOnMapInput) => Promise<void>
+        }
+      }
+    ).__LIFEBUILD_E2E__
+
+    if (!testHooks?.seedProjectOnMap) {
+      throw new Error('Missing project-on-map seed hook')
+    }
+
+    await testHooks.seedProjectOnMap(seedInput)
   }, input)
 }
 
@@ -93,5 +134,45 @@ test.describe('Life Map placement tray flow', () => {
         timeout: 15000,
       })
     }
+  })
+
+  test('keeps map visible after placing a project when remote text resources are unavailable', async ({
+    page,
+  }) => {
+    await blockRemoteTextFontRequests(page)
+
+    const storeId = await navigateToAppWithUniqueStore(page)
+
+    if (await isLoadingLiveStore(page)) {
+      return
+    }
+
+    let canvas = page.locator('canvas').first()
+    if (!(await hasMapCanvas(page))) {
+      return
+    }
+
+    const projectId = `e2e-offline-font-${Date.now()}`
+    const projectName = 'Offline Font Placement Project'
+
+    await seedProjectOnMap(page, {
+      projectId,
+      name: projectName,
+      description: 'Project seeded on map while remote text resources are blocked.',
+      category: 'growth',
+      coord: { q: 2, r: 0 },
+    })
+
+    await expect(canvas).toBeVisible({ timeout: 10000 })
+
+    const panel = page.locator('aside').filter({ hasText: 'Unplaced Projects' }).first()
+    await expect(panel).toBeVisible({ timeout: 10000 })
+    await expect(panel.getByRole('button', { name: projectName })).toHaveCount(0)
+
+    await page.reload({ waitUntil: 'domcontentloaded' })
+    await expect(page).toHaveURL(new RegExp(`/\\?storeId=${storeId}$`), { timeout: 15000 })
+
+    canvas = page.locator('canvas').first()
+    await expect(canvas).toBeVisible({ timeout: 10000 })
   })
 })
