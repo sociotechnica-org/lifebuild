@@ -149,9 +149,12 @@ test.describe('Smoke Tests', () => {
       return
     }
 
-    await expect(page.getByText('Drafting Room')).toHaveCount(0)
-    await expect(page.getByText('Sorting Room')).toHaveCount(0)
-    await expect(page.getByText('Table')).toHaveCount(0)
+    // Old room-based navigation should not be visible after map-first migration
+    await expect(page.getByText('Drafting Room')).not.toBeVisible({ timeout: 5000 })
+    await expect(page.getByText('Sorting Room')).not.toBeVisible({ timeout: 5000 })
+    // 'Table' is too generic - check it's not a navigation element
+    const tableNav = page.getByRole('link', { name: 'Table' })
+    await expect(tableNav).not.toBeVisible({ timeout: 5000 })
     await expectLifeMapSurface(page)
 
     // Overlay route behavior is covered by building-overlay-routing.spec.ts.

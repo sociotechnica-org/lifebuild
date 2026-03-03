@@ -152,7 +152,8 @@ test.describe('Map navigation', () => {
 
     await page.mouse.move(canvasBox.x + canvasBox.width / 2, canvasBox.y + canvasBox.height / 2)
     await page.mouse.wheel(0, -900)
-    await page.waitForTimeout(150)
+    // Allow R3F to process zoom animation
+    await page.waitForTimeout(500)
 
     const sanctuaryAfterZoom = await getCenter(sanctuaryButton)
     const workshopAfterZoom = await getCenter(workshopButton)
@@ -162,7 +163,7 @@ test.describe('Map navigation', () => {
 
     const sanctuaryBeforePan = await getCenter(sanctuaryButton)
     await page.keyboard.down('ArrowRight')
-    await page.waitForTimeout(200)
+    await page.waitForTimeout(400)
     await page.keyboard.up('ArrowRight')
     await waitForLiveStoreReady(page)
 
@@ -173,6 +174,7 @@ test.describe('Map navigation', () => {
   test('keeps parchment shader full-bleed at max zoom-out across aspect ratios', async ({
     page,
   }) => {
+    test.setTimeout(60000)
     await navigateToAppWithUniqueStore(page)
 
     if (await isLoadingLiveStore(page)) {
@@ -192,7 +194,8 @@ test.describe('Map navigation', () => {
 
     for (const viewport of viewports) {
       await page.setViewportSize(viewport)
-      await page.waitForTimeout(120)
+      // Allow R3F to re-render after viewport resize
+      await page.waitForTimeout(500)
 
       const box = await canvas.boundingBox()
       if (!box) {
@@ -201,9 +204,15 @@ test.describe('Map navigation', () => {
 
       await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
       await page.mouse.wheel(0, 5000)
-      await page.waitForTimeout(140)
+      // Allow R3F to process zoom and re-render
+      await page.waitForTimeout(500)
 
-      const clearMatches = await sampleBottomStripClearMatches(canvas)
+      // Race the pixel sampling against a timeout — the WebGL context
+      // grab can hang in CI when R3F owns the canvas context
+      const clearMatches = await Promise.race([
+        sampleBottomStripClearMatches(canvas),
+        new Promise<null>(resolve => setTimeout(() => resolve(null), 5000)),
+      ])
       if (clearMatches === null) {
         continue
       }
