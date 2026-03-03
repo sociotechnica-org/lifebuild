@@ -1,6 +1,6 @@
 # Prototype Playground
 
-Shared prototype host for `prototypes.lifebuild.me`.
+Shared prototype host for `playground.lifebuild.me`.
 
 ## Included Prototypes
 

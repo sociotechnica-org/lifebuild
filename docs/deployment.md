@@ -105,6 +105,10 @@ pnpm --filter @lifebuild/worker run deploy
 
 # Deploy web app to Cloudflare Pages
 pnpm --filter @lifebuild/web run deploy
+
+# Deploy prototype playground to Cloudflare Pages
+pnpm --filter @lifebuild/prototype-playground build
+pnpm --filter @lifebuild/prototype-playground run deploy
 ```
 
 ### Workspace Claims KV Namespace
@@ -151,6 +155,13 @@ LifeBuild consists of multiple Cloudflare Workers and a Pages deployment:
 - **URL**: `https://app.lifebuild.me`
 - **Deploy command**: `pnpm --filter @lifebuild/web run deploy`
 - **Deployed to**: Cloudflare Pages
+
+### 5. Prototype Playground
+
+- **Purpose**: Shared prototype host for experimental features
+- **URL**: `https://playground.lifebuild.me`
+- **Deploy command**: `pnpm --filter @lifebuild/prototype-playground run deploy`
+- **Deployed to**: Cloudflare Pages (project: `lifebuild-playground`)
 
 ## Environment Variables
 
