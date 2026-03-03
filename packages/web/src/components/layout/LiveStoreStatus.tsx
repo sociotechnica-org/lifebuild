@@ -126,9 +126,14 @@ export const LiveStoreStatus: React.FC = () => {
   }, [networkStatus, syncStatus, lastConnectedAt, lastSyncUpdateAt, now])
 
   const extraInfo = tooltipText === detail ? null : tooltipText
+  const showRepairAction = Boolean(repairSuggestion)
 
   return (
-    <div className='relative inline-flex' onMouseEnter={showTooltip} onMouseLeave={hideTooltip}>
+    <div
+      className='relative inline-flex items-center'
+      onMouseEnter={showTooltip}
+      onMouseLeave={hideTooltip}
+    >
       <button
         type='button'
         onFocus={showTooltip}
@@ -138,7 +143,7 @@ export const LiveStoreStatus: React.FC = () => {
       />
       {isOpen ? (
         <div
-          className='absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 w-72 rounded-lg border border-[#3b3530] bg-[#2f2b27] text-[#f7f1e7] p-3 text-xs shadow-lg'
+          className='absolute left-full top-1/2 ml-2 -translate-y-1/2 z-50 w-72 rounded-lg border border-[#3b3530] bg-[#2f2b27] text-[#f7f1e7] p-3 text-xs shadow-lg'
           role='tooltip'
         >
           <div className='flex items-center justify-between gap-3'>
@@ -160,15 +165,17 @@ export const LiveStoreStatus: React.FC = () => {
               </div>
             </div>
           ) : null}
-          <div className='mt-3 flex flex-col gap-2'>
-            <button
-              type='button'
-              onClick={() => setIsConfirmOpen(true)}
-              className='w-full rounded-md border border-amber-400/50 bg-amber-500/20 px-2.5 py-1.5 text-[11px] font-semibold text-amber-100 transition hover:bg-amber-500/30'
-            >
-              Repair local data
-            </button>
-          </div>
+          {showRepairAction ? (
+            <div className='mt-3 flex flex-col gap-2'>
+              <button
+                type='button'
+                onClick={() => setIsConfirmOpen(true)}
+                className='w-full rounded-md border border-amber-400/50 bg-amber-500/20 px-2.5 py-1.5 text-[11px] font-semibold text-amber-100 transition hover:bg-amber-500/30'
+              >
+                Repair local data
+              </button>
+            </div>
+          ) : null}
         </div>
       ) : null}
 

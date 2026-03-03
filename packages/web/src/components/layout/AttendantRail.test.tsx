@@ -67,6 +67,19 @@ describe('AttendantRail', () => {
     expect(screen.getByTestId('attendant-rail-notification-marvin')).toBeInTheDocument()
   })
 
+  it('can render only a subset of attendants', () => {
+    render(
+      <AttendantRail
+        activeAttendantId={null}
+        visibleAttendantIds={['jarvis']}
+        onAttendantClick={() => {}}
+      />
+    )
+
+    expect(screen.getByTestId('attendant-rail-avatar-jarvis')).toBeInTheDocument()
+    expect(screen.queryByTestId('attendant-rail-avatar-marvin')).not.toBeInTheDocument()
+  })
+
   it('maps sanctuary, workshop, and project routes to attendant auto-selection', () => {
     expect(getRouteAutoSelectedAttendant('/sanctuary')).toBe('jarvis')
     expect(getRouteAutoSelectedAttendant('/workshop')).toBe('marvin')

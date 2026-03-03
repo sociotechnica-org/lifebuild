@@ -13,6 +13,10 @@ type LandmarkSpriteProps = {
   opacity?: number
   elevation?: number
   zOffset?: number
+  origin?: {
+    x: number
+    y: number
+  }
   onClick?: () => void
 }
 
@@ -27,10 +31,13 @@ export const LandmarkSprite: React.FC<LandmarkSpriteProps> = ({
   opacity = 0.95,
   elevation = 0.58,
   zOffset = 0.45,
+  origin,
   onClick,
 }) => {
   const texture = useLoader(THREE.TextureLoader, textureUrl)
   const [x, z] = hexToWorld(coord, 1)
+  const resolvedOriginX = origin?.x ?? 0
+  const resolvedOriginY = origin?.y ?? zOffset
   const canClick = typeof onClick === 'function'
 
   useEffect(() => {
@@ -46,7 +53,7 @@ export const LandmarkSprite: React.FC<LandmarkSpriteProps> = ({
 
   return (
     <mesh
-      position={[x, elevation, z + zOffset]}
+      position={[x + resolvedOriginX, elevation, z + resolvedOriginY]}
       rotation={[CAMERA_TILT_RADIANS, 0, 0]}
       onClick={event => {
         if (!canClick) {
@@ -56,11 +63,15 @@ export const LandmarkSprite: React.FC<LandmarkSpriteProps> = ({
         onClick?.()
       }}
       onPointerOver={event => {
-        event.stopPropagation()
+        if (canClick) {
+          event.stopPropagation()
+        }
         document.body.style.cursor = canClick ? 'pointer' : 'default'
       }}
       onPointerOut={event => {
-        event.stopPropagation()
+        if (canClick) {
+          event.stopPropagation()
+        }
         document.body.style.cursor = 'default'
       }}
     >

@@ -5,6 +5,7 @@ import { BackgroundPlane } from './BackgroundPlane.js'
 import { CameraRig } from './CameraRig.js'
 import { HexGrid, type PlacedHexTile } from './HexGrid.js'
 import { usePlacement } from './PlacementContext.js'
+import type { MapSpriteDebugSettings } from '../life-map/mapSpriteDebugConfig.js'
 import {
   UnplacedPanel,
   type PanelArchivedProjectItem,
@@ -71,6 +72,7 @@ type HexMapProps = {
   onOpenWorkshop?: () => void
   onOpenSanctuary?: () => void
   onUnarchiveProject?: (projectId: string) => void
+  spriteDebugSettings?: MapSpriteDebugSettings
   isOverlayOpen?: boolean
   showUnplacedPanel?: boolean
   disableLandmarkInteractions?: boolean
@@ -89,6 +91,7 @@ const HexMapSurface: React.FC<HexMapProps> = ({
   onOpenWorkshop,
   onOpenSanctuary,
   onUnarchiveProject,
+  spriteDebugSettings,
   isOverlayOpen = false,
   showUnplacedPanel = true,
   disableLandmarkInteractions = false,
@@ -278,11 +281,12 @@ const HexMapSurface: React.FC<HexMapProps> = ({
         <hemisphereLight color='#c9dde6' groundColor='#d4b896' intensity={0.4} />
 
         <Suspense fallback={null}>
-          <BackgroundPlane parchmentSeed={parchmentSeed} />
           <CameraRig />
+          <BackgroundPlane parchmentSeed={parchmentSeed} />
           <HexGrid
             tiles={tiles}
             parchmentSeed={parchmentSeed}
+            spriteDebugSettings={spriteDebugSettings}
             placementProject={
               selectedPlacementProject
                 ? { id: selectedPlacementProject.id, name: selectedPlacementProject.name }

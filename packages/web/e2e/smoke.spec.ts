@@ -38,11 +38,6 @@ test.describe('Smoke Tests', () => {
     // Once loading completes, app should include a storeId in URL.
     await expect(page).toHaveURL(/\?storeId=[^&]+$/)
 
-    // Navigation should only include Life Map
-    const navLinks = page.locator('header nav a')
-    await expect(navLinks).toHaveCount(1)
-    await expect(navLinks.first()).toHaveText('Life Map')
-
     // Life Map surface should load (canvas, or WebGL fallback in constrained environments)
     await expectLifeMapSurface(page)
 
@@ -154,8 +149,6 @@ test.describe('Smoke Tests', () => {
       return
     }
 
-    await expect(page.locator('header nav a')).toHaveCount(1)
-    await expect(page.getByRole('link', { name: 'Life Map' })).toBeVisible()
     await expect(page.getByText('Drafting Room')).toHaveCount(0)
     await expect(page.getByText('Sorting Room')).toHaveCount(0)
     await expect(page.getByText('Table')).toHaveCount(0)

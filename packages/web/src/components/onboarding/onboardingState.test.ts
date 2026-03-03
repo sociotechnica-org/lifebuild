@@ -46,7 +46,7 @@ describe('onboardingState', () => {
     const completed = createCompletedState('2026-02-27T12:03:00.000Z')
 
     expect(getOnboardingUiPolicy(campfire, { isViewingFirstProject: false })).toMatchObject({
-      showAttendantRail: false,
+      showAttendantRail: true,
       showTaskQueue: false,
       showFogOverlay: true,
     })

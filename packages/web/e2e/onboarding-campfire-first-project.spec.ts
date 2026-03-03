@@ -25,7 +25,9 @@ test.describe('Onboarding campfire conversation', () => {
     await expect(page.getByTestId('onboarding-campfire-panel')).toBeVisible()
     await expect(page.getByTestId('room-chat-panel')).toBeVisible()
     await expect(page.getByText('[internal:campfire-bootstrap]')).toHaveCount(0)
-    await expect(page.getByTestId('attendant-rail')).toHaveCount(0)
+    await expect(page.getByTestId('attendant-rail')).toBeVisible()
+    await expect(page.getByTestId('attendant-rail-avatar-jarvis')).toBeVisible()
+    await expect(page.getByTestId('attendant-rail-avatar-marvin')).toHaveCount(0)
 
     await page.evaluate(async () => {
       const hooks = window.__LIFEBUILD_E2E__
@@ -45,5 +47,6 @@ test.describe('Onboarding campfire conversation', () => {
       timeout: 10000,
     })
     await expect(page.getByTestId('attendant-rail')).toBeVisible()
+    await expect(page.getByTestId('attendant-rail-avatar-marvin')).toBeVisible()
   })
 })

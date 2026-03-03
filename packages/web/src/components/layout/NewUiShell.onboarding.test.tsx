@@ -1,7 +1,7 @@
 import React from 'react'
 import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
-import { render, screen } from '../../../tests/test-utils.js'
+import { fireEvent, render, screen } from '../../../tests/test-utils.js'
 import { NewUiShell } from './NewUiShell.js'
 
 const mockUseOnboarding = vi.fn()
@@ -21,8 +21,17 @@ vi.mock('./AttendantRailProvider.js', () => ({
 }))
 
 vi.mock('./AttendantRail.js', () => ({
-  AttendantRail: ({ notifications }: { notifications?: { marvin?: boolean } }) => (
-    <div data-testid='mock-attendant-rail'>{notifications?.marvin ? 'marvin-dot' : 'no-dot'}</div>
+  AttendantRail: ({
+    notifications,
+    visibleAttendantIds,
+  }: {
+    notifications?: { marvin?: boolean }
+    visibleAttendantIds?: string[]
+  }) => (
+    <div data-testid='mock-attendant-rail'>
+      {(visibleAttendantIds ?? ['jarvis', 'marvin']).join(',')}|
+      {notifications?.marvin ? 'marvin-dot' : 'no-dot'}
+    </div>
   ),
 }))
 
@@ -60,11 +69,24 @@ const renderShell = () => {
   )
 }
 
+const renderFullBleedShell = () => {
+  return render(
+    <MemoryRouter>
+      <NewUiShell fullBleed>
+        <div>content</div>
+      </NewUiShell>
+    </MemoryRouter>
+  )
+}
+
 describe('NewUiShell onboarding visibility gates', () => {
-  it('hides task queue and attendant rail during campfire beat', () => {
+  it('shows Jarvis-only rail during campfire beat', () => {
     mockUseOnboarding.mockReturnValue({
+      isActive: true,
+      phase: 'campfire',
+      isFogDismissed: false,
       uiPolicy: {
-        showAttendantRail: false,
+        showAttendantRail: true,
         showTaskQueue: false,
         railFadingIn: false,
         showFogOverlay: true,
@@ -75,12 +97,15 @@ describe('NewUiShell onboarding visibility gates', () => {
     renderShell()
 
     expect(screen.queryByTestId('mock-task-queue')).toBeNull()
-    expect(screen.queryByTestId('mock-attendant-rail')).toBeNull()
-    expect(screen.queryByTestId('mock-attendant-chat')).toBeNull()
+    expect(screen.getByTestId('mock-attendant-rail')).toHaveTextContent('jarvis|no-dot')
+    expect(screen.getByTestId('mock-attendant-chat')).toBeInTheDocument()
   })
 
   it('shows rail and marvin notification after reveal', () => {
     mockUseOnboarding.mockReturnValue({
+      isActive: true,
+      phase: 'reveal',
+      isFogDismissed: false,
       uiPolicy: {
         showAttendantRail: true,
         showTaskQueue: true,
@@ -93,7 +118,42 @@ describe('NewUiShell onboarding visibility gates', () => {
     renderShell()
 
     expect(screen.getByTestId('mock-task-queue')).toBeInTheDocument()
-    expect(screen.getByTestId('mock-attendant-rail')).toHaveTextContent('marvin-dot')
+    expect(screen.getByTestId('mock-attendant-rail')).toHaveTextContent('jarvis,marvin|marvin-dot')
     expect(screen.getByTestId('mock-attendant-chat')).toBeInTheDocument()
+  })
+
+  it('shows a dev debug panel in full-bleed mode and toggles fog state', () => {
+    const dismissFogOverlay = vi.fn()
+    const resetFogOverlay = vi.fn()
+    mockUseOnboarding.mockReturnValue({
+      isActive: true,
+      phase: 'campfire',
+      isFogDismissed: false,
+      dismissFogOverlay,
+      resetFogOverlay,
+      uiPolicy: {
+        showAttendantRail: true,
+        showTaskQueue: false,
+        railFadingIn: false,
+        showFogOverlay: true,
+        showMarvinNotification: false,
+      },
+    })
+
+    renderFullBleedShell()
+
+    expect(screen.getByTestId('dev-debug-panel')).toBeInTheDocument()
+    expect(screen.queryByTestId('dev-debug-slider-sanctuary-scale')).toBeNull()
+    fireEvent.click(screen.getByTestId('dev-debug-panel-button'))
+    expect(screen.getByTestId('dev-debug-slider-sanctuary-scale')).toBeInTheDocument()
+    expect(screen.getByTestId('dev-debug-slider-workshop-scale')).toBeInTheDocument()
+    expect(screen.getByTestId('dev-debug-slider-tree-west-scale')).toBeInTheDocument()
+    expect(screen.getByTestId('dev-debug-input-sanctuary-origin-x')).toBeInTheDocument()
+    expect(screen.getByTestId('dev-debug-input-tree-west-origin-y')).toBeInTheDocument()
+    const fogToggle = screen.getByTestId('dev-debug-toggle-fog')
+    fireEvent.click(fogToggle)
+
+    expect(dismissFogOverlay).toHaveBeenCalledTimes(1)
+    expect(resetFogOverlay).not.toHaveBeenCalled()
   })
 })

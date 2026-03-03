@@ -35,9 +35,8 @@ test.describe('Authentication Flow E2E', () => {
 
     // Step 4: Verify authenticated UI state
 
-    // Should see main navigation
-    await expect(page.locator('nav')).toBeVisible()
-    await expect(page.locator('text=Life Map')).toBeVisible()
+    // Should see authenticated shell controls
+    await expect(page.locator('[data-testid="user-menu-button"]')).toBeVisible()
 
     // Should NOT see "Sign in" button
     await expect(page.locator('text=Sign in')).not.toBeVisible()
@@ -72,8 +71,8 @@ test.describe('Authentication Flow E2E', () => {
       // LiveStore loading timeout - continuing with test
     }
 
-    // Should see main app interface - check for Life Map nav link
-    await expect(page.locator('nav a:has-text("Life Map")')).toBeVisible({
+    // Should see main app interface
+    await expect(page.locator('main')).toBeVisible({
       timeout: 10000,
     })
 

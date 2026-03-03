@@ -39,7 +39,10 @@ import { BuildingOverlay } from './components/layout/BuildingOverlay.js'
 import { WorkshopOverlayContent } from './components/buildings/WorkshopOverlayContent.js'
 import { useWorkshopFirstVisit } from './components/buildings/useWorkshopFirstVisit.js'
 import { SanctuaryOverlayContent } from './components/buildings/SanctuaryOverlayContent.js'
-import { AttendantRailProvider } from './components/layout/AttendantRailProvider.js'
+import {
+  AttendantRailProvider,
+  useAttendantRail,
+} from './components/layout/AttendantRailProvider.js'
 import { OnboardingProvider } from './components/onboarding/OnboardingProvider.js'
 import { LIFE_MAP_ROOM } from '@lifebuild/shared/rooms'
 import {
@@ -426,6 +429,7 @@ const MapOverlayLayoutRoute: React.FC = () => {
 const WorkshopOverlayRoute: React.FC = () => {
   const closeOverlay = useCloseMapOverlayRoute()
   const { startPlacement } = usePlacement()
+  const { activeAttendantId } = useAttendantRail()
   const { showFirstVisitGreeting } = useWorkshopFirstVisit()
   const unplacedProjectsFromQuery = useQuery(getUnplacedProjects$) ?? []
   const unplacedProjects = useMemo(() => {
@@ -445,7 +449,11 @@ const WorkshopOverlayRoute: React.FC = () => {
   )
 
   return (
-    <BuildingOverlay title='Workshop' onClose={closeOverlay}>
+    <BuildingOverlay
+      title='Workshop'
+      onClose={closeOverlay}
+      respectAttendantChat={Boolean(activeAttendantId)}
+    >
       <WorkshopOverlayContent
         unplacedProjects={unplacedProjects}
         onPlaceOnMap={handlePlaceOnMap}
@@ -457,8 +465,13 @@ const WorkshopOverlayRoute: React.FC = () => {
 
 const SanctuaryOverlayRoute: React.FC = () => {
   const closeOverlay = useCloseMapOverlayRoute()
+  const { activeAttendantId } = useAttendantRail()
   return (
-    <BuildingOverlay title='Sanctuary' onClose={closeOverlay}>
+    <BuildingOverlay
+      title='Sanctuary'
+      onClose={closeOverlay}
+      respectAttendantChat={Boolean(activeAttendantId)}
+    >
       <SanctuaryOverlayContent />
     </BuildingOverlay>
   )

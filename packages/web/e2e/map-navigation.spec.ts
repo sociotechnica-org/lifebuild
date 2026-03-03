@@ -32,7 +32,98 @@ const getCenter = async (locator: Locator): Promise<{ x: number; y: number }> =>
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
 }
 
+const sampleBottomStripClearMatches = async (canvas: Locator): Promise<number | null> => {
+  return canvas.evaluate(element => {
+    const surface = element as HTMLCanvasElement
+    const gl =
+      (surface.getContext('webgl2', {
+        preserveDrawingBuffer: true,
+      }) as WebGL2RenderingContext | null) ??
+      (surface.getContext('webgl', { preserveDrawingBuffer: true }) as WebGLRenderingContext | null)
+    if (!gl) {
+      return null
+    }
+
+    const clearColor = [239, 226, 205]
+    const samples = 16
+    let clearMatches = 0
+    const pixel = new Uint8Array(4)
+
+    for (let index = 0; index < samples; index += 1) {
+      const x = Math.min(
+        surface.width - 1,
+        Math.max(0, Math.round(((index + 0.5) / samples) * surface.width))
+      )
+      gl.readPixels(x, 2, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, pixel)
+
+      if (pixel[0] === clearColor[0] && pixel[1] === clearColor[1] && pixel[2] === clearColor[2]) {
+        clearMatches += 1
+      }
+    }
+
+    return clearMatches
+  })
+}
+
 test.describe('Map navigation', () => {
+  test('renders full-bleed map surface on initial load', async ({ page }) => {
+    await navigateToAppWithUniqueStore(page)
+
+    if (await isLoadingLiveStore(page)) {
+      return
+    }
+
+    const canvas = await expectMapVisible(page)
+    if (!canvas) {
+      return
+    }
+
+    const sanctuaryButton = page.getByTestId('fixed-building-sanctuary-button')
+    await expect(sanctuaryButton).toBeVisible({ timeout: 10000 })
+
+    const canvasBox = await canvas.boundingBox()
+    expect(canvasBox).not.toBeNull()
+    if (!canvasBox) {
+      return
+    }
+
+    const main = page.locator('main').first()
+    const mainBox = await main.boundingBox()
+    expect(mainBox).not.toBeNull()
+    if (!mainBox) {
+      return
+    }
+
+    // Map surface should fully span the app width instead of appearing scaled down.
+    expect(canvasBox.width).toBeGreaterThanOrEqual(mainBox.width - 8)
+    expect(Math.abs(canvasBox.x - mainBox.x)).toBeLessThanOrEqual(4)
+
+    const transformScale = await canvas.evaluate(element => {
+      let node: HTMLElement | null = element as HTMLElement
+
+      while (node && node !== document.body) {
+        const { transform } = window.getComputedStyle(node)
+        if (transform && transform !== 'none') {
+          const match = transform.match(/matrix\((.+)\)/)
+          if (!match) {
+            return { scaleX: 1, scaleY: 1 }
+          }
+
+          const [scaleX = 1, , , scaleY = 1] = match[1]
+            .split(',')
+            .map(value => Number(value.trim()))
+          return { scaleX, scaleY }
+        }
+        node = node.parentElement
+      }
+
+      return { scaleX: 1, scaleY: 1 }
+    })
+
+    expect(Math.abs(transformScale.scaleX - 1)).toBeLessThan(0.02)
+    expect(Math.abs(transformScale.scaleY - 1)).toBeLessThan(0.02)
+  })
+
   test('supports wheel zoom and arrow-key pan controls', async ({ page }) => {
     await navigateToAppWithUniqueStore(page)
 
@@ -77,5 +168,50 @@ test.describe('Map navigation', () => {
 
     const sanctuaryAfterPan = await getCenter(sanctuaryButton)
     expect(Math.abs(sanctuaryAfterPan.x - sanctuaryBeforePan.x)).toBeGreaterThan(1)
+  })
+
+  test('keeps parchment shader full-bleed at max zoom-out across aspect ratios', async ({
+    page,
+  }) => {
+    await navigateToAppWithUniqueStore(page)
+
+    if (await isLoadingLiveStore(page)) {
+      return
+    }
+
+    const canvas = await expectMapVisible(page)
+    if (!canvas) {
+      return
+    }
+
+    const viewports = [
+      { width: 1366, height: 1024 },
+      { width: 1600, height: 900 },
+      { width: 1280, height: 960 },
+    ]
+
+    for (const viewport of viewports) {
+      await page.setViewportSize(viewport)
+      await page.waitForTimeout(120)
+
+      const box = await canvas.boundingBox()
+      if (!box) {
+        continue
+      }
+
+      await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2)
+      await page.mouse.wheel(0, 5000)
+      await page.waitForTimeout(140)
+
+      const clearMatches = await sampleBottomStripClearMatches(canvas)
+      if (clearMatches === null) {
+        continue
+      }
+
+      expect(
+        clearMatches,
+        `Expected no clear-color strip at bottom for ${viewport.width}x${viewport.height}`
+      ).toBeLessThan(4)
+    }
   })
 })

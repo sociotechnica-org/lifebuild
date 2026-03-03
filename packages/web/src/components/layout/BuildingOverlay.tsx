@@ -5,6 +5,8 @@ type BuildingOverlayProps = {
   onClose: () => void
   children: React.ReactNode
   panelClassName?: string
+  /** Shift the overlay right to avoid colliding with the attendant chat column. */
+  respectAttendantChat?: boolean
 }
 
 /**
@@ -15,6 +17,7 @@ export const BuildingOverlay: React.FC<BuildingOverlayProps> = ({
   onClose,
   children,
   panelClassName,
+  respectAttendantChat = false,
 }) => {
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -36,7 +39,9 @@ export const BuildingOverlay: React.FC<BuildingOverlayProps> = ({
 
   return (
     <div
-      className='pointer-events-none absolute inset-0 z-[100] flex items-center justify-center p-4 sm:p-6'
+      className={`pointer-events-none absolute inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 ${
+        respectAttendantChat ? 'lg:pl-[30rem]' : ''
+      }`}
       data-testid='building-overlay'
     >
       <div

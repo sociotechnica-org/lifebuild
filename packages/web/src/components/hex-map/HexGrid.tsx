@@ -7,12 +7,17 @@ import { useEffect, useMemo, useState } from 'react'
 import { FixedBuilding } from './FixedBuilding.js'
 import { HexCell } from './HexCell.js'
 import { HexTile, type HexTileVisualState, type HexTileWorkstream } from './HexTile.js'
+import { LandmarkSprite } from './LandmarkSprite.js'
 import { truncateLabel } from './labelUtils.js'
 import {
   FIXED_BUILDINGS,
   isReservedProjectCoord,
   type FixedBuildingType,
 } from './placementRules.js'
+import {
+  MAP_TREE_SPRITE_CONFIGS,
+  type MapSpriteDebugSettings,
+} from '../life-map/mapSpriteDebugConfig.js'
 
 const GRID_RADIUS = 3
 const MAX_PLACEMENT_LABEL_LENGTH = 30
@@ -46,6 +51,7 @@ type HexGridProps = {
   onOpenWorkshop?: () => void
   onOpenSanctuary?: () => void
   disableLandmarkInteractions?: boolean
+  spriteDebugSettings?: MapSpriteDebugSettings
 }
 
 export function HexGrid({
@@ -60,6 +66,7 @@ export function HexGrid({
   onOpenWorkshop,
   onOpenSanctuary,
   disableLandmarkInteractions = false,
+  spriteDebugSettings,
 }: HexGridProps) {
   const cells = useMemo(() => generateHexGrid(GRID_RADIUS), [])
   const [hoveredPlacementKey, setHoveredPlacementKey] = useState<string | null>(null)
@@ -142,6 +149,11 @@ export function HexGrid({
     }
   }
 
+  const sanctuaryScale = spriteDebugSettings?.sanctuaryScale ?? 1
+  const workshopScale = spriteDebugSettings?.workshopScale ?? 1
+  const sanctuaryOrigin = spriteDebugSettings?.sanctuaryOrigin
+  const workshopOrigin = spriteDebugSettings?.workshopOrigin
+
   return (
     <group>
       {cells.map(cell => {
@@ -200,6 +212,10 @@ export function HexGrid({
           key={building.type}
           type={building.type}
           coord={building.coord}
+          sanctuaryScale={sanctuaryScale}
+          workshopScale={workshopScale}
+          sanctuaryOrigin={sanctuaryOrigin}
+          workshopOrigin={workshopOrigin}
           onActivate={
             building.type === 'campfire' || !allowBuildingOverlayOpen
               ? undefined
@@ -209,6 +225,24 @@ export function HexGrid({
           }
         />
       ))}
+      {MAP_TREE_SPRITE_CONFIGS.map(tree => {
+        const treeScale = spriteDebugSettings?.treeScales[tree.id] ?? tree.defaultScale
+        const treeOrigin = spriteDebugSettings?.treeOrigins[tree.id] ?? tree.defaultOrigin
+
+        return (
+          <LandmarkSprite
+            key={tree.id}
+            coord={tree.coord}
+            textureUrl={tree.textureUrl}
+            width={tree.width * treeScale}
+            height={tree.height * treeScale}
+            opacity={tree.opacity}
+            elevation={tree.elevation}
+            origin={treeOrigin}
+            tint={tree.tint}
+          />
+        )
+      })}
       {isPlacementMode &&
         hoveredPlacementCell &&
         hoveredPlacementPosition &&

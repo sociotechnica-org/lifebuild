@@ -59,8 +59,7 @@ test.describe('Authentication Integration E2E', () => {
     await page.waitForURL(/\/life-map/, { timeout: 10000 })
 
     // Should see the main app interface
-    await expect(page.locator('nav')).toBeVisible()
-    await expect(page.locator('text=Life Map')).toBeVisible()
+    await expect(page.locator('main')).toBeVisible()
 
     // 5. Verify authenticated state in header
     // Should see user initials dropdown, not "Sign in" button
@@ -106,7 +105,7 @@ test.describe('Authentication Integration E2E', () => {
 
     // Should redirect to the original intended destination (/life-map)
     await page.waitForURL(/\/life-map/, { timeout: 10000 })
-    await expect(page.locator('text=Life Map')).toBeVisible()
+    await expect(page.locator('main')).toBeVisible()
   })
 
   test('should handle invalid login attempts gracefully', async ({ page }) => {

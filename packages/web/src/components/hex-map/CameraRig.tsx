@@ -6,7 +6,7 @@ const ARROW_KEYS = new Set(['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'])
 const PAN_SPEED = 12
 const ZOOM_SPEED = 0.02
 const MIN_ZOOM = 4
-const MAX_ZOOM = 24
+const MAX_ZOOM = 16
 const INITIAL_ZOOM = 8
 const CAMERA_DISTANCE = 24
 const CAMERA_ELEVATION_DEGREES = 31
@@ -88,6 +88,8 @@ export function CameraRig() {
     }
   }, [gl])
 
+  // Run camera updates before other frame subscribers (e.g. background coverage)
+  // so dependent calculations don't lag by one frame during wheel zoom.
   useFrame((_, delta) => {
     const orthoCamera = camera as OrthographicCamera
 
@@ -125,7 +127,8 @@ export function CameraRig() {
       target.current.z + CAMERA_DISTANCE * Math.cos(elevationRadians)
     )
     orthoCamera.lookAt(target.current)
-  })
+    orthoCamera.updateMatrixWorld(true)
+  }, -1)
 
   return null
 }
