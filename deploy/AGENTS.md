@@ -6,13 +6,14 @@ This directory contains deployment documentation, playbooks, and tooling for Lif
 
 LifeBuild is deployed across multiple platforms:
 
-| Service        | Platform           | Purpose                       | URL                            |
-| -------------- | ------------------ | ----------------------------- | ------------------------------ |
-| Web App        | Cloudflare Pages   | React frontend                | `https://app.lifebuild.me`     |
-| Sync Worker    | Cloudflare Workers | WebSocket real-time sync      | `wss://sync.lifebuild.me`      |
-| Auth Worker    | Cloudflare Workers | Authentication & JWT          | `https://auth.lifebuild.me`    |
-| PostHog Worker | Cloudflare Workers | Analytics proxy               | `https://coconut.lifebuild.me` |
-| Agentic Server | Render.com         | Centralized AI/LLM processing | Internal                       |
+| Service              | Platform           | Purpose                       | URL                               |
+| -------------------- | ------------------ | ----------------------------- | --------------------------------- |
+| Web App              | Cloudflare Pages   | React frontend                | `https://app.lifebuild.me`        |
+| Prototype Playground | Cloudflare Pages   | Prototype host                | `https://playground.lifebuild.me` |
+| Sync Worker          | Cloudflare Workers | WebSocket real-time sync      | `wss://sync.lifebuild.me`         |
+| Auth Worker          | Cloudflare Workers | Authentication & JWT          | `https://auth.lifebuild.me`       |
+| PostHog Worker       | Cloudflare Workers | Analytics proxy               | `https://coconut.lifebuild.me`    |
+| Agentic Server       | Render.com         | Centralized AI/LLM processing | Internal                          |
 
 See [deployment.md](./deployment.md) for full deployment documentation.
 

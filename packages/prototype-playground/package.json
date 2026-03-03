@@ -16,7 +16,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
     "lint-all": "pnpm lint:fix && pnpm format && pnpm typecheck",
-    "deploy": "wrangler pages deploy dist --project-name lifebuild-prototypes"
+    "deploy": "wrangler pages deploy dist --project-name lifebuild-playground"
   },
   "dependencies": {
     "@lifebuild/hex-grid-prototype": "workspace:*",
