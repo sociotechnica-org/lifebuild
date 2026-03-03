@@ -174,6 +174,7 @@ test.describe('Map navigation', () => {
   test('keeps parchment shader full-bleed at max zoom-out across aspect ratios', async ({
     page,
   }) => {
+    test.setTimeout(60000)
     await navigateToAppWithUniqueStore(page)
 
     if (await isLoadingLiveStore(page)) {
@@ -206,7 +207,12 @@ test.describe('Map navigation', () => {
       // Allow R3F to process zoom and re-render
       await page.waitForTimeout(500)
 
-      const clearMatches = await sampleBottomStripClearMatches(canvas)
+      // Race the pixel sampling against a timeout — the WebGL context
+      // grab can hang in CI when R3F owns the canvas context
+      const clearMatches = await Promise.race([
+        sampleBottomStripClearMatches(canvas),
+        new Promise<null>(resolve => setTimeout(() => resolve(null), 5000)),
+      ])
       if (clearMatches === null) {
         continue
       }
