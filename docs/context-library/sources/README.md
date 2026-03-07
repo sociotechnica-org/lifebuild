@@ -51,5 +51,5 @@ sources/
 | acquihire-brief-2026-03                     | 2026-03       | Corporate strategy — acquihire value channels, thought leadership, open source traction, internal champions, LifeBuild as vision artifact              |
 | socialization-factory-vision-2026-03-07     | 2026-03-07    | Communications operations vision — three socialization divisions, content factory model, agent staffing, context library for comms                     |
 | communications-operations-research-2026-03  | 2026-03-07    | Frameworks research — editorial ops, content strategy, small team comms, acquihire visibility, founder CRM, community leadership, weekly review cycles |
-| master-communications-strategy-2026-03-07   | 2026-03-07    | Strategic foundation — positioning, three divisions, PESO weighting, content pillars, crown jewel bets, operating model, sequencing, success signals  |
-| content-pillars-2026-03-07                  | 2026-03-07    | Content pillar design — four pillars with cluster topics, editorial guidance, starter backlog, balance targets, health checks                         |
+| master-communications-strategy-2026-03-07   | 2026-03-07    | Strategic foundation — positioning, three divisions, PESO weighting, content pillars, crown jewel bets, operating model, sequencing, success signals   |
+| content-pillars-2026-03-07                  | 2026-03-07    | Content pillar design — four pillars with cluster topics, editorial guidance, starter backlog, balance targets, health checks                          |
