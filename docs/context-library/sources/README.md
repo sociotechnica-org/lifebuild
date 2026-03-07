@@ -43,8 +43,11 @@ sources/
 
 ## Current Sources
 
-| Document                                    | Snapshot Date | Scope                                                                                 |
-| ------------------------------------------- | ------------- | ------------------------------------------------------------------------------------- |
-| GDD-v0.2                                    | 2025-12       | Full game design — informed nearly every card                                         |
-| automation-strategy-conversation-2026-02-17 | 2026-02-17    | Factory & library automation strategy — task catalog, cost tiers, role bundles        |
-| power-of-the-portal-2026-02-26              | 2026-02-26    | Onboarding philosophy — Action Before Explanation, Compression and Release, WOW Chain |
+| Document                                    | Snapshot Date | Scope                                                                                                                                                  |
+| ------------------------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| GDD-v0.2                                    | 2025-12       | Full game design — informed nearly every card                                                                                                          |
+| automation-strategy-conversation-2026-02-17 | 2026-02-17    | Factory & library automation strategy — task catalog, cost tiers, role bundles                                                                         |
+| power-of-the-portal-2026-02-26              | 2026-02-26    | Onboarding philosophy — Action Before Explanation, Compression and Release, WOW Chain                                                                  |
+| acquihire-brief-2026-03                     | 2026-03       | Corporate strategy — acquihire value channels, thought leadership, open source traction, internal champions, LifeBuild as vision artifact              |
+| socialization-factory-vision-2026-03-07     | 2026-03-07    | Communications operations vision — three socialization divisions, content factory model, agent staffing, context library for comms                     |
+| communications-operations-research-2026-03  | 2026-03-07    | Frameworks research — editorial ops, content strategy, small team comms, acquihire visibility, founder CRM, community leadership, weekly review cycles |

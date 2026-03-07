@@ -34,6 +34,10 @@ HOW it feels?
 ├─ Target emotional experience → AESTHETIC
 └─ Emergent cross-system behavior → DYNAMIC
 
+HOW we operate? (company operations, not product)
+├─ Organizational operating model → DIVISION
+└─ Documented repeatable procedure → PLAYBOOK
+
 WHEN?
 ├─ Historical → DECISION
 └─ Future → FUTURE
@@ -83,13 +87,19 @@ _Gate: These describe how engagement feels over time — rhythms, arcs, emotions
 - Target emotional experience for a moment or context → Aesthetic
 - Emergent behavior from multiple systems interacting → Dynamic
 
-**Step 6: Is this temporal?**
+**Step 6: Is this about how the company operates (not the product)?**
+_Gate: These describe organizational units and procedures — how the team does work, not what the product does._
+
+- Structurally distinct organizational unit with its own operating model → Division
+- Documented repeatable procedure for a specific scenario → Playbook
+
+**Step 7: Is this temporal?**
 
 - Past insight → captured in card WHEN History entries (not a standalone type)
 - Past choice → Decision
 - Future vision → Future
 
-**Step 7: Is this about shipping?**
+**Step 8: Is this about shipping?**
 
 - Shippable scope → Initiative
 - Version marker → Release
@@ -215,6 +225,8 @@ Omit section when reality matches vision — no gap, no implications.]
 | Experience layer (Loop through Dynamic) | `core` \| `evolving` \| `proposed`                   |
 | Prompt                                  | `draft` \| `testing` \| `production` \| `deprecated` |
 | Component                               | `active` \| `deprecated`                             |
+| Division                                | `proposed` \| `active` \| `restructuring`            |
+| Playbook                                | `draft` \| `active` \| `deprecated`                  |
 | Release                                 | `planned` \| `in-progress` \| `shipped`              |
 
 ---
@@ -1392,6 +1404,187 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ---
 
+### Division
+
+```markdown
+# Division - [Name]
+
+## WHAT: Definition
+
+[What organizational unit. What operating model it represents. What makes it structurally distinct from other divisions. 2-4 sentences, standalone.]
+
+## WHERE: Ecosystem
+
+- Parent strategy:
+  - [[Strategy]] — [what bet this division serves]
+- Agents:
+  - [[Agent]] — [who staffs this division and in what role]
+- Systems:
+  - [[System]] — [what invisible mechanisms support this division]
+- Standards:
+  - [[Standard]] — [what specs constrain operations here]
+- Playbooks:
+  - [[Playbook]] — [what repeatable procedures this division uses]
+- Adjacent:
+  - [[Division]] — [coordination points with other divisions]
+
+## WHY: Rationale
+
+- Strategy: [[Strategy]] — [what bet this serves]
+- Principle: [[Principle]] — [what guidance shapes it]
+- Separation: [Why this is its own division. What operating model differences justify the separation.]
+
+## WHEN: Timeline
+
+- Status: proposed | active | restructuring
+- Since: [date]
+
+### Reality ([YYYY-MM-DD])
+
+[What's actually operational. What staff, systems, and processes are in place vs. vision.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What the gap between reality and vision means for operators. Omit when fully operational.]
+
+## HOW: Operating Model
+
+### Medium & Format
+
+[What communication medium this division operates in. What formats are produced or managed.]
+
+### Privacy Posture
+
+[What data is private, shared, or public. What crosses division boundaries and what doesn't.]
+
+### Cadence
+
+[Operating rhythm. How often work happens. Sprint/cycle structure if any.]
+
+### Production Model
+
+[How work flows through this division. Stages, handoffs, approval gates.]
+
+### Staffing
+
+[Who does what. Human roles and agent roles.]
+
+### Examples
+
+[2+ concrete scenarios of this division in operation.]
+
+**Example 1:** [Scenario]
+
+- Trigger: [X]
+- Division response: [Y]
+- Outcome: [Z]
+
+**Example 2:** [Scenario]
+
+- Trigger: [X]
+- Division response: [Y]
+- Outcome: [Z]
+
+### Anti-Examples
+
+[What this division is NOT for. What belongs in a different division.]
+```
+
+---
+
+### Playbook
+
+```markdown
+# Playbook - [Name]
+
+## WHAT: Definition
+
+[What scenario this covers. What repeatable procedure it documents. When to use it. 2-3 sentences, standalone.]
+
+## WHERE: Ecosystem
+
+- Division(s):
+  - [[Division]] — [which division(s) use this playbook]
+- Conforms to:
+  - [[Standard]] — [what specs constrain this procedure]
+- Agents:
+  - [[Agent]] — [who facilitates or executes steps]
+- Related:
+  - [[Playbook]] — [complementary or sequential playbooks]
+
+## WHY: Rationale
+
+- Principle: [[Principle]] — [what guidance shapes it]
+- Driver: [What goes wrong without this playbook. What problem it prevents or solves.]
+
+## WHEN: Timeline
+
+- Status: draft | active | deprecated
+- Since: [date]
+
+### Reality ([YYYY-MM-DD])
+
+[Is this playbook being followed? What's working, what's not.]
+
+### History
+
+> **YYYY-MM-DD — [Title]**
+> [What changed and why.]
+
+### Implications
+
+[What gaps in practice mean. Omit when fully adopted.]
+
+## HOW: Procedure
+
+### Trigger
+
+[What situation activates this playbook. Be specific.]
+
+### Steps
+
+[The repeatable procedure. 3-10 steps.]
+
+1. [Step — who does what]
+2. [Step — who does what]
+3. [Step — who does what]
+
+### Approval Gate
+
+[What requires human approval before proceeding. Omit if no gate.]
+
+### Outcome
+
+[What state is different after the playbook completes. What's been produced or decided.]
+
+### Examples
+
+[2+ concrete scenarios of this playbook in action.]
+
+**Example 1:** [Scenario]
+
+- Trigger: [X]
+- Steps taken: [Y]
+- Outcome: [Z]
+
+**Example 2:** [Scenario]
+
+- Trigger: [X]
+- Steps taken: [Y]
+- Outcome: [Z]
+
+### Anti-Examples
+
+[When NOT to use this playbook. Common misapplications.]
+```
+
+---
+
 ### Loop
 
 ```markdown
@@ -2084,6 +2277,10 @@ Releases use **planning mode** (forward-looking) while being built and **retrosp
 /releases/
   [flat: Release cards]
 
+/communications/
+  divisions/
+  playbooks/
+
 /sources/
   [frozen provenance — GDDs, research, strategic memos]
   [NOT searchable by agents — see sources/README.md]
@@ -2119,6 +2316,8 @@ CONVENTIONS.md
 | Journey          | Journey - [Name]                 | Journey - Builder Onboarding                 |
 | Aesthetic        | Aesthetic - [Name]               | Aesthetic - Coming Home                      |
 | Dynamic          | Dynamic - [Name]                 | Dynamic - Bronze Flood                       |
+| Division         | Division - [Name]                | Division - 1:1 Relationship Management       |
+| Playbook         | Playbook - [Name]                | Playbook - Inbound Triage                    |
 | Decision         | Decision - [Choice]              | Decision - Three Slot Limit                  |
 | Initiative       | Initiative - [Name]              | Initiative - AI Prioritization               |
 | Release          | Release [Version]                | Release 2.3                                  |
@@ -2155,19 +2354,21 @@ Cards touching governed domains must link to constraining Standards.
 
 ## Containment Relationships
 
-| Type       | Must Link To                   | Relationship         |
-| ---------- | ------------------------------ | -------------------- |
-| Room       | Zone                           | Parent workspace     |
-| Structure  | Room                           | Where it lives       |
-| Component  | Structure or Room or Overlay   | Parent element       |
-| Artifact   | Room                           | Where it's edited    |
-| Capability | Room(s)                        | Where it's performed |
-| Prompt     | Agent                          | What it implements   |
-| Overlay    | Zone(s)                        | Where it's visible   |
-| Loop       | Room(s), Capability(s)         | What it contains     |
-| Journey    | Loop(s), Room(s)               | What it spans        |
-| Aesthetic  | Room(s), Loop(s), Component(s) | Where it applies     |
-| Dynamic    | System(s)                      | What produces it     |
+| Type       | Must Link To                   | Relationship                              |
+| ---------- | ------------------------------ | ----------------------------------------- |
+| Room       | Zone                           | Parent workspace                          |
+| Structure  | Room                           | Where it lives                            |
+| Component  | Structure or Room or Overlay   | Parent element                            |
+| Artifact   | Room                           | Where it's edited                         |
+| Capability | Room(s)                        | Where it's performed                      |
+| Prompt     | Agent                          | What it implements                        |
+| Overlay    | Zone(s)                        | Where it's visible                        |
+| Loop       | Room(s), Capability(s)         | What it contains                          |
+| Journey    | Loop(s), Room(s)               | What it spans                             |
+| Aesthetic  | Room(s), Loop(s), Component(s) | Where it applies                          |
+| Division   | Strategy, Agent(s), System(s)  | What it serves, who staffs, what supports |
+| Playbook   | Division(s), Standard(s)       | Where it's used, what constrains it       |
+| Dynamic    | System(s)                      | What produces it                          |
 
 ---
 
