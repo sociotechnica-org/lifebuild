@@ -12,7 +12,7 @@ Before starting:
 - The socialization vision must exist (`sources/socialization-factory-vision-2026-03-07.md`) ✓
 - The operations research must exist (`sources/communications-operations-research-2026-03.md`) ✓
 - The inventory must exist (`communications/INVENTORY.md`) ✓
-- New types (Division, Playbook) must be added to `reference.md`
+- New types (Division, Playbook) must be added to `reference.md` ✓
 
 ---
 

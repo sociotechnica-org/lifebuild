@@ -35,7 +35,7 @@ Three modes: Build, Operate, Consult. 11 jobs total.
 | 4   | Channel Strategy      | `skills/arvin/job-channel-strategy.md`      | Research channel-specific strategy.               |
 | 5   | Editorial Calendar    | `skills/arvin/job-editorial-calendar.md`    | Design calendar + content backlog.                |
 | 6   | Playbook Drafting     | `skills/arvin/job-playbook-drafting.md`     | Draft repeatable procedures.                      |
-| 7   | Build Sequence        | `skills/arvin/job-build-sequence.md`        | Run the full build pipeline with Sam checkpoints. |
+| 7   | The Right 50          | `skills/arvin/job-right-50.md`              | Build and maintain the acquihire target list.     |
 
 **Operate Mode** — Weekly rhythm and production decisions:
 
@@ -51,11 +51,7 @@ Three modes: Build, Operate, Consult. 11 jobs total.
 | --- | ---------------------- | -------------------------------------------- | ---------------------------------------- |
 | 11  | Strategic Consultation | `skills/arvin/job-strategic-consultation.md` | Tricky situation needs thinking through. |
 
-**Right 50 List** — Maintains the O1 target list:
-
-| #   | Job      | Skill File                     | When                                          |
-| --- | -------- | ------------------------------ | --------------------------------------------- |
-| —   | Right 50 | `skills/arvin/job-right-50.md` | Build and maintain the acquihire target list. |
+**Supporting skill:** `skills/arvin/job-build-sequence.md` — The full build pipeline with Sam checkpoints (meta-procedure, not a numbered job).
 
 Arvin does NOT: implement code, build library cards (Sam does that), make final decisions (defers to human), draft communications for dispatch without human approval.
 

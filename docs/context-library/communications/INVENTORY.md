@@ -70,7 +70,7 @@ These divisions are not parallel product features — they are distinct operatin
 
 ## Expected Cards
 
-**Total: 22 new cards + 3 agent card updates (not new cards)**
+**Total: 21 new cards**
 
 ### Strategy (2)
 
@@ -151,26 +151,28 @@ Lower priority — build only after Division - 1:Many card is stable.
 
 ---
 
-## Agent Card Updates (not new cards)
+## Communications Division Agents (separate from product agents)
 
-The following existing agent cards need communications domain additions. These are updates Sam makes to existing cards, not new card creation.
+The communications division has its own agent roster, separate from the software factory agents (George, Conan, Sam). These agents are defined in `.claude/agents/` and `.claude/skills/`, not as library cards.
 
-| Card           | Update Needed                                                                                                                                                                                                                                                                                                                                              | Section(s) |
-| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| Agent - Jarvis | Add communications domain: Head of Socialization / consiglieri. Provides strategic counsel across all three divisions. Runs weekly socialization sprint review. Facilitates relationship strategy for 1:1, political navigation for Groups, and content strategy for 1:Many. Add to WHERE (all three divisions) and HOW (Responsibilities, Session types). | WHERE, HOW |
-| Agent - Marvin | Add communications domain: production management for 1:Many and Groups. Sets the editorial calendar deadlines. Reminds the team. "Greta Von Trapp" — enforces production discipline. Add to WHERE and HOW.                                                                                                                                                 | WHERE, HOW |
-| Agent - Conan  | Add communications domain: analytics and insights. Mines past communications performance for patterns. Surfaces relationship health trends, content performance data, group dynamics signals. Shares intel with Jarvis and Marvin. Add to WHERE and HOW.                                                                                                   | WHERE, HOW |
+| Agent              | Role                    | Status    | Definition                                    |
+| ------------------ | ----------------------- | --------- | --------------------------------------------- |
+| Arvin Gildencranst | Strategic Advisor / COO | Built     | `.claude/agents/arvin.md`                     |
+| Gretta Von Trapp   | PM / Whip               | Not built | Deferred until operation has enough to manage |
+| Kelvin Kiperbelt   | Analyst                 | Not built | Deferred until enough data exists to analyze  |
+
+**Note:** The original inventory assumed communications work would be added to existing product agents (Jarvis, Marvin, Conan). This was revised — the communications division has its own dedicated agents. Product agents remain scoped to the software factory.
 
 ---
 
 ## Conformance Map
 
-| Standard                                | Constrains                                                                                                                          |
-| --------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Standard - Communications Privacy Rules | Division - 1:1, Division - Groups, Division - 1:Many, all Playbooks, Agent - Jarvis (WHERE section), Agent - Marvin (WHERE section) |
-| Standard - Relationship Health Criteria | System - Relationship Health Tracking, Division - 1:1, Playbook - Relationship Follow-Up                                            |
-| Standard - Content Type Definitions     | System - Content Production Pipeline, Division - 1:Many, Playbook - Content Briefing, Channel cards                                 |
-| Standard - Editorial Cadence Rules      | System - Editorial Calendar, Division - 1:Many, Channel cards                                                                       |
+| Standard                                | Constrains                                                                                                          |
+| --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Standard - Communications Privacy Rules | Division - 1:1, Division - Groups, Division - 1:Many, all Playbooks, Arvin (all divisions), Gretta (1:Many, Groups) |
+| Standard - Relationship Health Criteria | System - Relationship Health Tracking, Division - 1:1, Playbook - Relationship Follow-Up                            |
+| Standard - Content Type Definitions     | System - Content Production Pipeline, Division - 1:Many, Playbook - Content Briefing, Channel cards                 |
+| Standard - Editorial Cadence Rules      | System - Editorial Calendar, Division - 1:Many, Channel cards                                                       |
 
 ---
 
@@ -224,24 +226,16 @@ Before Sam builds anything, resolve:
 | 16    | Division - Groups                      | Standards 7, Principle 3                       |
 | 17    | Division - 1:Many                      | Standards 7, 9, 10, Systems 13–14, Principle 3 |
 
-### Phase 5: Agent Card Updates
-
-| Order | Card                    | Depends On                                                        |
-| ----- | ----------------------- | ----------------------------------------------------------------- |
-| 18    | Agent - Jarvis (update) | Division cards, Standard - Communications Privacy Rules           |
-| 19    | Agent - Marvin (update) | Division - 1:Many, Division - Groups, System - Editorial Calendar |
-| 20    | Agent - Conan (update)  | All Division cards, all Systems                                   |
-
-### Phase 6: Playbooks (if type approved)
+### Phase 5: Playbooks (if type approved)
 
 | Order | Card                              | Depends On                                                                                     |
 | ----- | --------------------------------- | ---------------------------------------------------------------------------------------------- |
-| 21    | Playbook - Inbound Triage         | Division - 1:1, Principle - Inbound Priority                                                   |
-| 22    | Playbook - Content Briefing       | Division - 1:Many, Standard - Content Type Definitions                                         |
-| 23    | Playbook - Group Event            | Division - Groups                                                                              |
-| 24    | Playbook - Relationship Follow-Up | Division - 1:1, System - Relationship Health Tracking, Standard - Relationship Health Criteria |
+| 18    | Playbook - Inbound Triage         | Division - 1:1, Principle - Inbound Priority                                                   |
+| 19    | Playbook - Content Briefing       | Division - 1:Many, Standard - Content Type Definitions                                         |
+| 20    | Playbook - Group Event            | Division - Groups                                                                              |
+| 21    | Playbook - Relationship Follow-Up | Division - 1:1, System - Relationship Health Tracking, Standard - Relationship Health Criteria |
 
-### Phase 7: Channel Cards (if type approved and if not deferred)
+### Phase 6: Channel Cards (if type approved and if not deferred)
 
 Build after Division - 1:Many is stable. Low priority — defer until the factory is operational.
 
@@ -300,7 +294,6 @@ Build after Division - 1:Many is stable. Low priority — defer until the factor
 | Agent (new)         | 2              | 0               | -2                                                         |
 | Prompt              | 2              | 0               | -2                                                         |
 | **New cards total** | **36**         | **21**          | **-15**                                                    |
-| Agent card updates  | 4              | 3               | -1 (Conan added, Keeper removed)                           |
 
 **Decisions blocking build start:** 3 (Division type, Playbook type, Channel type/granularity)
 
@@ -314,6 +307,6 @@ Build after Division - 1:Many is stable. Low priority — defer until the factor
 
 3. **Channel type decision** — Can defer. Start by building division detail into Division - 1:Many. Add Channel cards as standalone if the content grows unwieldy.
 
-4. **New agents (Quill, Keeper)** — Not inventoried. If the founder wants a content-specialist agent or a relationship-memory agent, propose explicitly and build after approval. Jarvis + Marvin + Conan cover the territory described in the source.
+4. **Additional agents** — The communications division now has its own agents: Arvin (strategic advisor), Gretta (PM/whip, not yet built), Kelvin (analyst, not yet built). If additional specialist agents are needed, propose and build after approval.
 
 5. **Group Event Lifecycle system** — The previous inventory had this as System - Group Event Lifecycle. This inventory absorbs event lifecycle into Division - Groups's HOW section. If group events are complex enough to warrant a standalone state-machine system, restore the card. HUMAN JUDGMENT: is the group event lifecycle as mechanically complex as the product's project lifecycle?
