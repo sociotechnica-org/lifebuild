@@ -42,14 +42,14 @@ No other content creator in this space can show a traversable, inhabited future 
 
 ### Cluster Topics
 
-| # | Cluster | What It Covers | Content Examples |
-|---|---------|---------------|-----------------|
-| 1 | **The Tour** | Walking someone through the spatial interface — Life Map, hex tiles, zoom levels, planning tools | Product demo video, screenshot walkthroughs, "here's what I see when I open my day" |
-| 2 | **Before/After** | Concrete comparisons of spatial vs. list-based work. What changes when work has a place? | Side-by-side: Notion page vs. hex tile. "I used to track this in a spreadsheet, now I see it on my map" |
-| 3 | **A Day in LifeBuild** | What a real day looks like. Morning planning session, mid-day adaptation, end-of-day review — all spatial | Narrative walkthroughs, time-lapse of a planning day, "here's how I decided what to work on today" |
-| 4 | **The Factory Room** | The physical manifestation — TV screens with AI colleagues, real workstations, real work | Factory room video, behind-the-scenes setup, design decisions about physical-digital hybrid |
-| 5 | **Moments of Recognition** | Specific instances where the spatial interface revealed something a list never would have | "I noticed two projects were adjacent on my map and realized they were the same problem." Short, punchy, specific |
-| 6 | **The Visitor Experience** | What happens when someone sees LifeBuild for the first time. Their reactions, questions, confusions | Guest reaction posts, "the question everyone asks first," onboarding observations |
+| #   | Cluster                    | What It Covers                                                                                            | Content Examples                                                                                                  |
+| --- | -------------------------- | --------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| 1   | **The Tour**               | Walking someone through the spatial interface — Life Map, hex tiles, zoom levels, planning tools          | Product demo video, screenshot walkthroughs, "here's what I see when I open my day"                               |
+| 2   | **Before/After**           | Concrete comparisons of spatial vs. list-based work. What changes when work has a place?                  | Side-by-side: Notion page vs. hex tile. "I used to track this in a spreadsheet, now I see it on my map"           |
+| 3   | **A Day in LifeBuild**     | What a real day looks like. Morning planning session, mid-day adaptation, end-of-day review — all spatial | Narrative walkthroughs, time-lapse of a planning day, "here's how I decided what to work on today"                |
+| 4   | **The Factory Room**       | The physical manifestation — TV screens with AI colleagues, real workstations, real work                  | Factory room video, behind-the-scenes setup, design decisions about physical-digital hybrid                       |
+| 5   | **Moments of Recognition** | Specific instances where the spatial interface revealed something a list never would have                 | "I noticed two projects were adjacent on my map and realized they were the same problem." Short, punchy, specific |
+| 6   | **The Visitor Experience** | What happens when someone sees LifeBuild for the first time. Their reactions, questions, confusions       | Guest reaction posts, "the question everyone asks first," onboarding observations                                 |
 
 ### Value Channels Served
 
@@ -83,14 +83,14 @@ A 2-person team can ship like a 10-person team when AI agents have defined jobs,
 
 ### Cluster Topics
 
-| # | Cluster | What It Covers | Content Examples |
-|---|---------|---------------|-----------------|
-| 1 | **The Agent Roster** | Who the agents are, what jobs they do, how they're defined. Not anthropomorphized — role-defined | "Meet Sam, our librarian" — but framed as org design, not personality |
-| 2 | **Production Pipeline** | Decide > Shape > Make > Patch. How content and code move through stages with appetite budgets and circuit breakers | Process walkthroughs, "how a feature goes from idea to shipped," pipeline bottleneck analysis |
-| 3 | **The Betting Table** | How we decide what to build. Appetite, bets, cool-downs. Shape Up adapted for a 2-person AI-native team | Decision logs, "here's what we bet on this cycle and why," retrospective on bets that lost |
-| 4 | **Metrics and Honest Numbers** | What the factory actually produces. Token usage, cycle times, output volume. Transparent, not boastful | "Our first factory run used X tokens and produced Y" — real numbers, real analysis |
-| 5 | **Failures and Bottlenecks** | What breaks. Where the factory model falls apart. What we had to redesign | "This agent kept producing garbage until we..." — failure-first narratives |
-| 6 | **Scaling Laws** | What happens to the factory as it grows. Adding agents, adding divisions, adding channels. Does it scale? | "We added a third agent and here's what changed," coordination cost analysis |
+| #   | Cluster                        | What It Covers                                                                                                     | Content Examples                                                                              |
+| --- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| 1   | **The Agent Roster**           | Who the agents are, what jobs they do, how they're defined. Not anthropomorphized — role-defined                   | "Meet Sam, our librarian" — but framed as org design, not personality                         |
+| 2   | **Production Pipeline**        | Decide > Shape > Make > Patch. How content and code move through stages with appetite budgets and circuit breakers | Process walkthroughs, "how a feature goes from idea to shipped," pipeline bottleneck analysis |
+| 3   | **The Betting Table**          | How we decide what to build. Appetite, bets, cool-downs. Shape Up adapted for a 2-person AI-native team            | Decision logs, "here's what we bet on this cycle and why," retrospective on bets that lost    |
+| 4   | **Metrics and Honest Numbers** | What the factory actually produces. Token usage, cycle times, output volume. Transparent, not boastful             | "Our first factory run used X tokens and produced Y" — real numbers, real analysis            |
+| 5   | **Failures and Bottlenecks**   | What breaks. Where the factory model falls apart. What we had to redesign                                          | "This agent kept producing garbage until we..." — failure-first narratives                    |
+| 6   | **Scaling Laws**               | What happens to the factory as it grows. Adding agents, adding divisions, adding channels. Does it scale?          | "We added a third agent and here's what changed," coordination cost analysis                  |
 
 ### Value Channels Served
 
@@ -124,14 +124,14 @@ This is the primary pillar for open source traction. The context library is the 
 
 ### Cluster Topics
 
-| # | Cluster | What It Covers | Content Examples |
-|---|---------|---------------|-----------------|
-| 1 | **The Problem** | Why AI agents fail without structured context. The "blank page" problem. Why RAG and embeddings alone don't solve it | "We gave an agent access to everything and it still couldn't do its job. Here's why." |
-| 2 | **The Architecture** | How the library is structured. Card types, reference templates, provenance tracking, the audit trail | Technical deep dives, architecture diagrams, "here's how a card gets created and maintained" |
-| 3 | **Usage Patterns** | How agents actually use the library. Query patterns, what they reach for, what they ignore | "Our librarian agent reads these cards 10x more than those. Here's what that tells us." |
-| 4 | **Building Your Own** | How other teams can adopt the pattern. Getting started, templates, migration from existing docs | Guides, starter templates, "start here if you want to build a context library for your team" |
-| 5 | **Quality and Decay** | How knowledge goes stale, how the audit system catches it, grading rubrics, the librarian's job | "We found 40% of our cards were outdated. Here's how we built the system that catches that." |
-| 6 | **Case Studies** | Specific instances where the context library changed an outcome. An agent made a better decision because of a specific card | "This card saved us a week" — short, concrete, traceable |
+| #   | Cluster               | What It Covers                                                                                                              | Content Examples                                                                             |
+| --- | --------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| 1   | **The Problem**       | Why AI agents fail without structured context. The "blank page" problem. Why RAG and embeddings alone don't solve it        | "We gave an agent access to everything and it still couldn't do its job. Here's why."        |
+| 2   | **The Architecture**  | How the library is structured. Card types, reference templates, provenance tracking, the audit trail                        | Technical deep dives, architecture diagrams, "here's how a card gets created and maintained" |
+| 3   | **Usage Patterns**    | How agents actually use the library. Query patterns, what they reach for, what they ignore                                  | "Our librarian agent reads these cards 10x more than those. Here's what that tells us."      |
+| 4   | **Building Your Own** | How other teams can adopt the pattern. Getting started, templates, migration from existing docs                             | Guides, starter templates, "start here if you want to build a context library for your team" |
+| 5   | **Quality and Decay** | How knowledge goes stale, how the audit system catches it, grading rubrics, the librarian's job                             | "We found 40% of our cards were outdated. Here's how we built the system that catches that." |
+| 6   | **Case Studies**      | Specific instances where the context library changed an outcome. An agent made a better decision because of a specific card | "This card saved us a week" — short, concrete, traceable                                     |
 
 ### Value Channels Served
 
@@ -165,14 +165,14 @@ Everyone is talking about AI. Almost no one is documenting what it is actually l
 
 ### Cluster Topics
 
-| # | Cluster | What It Covers | Content Examples |
-|---|---------|---------------|-----------------|
-| 1 | **The Relationship** | What it feels like to work with an AI colleague. Trust formation, delegation patterns, the uncanny valley of competence | "The moment I started trusting George with production decisions" — personal narrative |
-| 2 | **Judgment Calls** | Where human judgment is irreplaceable. The approval gate. What agents should never decide alone | "Arvin drafted the strategy. Here's what I changed and why." — showing the human layer |
-| 3 | **Surprises** | Things we did not expect. Emergent behaviors, unexpected agent strengths, blind spots we discovered | "We didn't design for this, but..." — discovery narratives |
-| 4 | **Failures** | When teaming breaks down. Miscommunication, bad outputs, trust violations, the cost of over-delegation | "I let the agent handle it and here's what went wrong" — failure-first honesty |
-| 5 | **The Visible Team** | What it means that teammates have positions on a spatial map. The experience of seeing your team, not just chatting with them | "I can see Conan working in the quality room. That changes something." — spatial teaming |
-| 6 | **Role Design** | How you define an AI teammate's job. Not prompt engineering — organizational design for non-human colleagues | "Designing Arvin's job description: what we learned about AI role clarity" |
+| #   | Cluster              | What It Covers                                                                                                                | Content Examples                                                                         |
+| --- | -------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| 1   | **The Relationship** | What it feels like to work with an AI colleague. Trust formation, delegation patterns, the uncanny valley of competence       | "The moment I started trusting George with production decisions" — personal narrative    |
+| 2   | **Judgment Calls**   | Where human judgment is irreplaceable. The approval gate. What agents should never decide alone                               | "Arvin drafted the strategy. Here's what I changed and why." — showing the human layer   |
+| 3   | **Surprises**        | Things we did not expect. Emergent behaviors, unexpected agent strengths, blind spots we discovered                           | "We didn't design for this, but..." — discovery narratives                               |
+| 4   | **Failures**         | When teaming breaks down. Miscommunication, bad outputs, trust violations, the cost of over-delegation                        | "I let the agent handle it and here's what went wrong" — failure-first honesty           |
+| 5   | **The Visible Team** | What it means that teammates have positions on a spatial map. The experience of seeing your team, not just chatting with them | "I can see Conan working in the quality room. That changes something." — spatial teaming |
+| 6   | **Role Design**      | How you define an AI teammate's job. Not prompt engineering — organizational design for non-human colleagues                  | "Designing Arvin's job description: what we learned about AI role clarity"               |
 
 ### Value Channels Served
 
@@ -230,12 +230,12 @@ The following are seed ideas to populate the initial content backlog. Each maps 
 
 Target distribution for the first quarter of content production:
 
-| Pillar | Target Share | Rationale |
-|--------|-------------|-----------|
-| Living in the Future | 35% | The umbrella pillar. Highest differentiation. Every piece here reinforces the core position. |
-| The Factory Model | 25% | Strong thought leadership. Appeals to engineering leaders. High specificity. |
-| The Context Library | 20% | Open source traction driver. More technical, narrower audience, but highest conversion to GitHub. |
-| Human-AI Teaming | 20% | Most personal and narrative-driven. Emotional resonance. Longer shelf life. |
+| Pillar               | Target Share | Rationale                                                                                         |
+| -------------------- | ------------ | ------------------------------------------------------------------------------------------------- |
+| Living in the Future | 35%          | The umbrella pillar. Highest differentiation. Every piece here reinforces the core position.      |
+| The Factory Model    | 25%          | Strong thought leadership. Appeals to engineering leaders. High specificity.                      |
+| The Context Library  | 20%          | Open source traction driver. More technical, narrower audience, but highest conversion to GitHub. |
+| Human-AI Teaming     | 20%          | Most personal and narrative-driven. Emotional resonance. Longer shelf life.                       |
 
 This is a starting allocation, not a rule. Adjust based on what resonates. If Pillar 3 content drives disproportionate GitHub traction, shift allocation toward it. If Pillar 1 content generates engagement from the right 50, double down.
 

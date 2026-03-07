@@ -378,9 +378,9 @@ Do not track: follower count, impression count, or any metric that measures audi
 
 ### Human Responsibilities
 
-| Person      | Primary Communications Role                                                                                                                                      |
-| ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Danvers** | Byline authority (factory model, human-AI teaming, living in the future). LinkedIn primary voice. Strategic relationship management. Approval gate for all outbound. |
+| Person      | Primary Communications Role                                                                                                                                           |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Danvers** | Byline authority (factory model, human-AI teaming, living in the future). LinkedIn primary voice. Strategic relationship management. Approval gate for all outbound.  |
 | **Jess**    | Byline authority (spatial thinking, design judgment, product vision). Product demo video. Factory room video. Visual/spatial content. Approval gate for all outbound. |
 
 ### The Pipeline
@@ -396,14 +396,14 @@ Arvin (strategy) --> Gretta (production management) --> AI + Human (content crea
 
 ## 12. Key Risks
 
-| Risk                                         | Mitigation                                                                                                                             |
-| -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| **Spreading too thin**                       | One channel first. Appetite + circuit breaker on every piece. Say no to everything that doesn't serve a value channel.                 |
+| Risk                                         | Mitigation                                                                                                                                  |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Spreading too thin**                       | One channel first. Appetite + circuit breaker on every piece. Say no to everything that doesn't serve a value channel.                      |
 | **Philosophizing instead of showing**        | Content pillar discipline. "Living in the Future" pillar is about showing the world we inhabit, not speculating about what AI might become. |
-| **Reactive 1:1 consuming all time**          | Inbound triage playbook. Framework for saying no. Right 50 list as a decision filter.                                                  |
-| **Building the factory before the strategy** | This document. Strategy before factory. The principle is now documented.                                                               |
-| **Losing energy**                            | Cool-down periods between cycles. Circuit breakers prevent the 80%-done content graveyard. Celebrate what shipped, not what's planned. |
-| **Wrong 50 people**                          | Regular review of the O1 list. The list is a living document, not a fixed target. Someone can move from O2 to O1 or drop off entirely. |
+| **Reactive 1:1 consuming all time**          | Inbound triage playbook. Framework for saying no. Right 50 list as a decision filter.                                                       |
+| **Building the factory before the strategy** | This document. Strategy before factory. The principle is now documented.                                                                    |
+| **Losing energy**                            | Cool-down periods between cycles. Circuit breakers prevent the 80%-done content graveyard. Celebrate what shipped, not what's planned.      |
+| **Wrong 50 people**                          | Regular review of the O1 list. The list is a living document, not a fixed target. Someone can move from O2 to O1 or drop off entirely.      |
 
 ---
 
