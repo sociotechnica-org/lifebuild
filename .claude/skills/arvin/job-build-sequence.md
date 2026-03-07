@@ -7,6 +7,7 @@ This is Arvin's equivalent of Conan's inventory → grade → recommend cycle. A
 ## Prerequisites
 
 Before starting:
+
 - The acquihire brief must exist (`sources/acquihire-brief-2026-03.md`) ✓
 - The socialization vision must exist (`sources/socialization-factory-vision-2026-03-07.md`) ✓
 - The operations research must exist (`sources/communications-operations-research-2026-03.md`) ✓
@@ -19,13 +20,14 @@ Before starting:
 
 **Goal:** Establish the strategic frame everything else hangs on.
 
-| Step | Job | Output | Depends On |
-|------|-----|--------|-----------|
-| 1.1 | Job 1: Master Strategy | `sources/master-communications-strategy-[date].md` | Acquihire brief, vision, research |
-| 1.2 | Job 3: Content Pillar Design | `sources/content-pillars-[date].md` | Master strategy |
-| 1.3 | Job 7: The Right 50 | `.context/arvin-sessions/right-50.md` | Master strategy, acquihire brief |
+| Step | Job                          | Output                                             | Depends On                        |
+| ---- | ---------------------------- | -------------------------------------------------- | --------------------------------- |
+| 1.1  | Job 1: Master Strategy       | `sources/master-communications-strategy-[date].md` | Acquihire brief, vision, research |
+| 1.2  | Job 3: Content Pillar Design | `sources/content-pillars-[date].md`                | Master strategy                   |
+| 1.3  | Job 7: The Right 50          | `.context/arvin-sessions/right-50.md`              | Master strategy, acquihire brief  |
 
 **Checkpoint A — Sam builds:**
+
 - Strategy - Socialization as Infrastructure
 - Strategy - Content Factory Model
 - Principle - Division Separation
@@ -41,16 +43,17 @@ Before starting:
 
 **Goal:** Define the testable specs and invisible mechanisms.
 
-| Step | Job | Output | Depends On |
-|------|-----|--------|-----------|
-| 2.1 | Human + Arvin consultation | Privacy rules decisions | Master strategy |
-| 2.2 | Human + Arvin consultation | Relationship health criteria | Division vision |
-| 2.3 | Human + Arvin consultation | Content type definitions | Content pillars |
-| 2.4 | Human + Arvin consultation | Editorial cadence decisions | Content pillars, channel strategy |
+| Step | Job                        | Output                       | Depends On                        |
+| ---- | -------------------------- | ---------------------------- | --------------------------------- |
+| 2.1  | Human + Arvin consultation | Privacy rules decisions      | Master strategy                   |
+| 2.2  | Human + Arvin consultation | Relationship health criteria | Division vision                   |
+| 2.3  | Human + Arvin consultation | Content type definitions     | Content pillars                   |
+| 2.4  | Human + Arvin consultation | Editorial cadence decisions  | Content pillars, channel strategy |
 
 **Note:** Standards require human judgment — they're testable specs, not research outputs. Arvin facilitates the conversation (Job 11: Strategic Consultation) but the human defines the rules.
 
 **Checkpoint B — Sam builds:**
+
 - Standard - Communications Privacy Rules
 - Standard - Relationship Health Criteria
 - Standard - Content Type Definitions
@@ -68,13 +71,14 @@ Before starting:
 
 **Goal:** Document how each division actually operates.
 
-| Step | Job | Output | Depends On |
-|------|-----|--------|-----------|
-| 3.1 | Job 2: Division Research (1:1) | `sources/division-research-1to1-[date].md` | Standards, master strategy |
-| 3.2 | Job 2: Division Research (Groups) | `sources/division-research-groups-[date].md` | Standards, master strategy |
-| 3.3 | Job 2: Division Research (1:Many) | `sources/division-research-1many-[date].md` | Standards, content pillars |
+| Step | Job                               | Output                                       | Depends On                 |
+| ---- | --------------------------------- | -------------------------------------------- | -------------------------- |
+| 3.1  | Job 2: Division Research (1:1)    | `sources/division-research-1to1-[date].md`   | Standards, master strategy |
+| 3.2  | Job 2: Division Research (Groups) | `sources/division-research-groups-[date].md` | Standards, master strategy |
+| 3.3  | Job 2: Division Research (1:Many) | `sources/division-research-1many-[date].md`  | Standards, content pillars |
 
 **Checkpoint C — Sam builds:**
+
 - Division - 1:1 Relationship Management
 - Division - Groups
 - Division - 1:Many
@@ -85,12 +89,13 @@ Before starting:
 
 **Goal:** Stand up the first channel and the production system.
 
-| Step | Job | Output | Depends On |
-|------|-----|--------|-----------|
-| 4.1 | Job 4: Channel Strategy (first channel — likely LinkedIn) | `sources/channel-strategy-linkedin-[date].md` | Content pillars, master strategy |
-| 4.2 | Job 5: Editorial Calendar & Backlog | `sources/editorial-calendar-design-[date].md` | Channel strategy, content pillars |
+| Step | Job                                                       | Output                                        | Depends On                        |
+| ---- | --------------------------------------------------------- | --------------------------------------------- | --------------------------------- |
+| 4.1  | Job 4: Channel Strategy (first channel — likely LinkedIn) | `sources/channel-strategy-linkedin-[date].md` | Content pillars, master strategy  |
+| 4.2  | Job 5: Editorial Calendar & Backlog                       | `sources/editorial-calendar-design-[date].md` | Channel strategy, content pillars |
 
 **Checkpoint D — Sam builds Channel cards (if type approved) and updates agent cards:**
+
 - Agent - Jarvis (no — these are different agents: Arvin, Gretta, Kelvin)
 - Note: Agent cards for Arvin, Gretta, Kelvin in the context library (not the Claude Code agent definitions, which already exist)
 
@@ -100,14 +105,15 @@ Before starting:
 
 **Goal:** Document repeatable patterns for common scenarios.
 
-| Step | Job | Output | Depends On |
-|------|-----|--------|-----------|
-| 5.1 | Job 6: Playbook (Inbound Triage) | `sources/playbook-inbound-triage-[date].md` | Division - 1:1 |
-| 5.2 | Job 6: Playbook (Content Briefing) | `sources/playbook-content-briefing-[date].md` | Division - 1:Many |
-| 5.3 | Job 6: Playbook (Group Event) | `sources/playbook-group-event-[date].md` | Division - Groups |
-| 5.4 | Job 6: Playbook (Relationship Follow-Up) | `sources/playbook-relationship-followup-[date].md` | Division - 1:1 |
+| Step | Job                                      | Output                                             | Depends On        |
+| ---- | ---------------------------------------- | -------------------------------------------------- | ----------------- |
+| 5.1  | Job 6: Playbook (Inbound Triage)         | `sources/playbook-inbound-triage-[date].md`        | Division - 1:1    |
+| 5.2  | Job 6: Playbook (Content Briefing)       | `sources/playbook-content-briefing-[date].md`      | Division - 1:Many |
+| 5.3  | Job 6: Playbook (Group Event)            | `sources/playbook-group-event-[date].md`           | Division - Groups |
+| 5.4  | Job 6: Playbook (Relationship Follow-Up) | `sources/playbook-relationship-followup-[date].md` | Division - 1:1    |
 
 **Checkpoint E — Sam builds:**
+
 - Playbook - Inbound Triage
 - Playbook - Content Briefing
 - Playbook - Group Event
@@ -119,11 +125,11 @@ Before starting:
 
 **Goal:** Switch from Build mode to Operate mode.
 
-| Step | Action | Output |
-|------|--------|--------|
-| 6.1 | Arvin switches to Operate mode | First Weekly Review (Job 8) |
-| 6.2 | Content backlog seeded | First Betting Table (Job 9) |
-| 6.3 | First content produced | Through the factory pipeline |
+| Step | Action                         | Output                       |
+| ---- | ------------------------------ | ---------------------------- |
+| 6.1  | Arvin switches to Operate mode | First Weekly Review (Job 8)  |
+| 6.2  | Content backlog seeded         | First Betting Table (Job 9)  |
+| 6.3  | First content produced         | Through the factory pipeline |
 
 ---
 
@@ -143,6 +149,7 @@ Each checkpoint is a handoff. Arvin produces source material with enough depth f
 ## Tracking Progress
 
 After each phase, update `communications/INVENTORY.md` with:
+
 - Which cards were built
 - Which source documents fed them
 - What's next in the sequence

@@ -21,6 +21,7 @@ Human asks Arvin to research how a specific division should operate.
 ## Output
 
 A frozen source document following the standard source format. Include:
+
 - What established frameworks exist for this type of operation
 - What vocabulary/nouns the industry uses
 - What a weekly operating rhythm looks like

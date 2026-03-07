@@ -8,7 +8,7 @@
 
 This source informed the following library changes:
 
-*(To be filled as cards are created)*
+_(To be filled as cards are created)_
 
 ---
 
@@ -95,13 +95,13 @@ The single highest-leverage action requires no new code. It requires being more 
 
 ## Signals Worth Tracking
 
-| Signal Type | What It Looks Like |
-|-------------|-------------------|
-| Right user retention | VCs, founders, or exec-level operators still using LifeBuild 90+ days after onboarding |
-| Unprompted advocacy | An alpha user shares LifeBuild with someone you don't know, without being asked |
-| Target company employee | Anyone at a priority acquirer target is a current user |
-| Demo video circulation | The demo is shared by someone with pull without a warm introduction from you |
-| "I've been trying to build this" | Product leader at a target says "we've been thinking about this problem" |
-| User identity list | Less than 50 users, but you can name what each does for a living |
+| Signal Type                      | What It Looks Like                                                                     |
+| -------------------------------- | -------------------------------------------------------------------------------------- |
+| Right user retention             | VCs, founders, or exec-level operators still using LifeBuild 90+ days after onboarding |
+| Unprompted advocacy              | An alpha user shares LifeBuild with someone you don't know, without being asked        |
+| Target company employee          | Anyone at a priority acquirer target is a current user                                 |
+| Demo video circulation           | The demo is shared by someone with pull without a warm introduction from you           |
+| "I've been trying to build this" | Product leader at a target says "we've been thinking about this problem"               |
+| User identity list               | Less than 50 users, but you can name what each does for a living                       |
 
 Confidential | Danvers & Jess | March 2026

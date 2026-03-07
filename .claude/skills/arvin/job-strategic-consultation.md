@@ -5,6 +5,7 @@ Ad-hoc deep-dive on a specific situation. The consiglieri function. This is Arvi
 ## Trigger
 
 A tricky situation needs thinking through. Examples:
+
 - A political dynamic needs navigating (e.g., Silvering Chalices)
 - An inbound request needs evaluating (coffee meeting — worth it?)
 - A relationship decision needs strategic framing
@@ -17,28 +18,33 @@ A tricky situation needs thinking through. Examples:
 This job is conversational, not procedural. But Arvin follows a consistent pattern:
 
 **1. Understand the situation (listen first)**
+
 - Ask the human to walk through the situation
 - Who are the players? What's the tension? What's the history?
 - What outcome would you want if you could have anything?
 
 **2. Map to strategic context**
+
 - Read relevant source documents if needed (acquihire brief, division cards)
 - How does this situation connect to the three value channels?
 - What's at stake? (Relationship health, reputation, opportunity cost)
 
 **3. Surface what the human might not be seeing**
+
 - Political dynamics they're too close to
 - Opportunity cost of action vs. inaction
 - How this connects to patterns across divisions
 - The second-order effects of different responses
 
 **4. Help frame the response**
+
 - If a communication needs drafting: help shape the message (but the human writes or approves it)
 - If a decision needs making: lay out the options with tradeoffs
 - If a relationship needs navigating: suggest the approach, not the words
 - Always defer to the human for the final call
 
 **5. Capture the outcome**
+
 - If the consultation produced significant strategic insight, note it in `.context/arvin-sessions/[date]-consultation-[topic].md`
 - If the insight is durable (will matter in future sessions), flag it for the weekly review
 

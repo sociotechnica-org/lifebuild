@@ -8,7 +8,7 @@
 
 This source informed the following library changes:
 
-*(To be filled as cards are created)*
+_(To be filled as cards are created)_
 
 ---
 
@@ -54,6 +54,7 @@ The "marketing factory." Blog posts, video scripts, newsletters, social media, c
 All the strategy & tactics in the library for product don't exist for channels. There is no plan or end game for socialization right now — that is the biggest problem. Before building the factory, a master strategy and editorial calendar are needed.
 
 What's needed:
+
 - Master strategy & plan across all three divisions
 - Overall release cycle / editorial calendar
 - Gap analysis to fill the DECIDE station
@@ -65,12 +66,12 @@ What's needed:
 
 A content factory station setup mirrors the software factory:
 
-| Station | What Happens | Key Activities |
-|---------|-------------|---------------|
+| Station    | What Happens    | Key Activities                                                                                                                                                       |
+| ---------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **DECIDE** | What to produce | Gap analysis, inbound triage, editorial calendar decisions. Biggest input will be INBOUND. Need to get better at saying no to inbound and pursuing smarter outbound. |
-| **SHAPE** | Prototype it | Make the prototype video script / draft email / outline with AI-generated fill-in content to test if it's a good idea. |
-| **MAKE** | Produce it | Emails, contests, video scripts, blog posts — the actual content production. |
-| **PATCH** | Unstick it | Something gets gummed in the MAKE process and a human needs to look. |
+| **SHAPE**  | Prototype it    | Make the prototype video script / draft email / outline with AI-generated fill-in content to test if it's a good idea.                                               |
+| **MAKE**   | Produce it      | Emails, contests, video scripts, blog posts — the actual content production.                                                                                         |
+| **PATCH**  | Unstick it      | Something gets gummed in the MAKE process and a human needs to look.                                                                                                 |
 
 Separate factories per division, but coordinated. Cross-division coordination happens at the strategy level, not the production level.
 
@@ -99,6 +100,7 @@ So much is happening. Insights to be mined from past performance. Share info wit
 "You can't manage what you can't see."
 
 The socialization divisions should be managed in LifeBuild itself:
+
 - Color-coded divisions on the Life Map
 - Redshirts (attendant agents) on the projects
 - Clear lines of responsibility between human and AI

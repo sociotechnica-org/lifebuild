@@ -8,7 +8,7 @@
 
 This source informed the following library changes:
 
-*(To be filled as cards are created)*
+_(To be filled as cards are created)_
 
 ---
 
@@ -23,6 +23,7 @@ Buffer ran a high-output content operation with a small team. Their documented p
 **The Content Backlog model:** Ideas enter a prioritized backlog from multiple sources (team brainstorms, audience questions, data insights) and are pulled into production when capacity allows. This is a "pull" system, not a fixed calendar. More appropriate for a 2-person team than a rigid editorial calendar.
 
 **The Four-Step Editorial Workflow:**
+
 1. **Capture** (daily, 5 min) — Log ideas immediately into a centralized database. Half-sentences and messy notes are fine. No pressure to polish.
 2. **Transform & Plan** (biweekly, 30 min) — Review backlog, assess alignment with objectives, determine which ideas expand into multiple posts, drag into content calendar, ensure topic balance.
 3. **Create** (weekly, half-day) — Dedicated block time. Work through pre-planned posts sequentially. Batch similar tasks. Minimize decision-making during creation.
@@ -39,6 +40,7 @@ Buffer ran a high-output content operation with a small team. Their documented p
 The canonical example of a small company using thought leadership as a primary growth engine. Their model inverts the standard content marketing funnel.
 
 **Key concepts:**
+
 - **Opinionated publishing** — Content is not SEO-optimized or audience-researched. It is a direct expression of strongly held beliefs. The strategy is "say what we think, loudly."
 - **Byline authority** — Content is always attributed to a named person, never "the team." Personal authority compounds; brand authority does not.
 - **Controversy as distribution** — Deliberately provocative positions generate organic distribution through disagreement. Not manufactured — a natural consequence of genuine conviction.
@@ -54,6 +56,7 @@ The canonical example of a small company using thought leadership as a primary g
 Product development methodology whose concepts map directly to content production. Designed for small teams.
 
 **Key concepts:**
+
 - **Appetite** — Instead of estimating how long something will take, declare how much time you're willing to spend. A blog post might have a 2-day appetite. A video might have a 1-week appetite. If it can't be done within the appetite, it's the wrong shape.
 - **Shaping** — Work done before committing to build. For content: outlining, identifying the core argument, determining format, writing the lede. Shaping is not production; it is design. Maps to the SHAPE station.
 - **Betting table** — Periodic meeting where shaped work is reviewed and bets are placed. Not everything shaped gets built. Maps to the DECIDE station.
@@ -72,6 +75,7 @@ Product development methodology whose concepts map directly to content productio
 **Source:** Gini Dietrich, Spin Sucks (2014). Widely adopted integrated communications framework.
 
 Classifies all communications activity into four media types:
+
 - **Paid** — Accelerates reach, scales visibility, tests what works faster. Ads, sponsorships, amplification.
 - **Earned** — Signals trust. Media coverage, podcast guest spots, analyst recognition. Also trains LLMs and algorithms.
 - **Shared** — Lives on platforms you don't control. Social content, community engagement. Algorithms and community behavior drive visibility.
@@ -88,11 +92,13 @@ Classifies all communications activity into four media types:
 Organizes content around 3-5 core themes ("pillars") with related subtopics ("clusters") branching off.
 
 **Structure:**
+
 - **Pillar** — Core theme anchoring multiple pieces of content. Hub page or recurring topic.
 - **Cluster** — Multiple pieces addressing the same topic from different angles. Spokes from the hub.
 - **Cross-links** — Clusters link to their pillar (parent), pillar links to all clusters (child), clusters may cross-link (sibling).
 
 **For LifeBuild, candidate pillars might be:**
+
 1. The factory model (how AI agents build software)
 2. The context library (institutional knowledge for AI)
 3. Human-AI teaming (what working with AI actually looks like)
@@ -105,6 +111,7 @@ Organizes content around 3-5 core themes ("pillars") with related subtopics ("cl
 Framework specifically for founder-driven content at early-stage companies.
 
 **Key findings:**
+
 - 70% of B2B buying happens before sales contact
 - 77% of customers prefer buying from companies with active CEO presence
 - Founder voice is the differentiator — generic corporate messaging fails
@@ -116,6 +123,7 @@ Framework specifically for founder-driven content at early-stage companies.
 **Cadence:** 1-2 posts per week minimum. 15 minutes daily for engagement (replying, starting discussions, tagging).
 
 **The three main challenges and solutions:**
+
 - **Time constraints** → Batch content weekly; use voice memos; repurpose existing conversations
 - **Content uncertainty** → Create 3-5 repeating pillars
 - **Writing anxiety** → Record instead of write; use transcription tools
@@ -135,16 +143,19 @@ Building in Public (BIP) is transparently sharing the behind-the-scenes of how y
 **The key distinction:** Document what you're already doing, not philosophize about the industry. "Every sales call, investor pitch, and internal team meeting contains valuable content. Instead of creating from scratch, document what you're already talking about."
 
 **Channel selection requires two fits:**
+
 1. **Channel-Market Fit** — Where your customers already congregate
 2. **Channel-Founder Fit** — Format you're comfortable creating
 
 **Getting started:**
+
 1. Choose one primary channel
 2. Define 2-3 recurring content types
 3. Experiment iteratively while maintaining consistency
 4. One channel, then expand (Nathan Barry built ConvertKit's audience entirely through blog posts before adding podcast)
 
 **Anti-patterns:**
+
 - Competitor intelligence exposure (all competitors see your metrics)
 - "Launch in public" for 1-2 weeks then stop
 - Trying to be on every platform simultaneously
@@ -164,6 +175,7 @@ Lilac AI was a 2-person Boston-based applied research startup (Daniel Smilkov an
 **The internal champion pattern confirmed:** "Lilac's open source project has already captivated a wide audience within the data science and AI research communities — including Databricks' own Mosaic AI team, which has been leveraging Lilac to curate data over the past year."
 
 **Key elements:**
+
 - Open source project that solved a real problem (data quality for LLM training)
 - Internal use at the acquirer preceded the acquisition
 - Founders had deep domain credibility (decade at Google)
@@ -189,6 +201,7 @@ Key advice: In 2023+, the acquihire market shifted. Acquirers lack headcount bud
 Framework for building "high gravity communities." Originally for developer communities but applicable to any community-shaped effort.
 
 **Core concepts:**
+
 - **Love** — A person's level of engagement in the community
 - **Reach** — Size of a member's audience or sphere of influence
 - **Gravity** — Love x Reach. The pull a community member exerts.
@@ -207,6 +220,7 @@ Framework for building "high gravity communities." Originally for developer comm
 **Source:** DeveloperNation (2025)
 
 With 200M+ repositories on GitHub competing for attention, visibility strategies for open source projects include:
+
 - Participate in relevant Reddit communities, Discord servers, specialized forums
 - Answer questions thoughtfully — project mentions feel like natural solution recommendations
 - Speak at conferences for credibility + exposure to engaged technical audiences
@@ -230,6 +244,7 @@ Systematic relationship management at scale. Manages 40,000+ contacts.
 **Action priority states:** Build Urgently, Build, Maintain
 
 **Five maintenance processes:**
+
 1. **Daily addition** — Calendar review captures new contacts
 2. **Biweekly categorization** — Classify relationships and assign actions
 3. **Data enrichment** — Company info, profile updates
@@ -243,6 +258,7 @@ Systematic relationship management at scale. Manages 40,000+ contacts.
 **Source:** Aggregated from crm.org, Peerlist, WaveConnect reviews
 
 For founders whose network is their business:
+
 - **Dex** — Built for people whose network is their business (founders, freelancers, community builders)
 - **Clay** — Rich context about every relationship without manual work. Auto-enrichment.
 - **Notion-based CRM** — Most flexible, highest setup cost, integrates with existing workflow
@@ -260,11 +276,13 @@ Key features that matter: follow-up nudges (reminders to reconnect before too mu
 Parker's framework for designing intentional group experiences. Trained in group conflict resolution and dialogue.
 
 **Core principles:**
+
 - **Purpose-first design** — Always start with: "What is this group trying to solve?" Not logistics, not format — purpose.
 - **Every gathering is a social contract** — You're creating a temporary constitution. Be explicit about what you're asking of participants.
 - **Permission and courage** — Participants need both authorization and confidence to engage authentically.
 
 **Facilitator development pathway:**
+
 1. Identify a community or need you care about
 2. Select a methodology (Open Space Technology, Non-Violent Communication, Appreciative Inquiry)
 3. Determine your strengths within chosen processes
@@ -285,6 +303,7 @@ Parker's framework for designing intentional group experiences. Trained in group
 A weekly sprint model adapted for marketing teams:
 
 **Meeting structure (15 minutes max):**
+
 1. Metrics & KPIs review (which data points will drive the conversation)
 2. Performance analysis (what worked, what didn't)
 3. Achievements (wins to celebrate)
@@ -296,6 +315,7 @@ A weekly sprint model adapted for marketing teams:
 **Key principle:** "Every meeting should have a clear purpose to ensure they're producing more value than the time invested." Research shows attention drops from 91% to 73% after 30 minutes — keep it to 15 minutes.
 
 **Metrics to review weekly for a startup:**
+
 - Full-funnel KPIs: web traffic, traffic by source, form completes, qualified leads
 - Campaign performance: what's running, how it's performing, what to adjust
 - Content performance: which pieces got traction, which didn't, why
@@ -305,13 +325,14 @@ A weekly sprint model adapted for marketing teams:
 
 For LifeBuild's specific situation, the weekly review should track against the three value channels, not traditional marketing metrics:
 
-| Value Channel | Weekly Signals |
-|--------------|---------------|
-| Thought leadership (right 50) | Who saw our content this week? Any engagement from target-tier people? |
-| Open source traction | Stars, forks, external contributors, organic discovery this week? |
-| Internal champions | Any engagement from target company employees? Any relevant job postings? |
+| Value Channel                 | Weekly Signals                                                           |
+| ----------------------------- | ------------------------------------------------------------------------ |
+| Thought leadership (right 50) | Who saw our content this week? Any engagement from target-tier people?   |
+| Open source traction          | Stars, forks, external contributors, organic discovery this week?        |
+| Internal champions            | Any engagement from target company employees? Any relevant job postings? |
 
 Plus division health:
+
 - 1:1: Any meaningful interactions? Relationship health changes? Inbound quality?
 - Groups: Any events? Group health? Political dynamics?
 - 1:Many: What shipped? What's in pipeline? Performance data?
@@ -324,20 +345,20 @@ Plus division health:
 
 Industry-standard terms LifeBuild's communications operation should adopt:
 
-| Term | Definition | Source |
-|------|-----------|--------|
-| **Content backlog** | Prioritized queue of content ideas, pulled into production when ready | Buffer |
-| **Appetite** | How much time you're willing to spend on a piece, not an estimate | Shape Up |
-| **Betting table** | The periodic decision meeting where shaped work gets approved or killed | Shape Up |
-| **Circuit breaker** | If work isn't done within appetite, it's killed or re-shaped. No extensions. | Shape Up |
-| **Content pillar** | One of 3-5 core themes anchoring all content | HubSpot / CMI |
-| **Byline authority** | Personal attribution on content; personal authority compounds | 37signals |
-| **Build in public** | Documenting what you're doing as you do it, transparently | Indie hackers |
-| **PESO** | Paid/Earned/Shared/Owned media classification | Gini Dietrich |
-| **Orbit levels** | O1-O4 segmentation of community members by engagement x influence | Orbit Model |
-| **Love / Reach / Gravity** | Engagement, influence, and their product — community health metrics | Orbit Model |
-| **Channel-market fit** | Is this the channel where your audience actually is? | BIP community |
-| **Channel-founder fit** | Is this the format the founder can actually sustain? | BIP community |
+| Term                       | Definition                                                                   | Source        |
+| -------------------------- | ---------------------------------------------------------------------------- | ------------- |
+| **Content backlog**        | Prioritized queue of content ideas, pulled into production when ready        | Buffer        |
+| **Appetite**               | How much time you're willing to spend on a piece, not an estimate            | Shape Up      |
+| **Betting table**          | The periodic decision meeting where shaped work gets approved or killed      | Shape Up      |
+| **Circuit breaker**        | If work isn't done within appetite, it's killed or re-shaped. No extensions. | Shape Up      |
+| **Content pillar**         | One of 3-5 core themes anchoring all content                                 | HubSpot / CMI |
+| **Byline authority**       | Personal attribution on content; personal authority compounds                | 37signals     |
+| **Build in public**        | Documenting what you're doing as you do it, transparently                    | Indie hackers |
+| **PESO**                   | Paid/Earned/Shared/Owned media classification                                | Gini Dietrich |
+| **Orbit levels**           | O1-O4 segmentation of community members by engagement x influence            | Orbit Model   |
+| **Love / Reach / Gravity** | Engagement, influence, and their product — community health metrics          | Orbit Model   |
+| **Channel-market fit**     | Is this the channel where your audience actually is?                         | BIP community |
+| **Channel-founder fit**    | Is this the format the founder can actually sustain?                         | BIP community |
 
 ### Structural Recommendations
 
@@ -358,12 +379,14 @@ Industry-standard terms LifeBuild's communications operation should adopt:
 ### Frameworks to Import vs. Reference
 
 **Import (adopt as operating model):**
+
 - Buffer's four-step editorial workflow (Capture → Transform → Create → Prep)
 - Shape Up's appetite + circuit breaker
 - Orbit Model's O1-O4 tiering for relationship management
 - Founder-led content strategy (3-5 pillars, one channel first)
 
 **Reference (use for vocabulary and structure, don't adopt wholesale):**
+
 - PESO Model (useful classification, but LifeBuild doesn't need Paid)
 - Content pillar strategy (useful organizing principle, but don't over-engineer the taxonomy)
 - Community Canvas (useful for Groups division design, but heavyweight for a single group)
