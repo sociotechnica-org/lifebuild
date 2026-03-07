@@ -96,8 +96,7 @@ Before starting:
 
 **Checkpoint D — Sam builds Channel cards (if type approved) and updates agent cards:**
 
-- Agent - Jarvis (no — these are different agents: Arvin, Gretta, Kelvin)
-- Note: Agent cards for Arvin, Gretta, Kelvin in the context library (not the Claude Code agent definitions, which already exist)
+- Agent cards for Arvin, Gretta, Kelvin in the context library (not the Claude Code agent definitions, which already exist)
 
 ---
 
