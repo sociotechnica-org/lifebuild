@@ -15,7 +15,7 @@
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Superior Process]] — clarity is the output of good process
+- Product Thesis: [[Product Thesis - Superior Process]] — clarity is the output of good process
 - Principle: [[Principle - Familiarity Over Function]] — priorities presented in a way that feels natural
 - Driver: The builder is overwhelmed not because they're incompetent but because modern life is genuinely complex. Clarity is the antidote — the feeling that complexity has been tamed into manageable, prioritized work. When the builder sees The Table with clear positions, the chaos recedes.
 

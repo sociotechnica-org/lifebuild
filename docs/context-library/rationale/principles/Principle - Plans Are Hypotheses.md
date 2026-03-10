@@ -7,7 +7,7 @@ A weekly plan is a bet, not a commitment — adapting mid-week is engaged leader
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - Superior Process]]
+- Advances: [[Product Thesis - Superior Process]]
 - Governs: [[System - Adaptation]], [[System - Weekly Priority]], [[Room - Sorting Room]], [[Room - Council Chamber]]
 - Implemented by: [[Standard - Planning Calibration]] — makes hypothesis framing testable
 - Agents: [[Agent - Jarvis]] (tone in reviews), [[Agent - Marvin]] (priority adjustments)

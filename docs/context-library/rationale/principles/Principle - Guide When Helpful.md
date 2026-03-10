@@ -7,7 +7,7 @@ All capabilities are always available to find — active guidance follows the bu
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - AI as Teammates]]
+- Advances: [[Product Thesis - AI as Teammates]]
 - Governs: Feature discoverability, [[Capability - Workspace Navigation]], [[Agent - Mesa]] (routing behavior)
 - Rooms: [[Room - Council Chamber]], [[Room - Drafting Room]], [[Room - Sorting Room]], [[Room - Roster Room]]
 - Related: [[Principle - First 72 Hours]] — first 72 hours need more active guidance than steady state

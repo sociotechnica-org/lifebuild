@@ -35,13 +35,13 @@ The emergent spatial behavior where builders place related hex tiles adjacent to
   - [[Component - Campfire]] — first clusters form around origin
 - Rationale:
   - [[Principle - Bidirectional Loop]] — arrangement reflects and shapes understanding
-  - [[Strategy - Spatial Visibility]] — spatial proximity carries meaning
+  - [[Product Thesis - Spatial Visibility]] — spatial proximity carries meaning
   - [[Principle - Visual Recognition]] — "my health stuff is upper-left"
   - [[Principle - Familiarity Over Function]] — builders organize intuitively
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — space carries meaning
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — space carries meaning
 - Principle: [[Principle - Visual Recognition]] — spatial memory aids navigation
 - Principle: [[Principle - Familiarity Over Function]] — builders organize intuitively
 - Driver: Builders naturally group related things together. Clustering makes this explicit and learnable.

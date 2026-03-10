@@ -25,7 +25,7 @@
 - `docs/context-library/rationale/standards/Standard - Visual Language.md`
 - `docs/context-library/rationale/standards/Standard - Spatial Interaction Rules.md`
 - `docs/context-library/rationale/standards/Standard - Life Categories.md`
-- `docs/context-library/rationale/strategies/Strategy - Spatial Visibility.md`
+- `docs/context-library/rationale/product-thesis/Product Thesis - Spatial Visibility.md`
 - `docs/context-library/experience/aesthetics/Aesthetic - Sanctuary.md`
 
 **What the library covers well:**
@@ -67,7 +67,7 @@
 - `docs/context-library/product/agents/Agent - Marvin.md`
 - `docs/context-library/product/rooms/Room - Council Chamber.md`
 - `docs/context-library/product/standards/Standard - Naming Architecture.md`
-- `docs/context-library/rationale/strategies/Strategy - AI as Teammates.md`
+- `docs/context-library/rationale/product-thesis/Product Thesis - AI as Teammates.md`
 
 **What the library covers well:**
 
@@ -352,7 +352,7 @@
 - `docs/context-library/product/agents/Agent - Marvin.md`
 - `docs/context-library/product/agents/Agent - Mesa.md`
 - `docs/context-library/product/standards/Standard - Naming Architecture.md`
-- `docs/context-library/rationale/strategies/Strategy - AI as Teammates.md`
+- `docs/context-library/rationale/product-thesis/Product Thesis - AI as Teammates.md`
 - `docs/context-library/rationale/principles/Principle - Earn Don't Interrogate.md`
 - `docs/context-library/experience/aesthetics/Aesthetic - Being Known.md`
 - `docs/context-library/experience/aesthetics/Aesthetic - Stewardship.md`

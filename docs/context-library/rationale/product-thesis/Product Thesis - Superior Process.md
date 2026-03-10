@@ -1,12 +1,16 @@
-# Strategy - Superior Process
+# Product Thesis - Superior Process
 
-## WHAT: The Strategy
+## WHAT: The Thesis
 
-Applying structured frameworks — from basic organization through sophisticated capacity management — to personal life improves execution and decision-making. This is Strategic Plank 2 — the second of three independent bets LifeBuild is built on.
+Applying structured frameworks — from basic organization through sophisticated capacity management — to personal life improves execution and decision-making. This is Plank 2 — the second of three independent bets LifeBuild is built on.
+
+Counter-thesis: People don't want process in their personal lives. Professional project management works because organizations can enforce compliance; individuals will always revert to path-of-least-resistance habits. The overhead of maintaining structure exceeds the execution gains for anyone who isn't already a process enthusiast.
 
 ## WHERE: Ecosystem
 
-- Type: Strategic Bet
+- Type: Product Thesis (Plank)
+- Parent: [[Product Thesis - The Organized Life]]
+- Problem: [[Product Thesis - Organizational Life]]
 - Implementing principles: [[Principle - Protect Transformation]], [[Principle - Plans Are Hypotheses]], [[Principle - Empty Slots Strategic]]
 - Governs: [[Standard - Three-Stream Portfolio]], [[System - Priority Queue Architecture]], [[System - Pipeline Architecture]], [[System - Four-Stage Creation]], [[System - Weekly Priority]], [[Standard - Priority Score]]
 - Systems: [[System - Bronze Operations]], [[System - Adaptation]]
@@ -61,6 +65,17 @@ The bet: if we apply structured process to personal life, builders will execute 
 ### Decision Heuristic
 
 When choosing between ad-hoc response and structured process, choose structure — but only as much structure as the builder's current maturity level can absorb without overhead exceeding value.
+
+## Validation Criteria
+
+To validate the process bet, measure whether structured frameworks improve execution and whether users adopt progressively more structure over time rather than abandoning it.
+
+- **Completion rate tracking:** Compare the percentage of weekly committed work actually completed, before process adoption (baseline from first two weeks) vs. after 60 days of process use. Target: measurable improvement in follow-through, not just capture.
+- **Overwhelm index:** Self-reported overwhelm score (simple 1-5 scale) at onboarding, 30 days, and 90 days. Process should reduce overwhelm. If overwhelm stays flat or increases, the process is adding overhead without reducing cognitive load.
+- **Voluntary maturity climbing:** What percentage of users who start at Level 1-2 (basic capture, kanban) voluntarily adopt Level 3+ features (three-stream portfolio, The Table, WIP limits) within 90 days? Target: >30%. This is the critical signal that process creates pull rather than requiring push.
+- **Overhead ratio:** Time spent maintaining the system (weekly planning, reclassification, review) vs. time saved by it (reduced decision fatigue, fewer dropped commitments, less context-switching). Survey-based initially, instrumented later. If maintenance exceeds perceived savings, the thesis is failing for that user.
+- **30-day process feature retention:** What percentage of users who activate a process feature (The Table, three-stream filtering, WIP limits) are still using it 30 days later? Target: >50%. Below 40% suggests the feature creates novelty engagement but not sustained value.
+- **Invalidation signal:** Users abandon process features within weeks, completion rates don't improve with process adoption, or the overhead ratio is unfavorable for the median user.
 
 ## Tensions
 

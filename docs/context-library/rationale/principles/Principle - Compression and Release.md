@@ -6,7 +6,7 @@ The portal pattern -- three ingredients for any threshold moment. Compression: t
 
 ## WHERE: Ecosystem
 
-- Advances: [[Strategy - Spatial Visibility]] -- the map reveal IS a compression-release threshold
+- Advances: [[Product Thesis - Spatial Visibility]] -- the map reveal IS a compression-release threshold
 - Related: [[Principle - Action Before Explanation]] -- compression obscures what's coming; the reveal teaches through experience, not narration
 - Related: [[Principle - The WOW Chain]] -- the portal is beat #0 that opens the chain
 - Related: [[Zone - Life Map]] -- first reveal is the release moment
@@ -16,7 +16,7 @@ The portal pattern -- three ingredients for any threshold moment. Compression: t
 
 ## WHY: Belief
 
-- Strategy: [[Strategy - Spatial Visibility]] -- spatial impact requires emotional contrast; the map reveal means nothing without compression first
+- Product Thesis: [[Product Thesis - Spatial Visibility]] -- spatial impact requires emotional contrast; the map reveal means nothing without compression first
 - Driver: Derived from Frank Lloyd Wright's architectural compression-release pattern. Without compression, the map reveal is just a screen loading. WITH compression -- the intimate moment with Jarvis, the single question, the brief enclosed space -- the map reveal becomes a gasp. The gasp is what opens the attention that makes everything after it stick. Examples: Myst (library to island), Breath of the Wild (cave to Hyrule), a forest path narrowing before opening onto a hidden lake.
 
 ## WHEN: Timeline

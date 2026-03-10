@@ -19,13 +19,13 @@ Marvin's prioritization space in the Strategy Studio — where builders make pri
 - Conforms to:
   - [[Standard - Visual Language]] — ranking interface uses stream colors and state treatments
   - [[Standard - Planning Calibration]] — priority rankings as testable predictions
-- Implements: [[Strategy - Superior Process]] — structured prioritization
+- Implements: [[Product Thesis - Superior Process]] — structured prioritization
 - Uses: [[System - Priority Queue Architecture]] — source of candidates
 - Uses: [[Standard - Priority Score]] — ranking logic
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — prioritization deserves its own space
+- Product Thesis: [[Product Thesis - Superior Process]] — prioritization deserves its own space
 - Principle: [[Principle - Familiarity Over Function]] — sorting metaphor is intuitive
 - Principle: [[Principle - Protect Transformation]] — selection process enforces stream constraints
 - Driver: Builders need help seeing options and making choices. The Sorting Room presents candidates and guides selection.

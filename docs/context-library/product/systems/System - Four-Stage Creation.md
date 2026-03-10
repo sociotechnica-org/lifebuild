@@ -15,7 +15,7 @@ The progressive development process for projects (and the template for system cr
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — structured process for project development
+- Product Thesis: [[Product Thesis - Superior Process]] — structured process for project development
 - Driver: Cognitive mode separation prevents overload. Brainstorming and critiquing at the same time degrades both.
 - Decision: Four stages, not three or five, because the four cognitive modes (divergent capture, convergent definition, generative planning, evaluative comparison) are distinct enough to warrant separation.
 

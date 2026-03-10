@@ -16,7 +16,7 @@
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Spatial Visibility]] — the map IS the sanctuary; seeing it creates belonging
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — the map IS the sanctuary; seeing it creates belonging
 - Principle: [[Principle - Protect Transformation]] — the sanctuary protects what the builder is becoming
 - Driver: The builder needs to feel that this is a place, not an app. A place they built, a place that reflects their care, a place that persists whether they visit or not. The sanctuary aesthetic is what makes LifeBuild feel like home instead of a tool.
 

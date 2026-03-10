@@ -16,7 +16,7 @@ The specification for the eight default life-domain categories that organize all
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — categories are the primary spatial organizing dimension
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — categories are the primary spatial organizing dimension
 - Principle: [[Principle - Familiarity Over Function]] — this standard makes "categories should feel immediately recognizable" testable
 - Driver: Builders need a familiar framework for sorting life's work. Derived from a comparative survey of established frameworks (Wheel of Life, Robbins' categories) selecting the most consistently-appearing domains across frameworks. Familiarity over novelty — builders should recognize categories immediately, not learn a new taxonomy.
 - Decision: Eight defaults, not immutable. Defaults anchor the Life Map's visual structure and provide familiar starting points. Customization is permitted because the builder's mental model takes priority over system convenience.

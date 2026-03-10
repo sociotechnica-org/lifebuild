@@ -18,7 +18,7 @@ The center position on The Table, displaying a single capacity-building project 
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — dedicated slot for leverage work
+- Product Thesis: [[Product Thesis - Superior Process]] — dedicated slot for leverage work
 - Principle: [[Principle - Compound Capability]] — Silver builds infrastructure that makes future weeks easier
 - Decision: One Silver maximum for same focus reasons as Gold. Capacity-building benefits from sustained attention.
 

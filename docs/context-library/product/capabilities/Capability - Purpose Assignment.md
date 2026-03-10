@@ -19,7 +19,7 @@ The moment during project creation (Stage 2) when a builder declares what the ti
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — stream assignment enables structural protection
+- Product Thesis: [[Product Thesis - Superior Process]] — stream assignment enables structural protection
 - Principle: [[Principle - Familiarity Over Function]] — the same task is Gold for one person and Bronze for another
 - Decision: Subjective classification over objective criteria. The builder's relationship to the work is the only classification that matters.
 

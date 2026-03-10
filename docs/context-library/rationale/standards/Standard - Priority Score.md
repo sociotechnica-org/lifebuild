@@ -17,7 +17,7 @@ The specification for computing priority ranking within streams: base formula pl
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — systematic prioritization support
+- Product Thesis: [[Product Thesis - Superior Process]] — systematic prioritization support
 - Driver: Without stream weighting, the formula would rank Gold and Bronze on same criteria. Weightings encode philosophy: Gold amplifies Importance, Bronze amplifies Urgency, Silver rewards Leverage.
 - Decision: Formula is hypothesis, not validated algorithm. Expect tuning based on override frequency and builder feedback.
 

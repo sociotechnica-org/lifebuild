@@ -1,12 +1,16 @@
-# Strategy - Spatial Visibility
+# Product Thesis - Spatial Visibility
 
-## WHAT: The Strategy
+## WHAT: The Thesis
 
-Making work visual, placed, and traversable creates comprehension and agency that lists and abstractions cannot. This is Strategic Plank 1 — the first of three independent bets LifeBuild is built on.
+Making work visual, placed, and traversable creates comprehension and agency that lists and abstractions cannot. This is Plank 1 — the first of three independent bets LifeBuild is built on.
+
+Counter-thesis: Spatial representation is a novelty that wears off. Lists and search are faster for task execution; spatial views add visual appeal but not comprehension advantage. The brain's spatial memory systems help with physical navigation, not abstract project management — the analogy doesn't transfer.
 
 ## WHERE: Ecosystem
 
-- Type: Strategic Bet
+- Type: Product Thesis (Plank)
+- Parent: [[Product Thesis - The Organized Life]]
+- Problem: [[Product Thesis - Organizational Life]]
 - Implementing principles: [[Principle - Visibility Creates Agency]], [[Principle - Visual Recognition]]
 - Governs: [[Zone - Life Map]], [[Structure - Hex Grid]], [[Overlay - The Table]], [[Capability - Zoom Navigation]], [[Room - Project Board]], [[Room - System Board]]
 - Zoom tiers: [[Capability - Zoom Navigation]]
@@ -58,6 +62,17 @@ Research supports this: the brain's spatial processing and memory systems share 
 ### Decision Heuristic
 
 When choosing between abstract representation and spatial/visual representation, always choose spatial — comprehension through seeing and navigating beats comprehension through reading and thinking.
+
+## Validation Criteria
+
+To validate the spatial bet, measure whether spatial representation creates comprehension advantages over abstract representation, and whether those advantages persist at scale.
+
+- **A/B comprehension test:** Show the same portfolio of 12+ projects in spatial view vs. list view. Ask "what's stalled?" "what's your highest priority?" "what did you forget about?" Measure time-to-answer and accuracy. Target: spatial users answer faster and catch more forgotten/stalled items.
+- **Reversion tracking:** After 30 days of access to both spatial and list views, what percentage of sessions begin in spatial view? Target: >60%. If users consistently navigate to list view first, the spatial bet isn't delivering enough value to change default behavior.
+- **Scale breakpoint:** At what project count does spatial comprehension degrade? Test at 5, 15, 30, and 50+ active items. If spatial advantage disappears below 20 projects, the thesis holds only for power users — which may not be a large enough market.
+- **Recall test:** After a week away, ask users to name their active projects and their status from memory. Compare spatial-primary users vs. list-primary users. Spatial memory encoding predicts that spatial users recall more items and more accurate status.
+- **"I forgot about that" metric:** Track how often users rediscover stalled or forgotten work through spatial browsing that they didn't find through list/search. This is the unique spatial value — ambient awareness through presence rather than active querying.
+- **Invalidation signal:** Users consistently prefer list/search views, spatial comprehension doesn't outperform lists in controlled tests, or the advantage disappears below a project count that represents most users.
 
 ## Tensions
 

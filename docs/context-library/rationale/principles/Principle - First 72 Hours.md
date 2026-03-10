@@ -9,7 +9,7 @@ The first five minutes are the critical path. The portal, the wow chain, and the
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - AI as Teammates]] — first impressions of the team matter
+- Advances: [[Product Thesis - AI as Teammates]] — first impressions of the team matter
 - Related: [[Principle - Earn Don't Interrogate]] — progressive capture, not forms
 - Related: [[Principle - Action Before Explanation]] -- first action within 15 seconds
 - Related: [[Principle - Compression and Release]] -- the portal opens the 72-hour window
@@ -22,7 +22,7 @@ The first five minutes are the critical path. The portal, the wow chain, and the
 
 ## WHY: Belief
 
-- Strategy: [[Strategy - AI as Teammates]] — first impressions of the team matter
+- Product Thesis: [[Product Thesis - AI as Teammates]] — first impressions of the team matter
 - Driver: New users abandon tools that feel overwhelming or empty. The first 72 hours must create momentum and understanding simultaneously.
 
 ## WHEN: Timeline

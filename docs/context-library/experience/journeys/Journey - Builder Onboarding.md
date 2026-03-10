@@ -27,7 +27,7 @@ From portal stranger to sanctuary resident -- the builder answers one question, 
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - AI as Teammates]] -- the builder's first experience IS the teammate relationship, delivered through action
+- Product Thesis: [[Product Thesis - AI as Teammates]] -- the builder's first experience IS the teammate relationship, delivered through action
 - Principle: [[Principle - First 72 Hours]] -- real progress within 72 hours
 - Principle: [[Principle - Action Before Explanation]] -- the builder acts before they understand
 - Principle: [[Principle - Compression and Release]] -- the portal creates the emotional foundation for everything that follows

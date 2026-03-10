@@ -9,14 +9,14 @@ The specification for organizing everything the AI team learns about a builder �
 - Implemented by: [[System - Progressive Knowledge Capture]] — acquires knowledge
 - Implemented by: [[System - Processing Layer]] — computes patterns
 - Implements: [[Principle - Earn Don't Interrogate]] — acquisition philosophy
-- Advances: [[Strategy - AI as Teammates]] — knowledge enables relationship depth
+- Advances: [[Product Thesis - AI as Teammates]] — knowledge enables relationship depth
 - Feeds: [[Standard - Service Levels]] — knowledge depth determines service quality
 - Used by: [[Agent - Jarvis]] — orchestrates knowledge gathering
 - Conforming: [[Artifact - The Charter]] — content maps to knowledge domains
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — teammates know you, tools don't
+- Product Thesis: [[Product Thesis - AI as Teammates]] — teammates know you, tools don't
 - Principle: [[Principle - Earn Don't Interrogate]] — knowledge earned through relationship, not demanded upfront
 - Decision: Seven domains capture comprehensive understanding without overwhelming complexity.
 

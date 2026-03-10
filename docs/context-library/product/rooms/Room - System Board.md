@@ -18,7 +18,7 @@ The detail overlay that opens when a builder clicks any system tile — a focuse
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — systems need monitoring interface
+- Product Thesis: [[Product Thesis - Superior Process]] — systems need monitoring interface
 - Principle: [[Principle - Visibility Creates Agency]] — system health visible, not hidden
 - Driver: Builders need to see how their infrastructure is performing. The System Board answers "is this system healthy?"
 - Constraints: System Board monitors infrastructure health, not builder productivity. System health reflects cycle adherence and task generation, not how much the builder accomplished. Yellow is attention, Red is concern — neither is judgment.

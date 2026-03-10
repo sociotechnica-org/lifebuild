@@ -22,7 +22,7 @@ The tightest engagement loop — the builder opens the app, surveys their active
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Superior Process]] — atomic work execution with immediate feedback
+- Product Thesis: [[Product Thesis - Superior Process]] — atomic work execution with immediate feedback
 - Principle: [[Principle - Visibility Creates Agency]] — tile updates make progress tangible
 - Driver: The builder needs to feel forward motion within a single session. The micro loop creates a tight feedback cycle: do a thing, see it reflected on the map.
 

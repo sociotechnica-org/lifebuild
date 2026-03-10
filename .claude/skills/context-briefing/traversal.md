@@ -54,7 +54,7 @@ To find cards with specific WHY content:
 Grep: pattern="Spatial Visibility" path="docs/context-library/"
 ```
 
-This finds all cards that reference the Spatial Visibility strategy in any section.
+This finds all cards that reference the Spatial Visibility product thesis in any section.
 
 To narrow to a specific dimension header:
 
@@ -116,11 +116,11 @@ Follow the rationale hierarchy from a product card to its strategic foundation.
 ```
 1. Read the product card's WHY section
 2. Find [[Principle - ...]] links → Read those Principles
-3. In each Principle's WHY section, find [[Strategy - ...]] links → Read those Strategies
-4. Strategy is the top — stop here
+3. In each Principle's WHY section, find [[Product Thesis - ...]] links → Read those Product Theses
+4. Product Thesis is the top — stop here
 ```
 
-**Depth:** Usually 2-3 hops (Card → Principle → Strategy).
+**Depth:** Usually 2-3 hops (Card → Principle → Product Thesis).
 
 **Why this matters:** The WHY chain explains design intent. Without it, a builder can implement the WHAT correctly but violate the WHY.
 
@@ -174,7 +174,7 @@ Find everything affected by changing a card:
 3. **Standards:** WHERE section shows conforming Standards → Read those
 4. **Components:** `Grep` for "Kanban" across `product/components/` → Read matches
 5. **Primitives:** Card mentions `[[Primitive - Task]]` → Read it (task statuses are the filter values)
-6. **WHY chain:** WHY section links to a Principle → Read it → follow to Strategy
+6. **WHY chain:** WHY section links to a Principle → Read it → follow to Product Thesis
 7. **WHEN check:** Read WHEN sections of related cards for reality notes and divergences
 
 **Result:** ~8 cards covering the Structure, its Room, conforming Standards, displayed Primitive, and strategic rationale.
@@ -190,7 +190,7 @@ Find everything affected by changing a card:
 4. **Capabilities:** `Grep` for "System" across `product/capabilities/` → finds Capability - System Actions
 5. **Systems:** `Grep` for "System" across `product/systems/` → finds multiple
 6. **WHEN check:** Read WHEN sections of related cards for reality notes and implications
-7. **WHY chain:** Follow upstream to Strategy/Principle
+7. **WHY chain:** Follow upstream to Product Thesis/Principle
 8. **Standards:** Check what Standards define System properties
 
 **Result:** ~12 cards covering the Primitive, its associated Room and Capabilities, gap analysis from WHEN sections, and the strategic rationale for why Systems matter.

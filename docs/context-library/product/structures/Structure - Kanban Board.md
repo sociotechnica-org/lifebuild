@@ -14,13 +14,13 @@ The task flow interface within a Project Board — a visual representation of ta
 - Conforms to:
   - [[Standard - Visual Language]] — task cards, column states render per spec
 - Implements:
-  - [[Strategy - Spatial Visibility]] — progress has spatial form
+  - [[Product Thesis - Spatial Visibility]] — progress has spatial form
   - [[Principle - Visual Recognition]] — task state instantly visible
 - Related: [[System - Bronze Stack]] — Bronze tasks may show here
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — work flow should be visible
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — work flow should be visible
 - Principle: [[Principle - Visual Recognition]] — familiar pattern for task management
 - Principle: [[Principle - Familiarity Over Function]] — Kanban is widely understood
 - Driver: Builders need to see and manage task flow within projects. Kanban provides that at-a-glance view.

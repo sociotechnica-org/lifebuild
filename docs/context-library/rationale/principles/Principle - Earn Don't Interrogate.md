@@ -7,7 +7,7 @@ Knowledge acquisition must never block progress, must feel helpful rather than i
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - AI as Teammates]]
+- Advances: [[Product Thesis - AI as Teammates]]
 - Governs: All agent knowledge acquisition, [[Artifact - The Charter]], [[Artifact - The Agenda]], [[System - Progressive Knowledge Capture]], [[System - Smoke Signals]]
 - Agents: [[Agent - Jarvis]], [[Agent - Mesa]], [[Agent - Marvin]], [[Agent - Conan]]
 - Companion detail: Builder Knowledge & Intelligence System (companion document)

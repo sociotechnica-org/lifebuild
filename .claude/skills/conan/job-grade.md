@@ -8,7 +8,7 @@
 
 1. **Grade each card section by section** (see rubrics.md)
    - WHAT: Standalone? Specific? Complete?
-   - WHY: Strategy linked? Rationale? Driver? **Apply Trace Test.**
+   - WHY: Product Thesis linked? Rationale? Driver? **Apply Trace Test.**
    - WHERE: 3+ links? All contextualized? Bidirectional? **Conformance present?**
    - HOW: Sufficient for builder?
    - WHEN: (Vision Capture) Section exists with status marker?

@@ -18,7 +18,7 @@ The builder rates how draining their work feels on a 1-10 scale with color gradi
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — capacity awareness requires data
+- Product Thesis: [[Product Thesis - Superior Process]] — capacity awareness requires data
 - Principle: [[Principle - Earn Don't Interrogate]] — one simple question captures rich capacity data
 - Driver: Builders don't know their capacity in abstract numbers. But they know how work feels. The felt experience slider translates subjective experience into data the stewards can reason about — without forcing the builder to learn a framework or fill out a form.
 

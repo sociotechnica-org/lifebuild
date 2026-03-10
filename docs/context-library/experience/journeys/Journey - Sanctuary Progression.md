@@ -26,8 +26,8 @@ From survival to sovereignty — the builder progresses through three phases of 
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Superior Process]] — the process itself drives the progression
-- Strategy: [[Strategy - Spatial Visibility]] — the map IS the progression indicator
+- Product Thesis: [[Product Thesis - Superior Process]] — the process itself drives the progression
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — the map IS the progression indicator
 - Principle: [[Principle - Protect Transformation]] — Gold ventures shift from obligation to aspiration
 - Driver: The universal direction is that the ratio of capacity spent on chosen, meaningful work increases relative to capacity consumed by maintenance and obligation. Not tracked as a score — manifested as visual character, venture quality, and felt experience.
 

@@ -15,7 +15,7 @@ A single, completable action that contributes to a project's objectives or fulfi
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — work decomposed into actionable units
+- Product Thesis: [[Product Thesis - Superior Process]] — work decomposed into actionable units
 - Principle: [[Principle - Visibility Creates Agency]] — tasks make progress visible
 - Driver: Builders need atomic work units they can complete in a session (typically 15min-2hrs).
 

@@ -77,12 +77,12 @@ Trace the rationale.
 ```markdown
 ## WHY: Rationale
 
-- Strategy: [[Strategy]] — [how this implements it]
+- Product Thesis: [[Product Thesis]] — [how this implements it]
 - Principle: [[Principle]] — [what guidance it follows]
 - Driver: [[Signal/Pressure]] or Exploratory — [hypothesis]
 ```
 
-**Critical:** Check that strategy/principle notes exist and aren't stubs.
+**Critical:** Check that product thesis/principle notes exist and aren't stubs.
 
 If note doesn't exist → Create it now.
 If note is stub → Enrich it now.
@@ -138,7 +138,7 @@ Describe intended behavior with examples.
 - [ ] WHAT standalone?
 - [ ] 5+ links with context?
 - [ ] Conformance links where obligated?
-- [ ] Strategy note exists and is substantive?
+- [ ] Product Thesis note exists and is substantive?
 - [ ] WHEN has temporal status?
 - [ ] HOW has ≥2 examples?
 - [ ] HOW has ≥1 anti-example?
@@ -236,33 +236,39 @@ This is what builders read to know what to produce.
 
 ## Creating Supporting Notes
 
-### Strategy Note (5-10 minutes)
+### Product Thesis Note (5-10 minutes)
 
 Don't stub it. Conan traces these.
 
-**Strategy notes belong in `/rationale/strategies/`.**
+**Product Thesis notes belong in `/rationale/product-thesis/`.**
 
 ```markdown
-# Strategy - [Name]
+# Product Thesis - [Name]
 
-## WHAT: The Strategy
+## WHAT: The Thesis
 
-[One sentence articulating the bet.]
+[One sentence articulating the thesis.]
+
+Counter-thesis: [The strongest argument against this thesis.]
 
 ## WHERE: Ecosystem
 
+- Type: Product Thesis (Problem | Solution | Plank)
+- Parent: [[Product Thesis]] — [relationship to parent thesis]
 - Principles:
   - [[Principle]] — [what judgment guidance this generates]
 - Standards:
   - [[Standard]] — [what specifications this generates]
 - Zones:
   - [[Zone]] — [what product areas embody this]
-- Tensions:
-  - [[Strategy]] — [what other strategies this trades off against]
 
 ## WHY: Belief
 
 [Why we believe this — reasoning, not just assertion]
+
+## Validation Criteria
+
+[How to validate. Metrics, tests, targets, invalidation signals.]
 
 ## HOW: Application
 
@@ -276,10 +282,10 @@ Don't stub it. Conan traces these.
 
 ### Decision Heuristic
 
-[When facing a tradeoff, how does this strategy guide the choice?]
+[When facing a tradeoff, how does this thesis guide the choice?]
 ```
 
-**Minimum viable:** 150+ words with real reasoning in WHY. Anti-patterns required.
+**Minimum viable:** 150+ words with real reasoning in WHY. Validation criteria and anti-patterns required.
 
 ### Principle Note (5-10 minutes)
 
@@ -294,8 +300,8 @@ Don't stub it. Conan traces these.
 
 ## WHERE: Ecosystem
 
-- Strategy:
-  - [[Strategy]] — [what bet this serves]
+- Product Thesis:
+  - [[Product Thesis]] — [what bet this serves]
 - Standards:
   - [[Standard]] — [what specifications make this testable]
 - Governs:
@@ -367,7 +373,7 @@ For a zone with 10 cards:
 1. Read all source material (15-20 min)
 2. Create cards in build order:
    - Standards first (they constrain everything)
-   - Strategy/Principles next (WHY upstream)
+   - Product Thesis/Principles next (WHY upstream)
    - Systems next (cross-cutting mechanisms)
    - Zones/Rooms (most-depended-on first)
    - Overlays, Structures, Artifacts, Capabilities

@@ -13,7 +13,7 @@ The specification for three Bronze stack operating modes — Minimal, Target, an
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — operational work managed with flexible controls
+- Product Thesis: [[Product Thesis - Superior Process]] — operational work managed with flexible controls
 - Principle: [[Principle - Protect Transformation]] — modes let builders constrain Bronze expansion
 - Driver: Different weeks need different operational engagement. Modes provide that flexibility.
 

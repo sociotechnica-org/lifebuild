@@ -19,7 +19,7 @@ The three operations available for planted systems: Hibernate (pause temporarily
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — infrastructure needs lifecycle management
+- Product Thesis: [[Product Thesis - Superior Process]] — infrastructure needs lifecycle management
 - Principle: [[Principle - Plans Are Hypotheses]] — systems can be adjusted as life changes
 - Driver: Systems are long-lived but not permanent. Builders need ways to pause, improve, or end them.
 

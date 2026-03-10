@@ -23,7 +23,7 @@ A meta-level survey loop — the builder scans the entire hex grid, identifies w
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Spatial Visibility]] — the map as holistic life view
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — the map as holistic life view
 - Principle: [[Principle - Visibility Creates Agency]] — seeing the whole domain creates agency to act
 - Driver: Builders need periodic zoomed-out awareness of their entire life landscape. The sanctuary walk prevents tunnel vision on active projects and surfaces neglected territories before they become crises.
 

@@ -18,7 +18,7 @@ The scale control system for the Life Map, allowing builders to smoothly transit
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — builders need both overview and detail
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — builders need both overview and detail
 - Principle: [[Principle - Visibility Creates Agency]] — agency requires ability to change perspective
 - Driver: Life is complex — builders need to zoom out for big picture, zoom in for action. Same space, different scales.
 - Constraints: Zoom controls information density, not access. All data exists at every level — zoom reveals or conceals detail layers. The Table remains fixed size regardless of zoom.

@@ -14,7 +14,7 @@ The two-queue system that separates work in development (Planning Queue) from wo
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — structured flow from capture to activation
+- Product Thesis: [[Product Thesis - Superior Process]] — structured flow from capture to activation
 - Principle: [[Principle - Earn Don't Interrogate]] — progressive investment, not upfront interrogation
 - Decision: Separating queues prevents the common failure mode where effort required to "properly create" a project discourages capturing ideas at all.
 

@@ -12,14 +12,14 @@ Marvin's delegation space — where builders assign Attendants to delegatable ta
   - [[Room - Council Chamber]] — strategic conversation
   - [[Room - Sorting Room]] — priority selection
   - [[Room - Drafting Room]] — project creation
-- Implements: [[Strategy - AI as Teammates]] — team coordination
+- Implements: [[Product Thesis - AI as Teammates]] — team coordination
 - Implements: [[Principle - Compound Capability]] — delegation patterns improve
 - Assigns: Attendants — AI agents for task execution
 - Configures: Human delegation — family, colleagues, contractors
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — builders have a team
+- Product Thesis: [[Product Thesis - AI as Teammates]] — builders have a team
 - Principle: [[Principle - Compound Capability]] — team effectiveness compounds over time
 - Driver: Builders shouldn't do everything alone. The Roster Room is where delegation happens.
 - Constraints: Delegation is always builder-initiated or builder-approved. Marvin recommends, the builder assigns. No autonomous task handoff. Human delegation tracking is reminder-based, not enforcement-based.

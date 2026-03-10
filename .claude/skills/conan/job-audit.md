@@ -14,7 +14,7 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
 
    ```
    Card: [Name]
-   Step 1: WHY question? → Strategy/Principle/Standard
+   Step 1: WHY question? → Product Thesis/Principle/Standard
    Step 2: WHAT + Builders interact?
      - Navigate TO it? Top-level → Zone. Nested → Room.
      - Persistent across zones? → Overlay

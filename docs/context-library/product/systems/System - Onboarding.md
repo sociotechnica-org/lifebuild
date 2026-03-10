@@ -18,7 +18,7 @@ The mechanism that implements the portal-first onboarding -- guiding new builder
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] -- agents are introduced through action, not explanation
+- Product Thesis: [[Product Thesis - AI as Teammates]] -- agents are introduced through action, not explanation
 - Principle: [[Principle - First 72 Hours]] -- first impressions define the relationship
 - Principle: [[Principle - Action Before Explanation]] -- the builder acts before they understand
 - Principle: [[Principle - Compression and Release]] -- the portal creates the emotional foundation

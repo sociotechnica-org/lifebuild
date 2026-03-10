@@ -79,7 +79,7 @@ These divisions are not parallel product features — they are distinct operatin
 | Strategy - Socialization as Infrastructure | Not built | The upstream bet: structured socialization across 1:1, Groups, and 1:Many is not a nice-to-have — it is infrastructure for a well-lived and well-operating company. The same rigor applied to software production applies to relationship and content production. Anchor for all communications cards.                                                 |
 | Strategy - Content Factory Model           | Not built | The bet that the software factory model (Decide → Shape → Make → Patch) applies directly to communications production. Separate factories per division, coordinated at the strategy level. The key insight from the source: AI is better trained at communications than at code, making this factory potentially more effective than the software one. |
 
-**Note:** [[Strategy - Superior Process]] and [[Strategy - AI as Teammates]] already exist and apply to communications. New cards should link to these rather than restate them.
+**Note:** [[Product Thesis - Superior Process]] and [[Product Thesis - AI as Teammates]] already exist and apply to communications. New cards should link to these rather than restate them.
 
 ### Principles (4)
 

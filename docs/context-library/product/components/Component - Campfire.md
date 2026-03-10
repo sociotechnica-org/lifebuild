@@ -22,8 +22,8 @@ A temporary compression phase -- the intimate space where the builder first enco
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] -- Jarvis is the first face
-- Strategy: [[Strategy - Spatial Visibility]] -- the compression makes the spatial release land
+- Product Thesis: [[Product Thesis - AI as Teammates]] -- Jarvis is the first face
+- Product Thesis: [[Product Thesis - Spatial Visibility]] -- the compression makes the spatial release land
 - Principle: [[Principle - Compression and Release]] -- the Campfire exists TO create compression. Without it, the map reveal is just a screen loading.
 - Driver: The builder needs an intimate, focused moment before the world opens. The compression loads the spring. The single question creates the builder's first action. The release rewards it.
 

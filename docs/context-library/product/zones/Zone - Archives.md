@@ -16,13 +16,13 @@ The learning workspace — where completed projects, uprooted systems, and histo
   - Completed projects with full history
   - Uprooted systems with full history
   - Historical performance data
-- Implements: [[Strategy - AI as Teammates]] — institutional memory
+- Implements: [[Product Thesis - AI as Teammates]] — institutional memory
 - Implements: [[Principle - Compound Capability]] — accumulated wisdom
 - Feeds: [[Standard - Knowledge Framework]] — historical patterns
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — teammates remember
+- Product Thesis: [[Product Thesis - AI as Teammates]] — teammates remember
 - Principle: [[Principle - Compound Capability]] — history creates value
 - Driver: Builders need to learn from experience. The Archives preserve that experience and surface its lessons.
 - Constraints: Archives serve learning, not accountability. Historical data is the builder's memory, not a performance record. Always accessible, never gated behind agent interaction, never auto-deleted.

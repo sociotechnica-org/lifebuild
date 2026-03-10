@@ -30,8 +30,8 @@ The core engagement loop — the builder assesses their sanctuary, commits to a 
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Superior Process]] — the expedition cycle IS the core process
-- Strategy: [[Strategy - AI as Teammates]] — stewards participate in every phase
+- Product Thesis: [[Product Thesis - Superior Process]] — the expedition cycle IS the core process
+- Product Thesis: [[Product Thesis - AI as Teammates]] — stewards participate in every phase
 - Principle: [[Principle - Plans Are Hypotheses]] — expeditions have bounded appetite, not unbounded commitments
 - Driver: The builder needs a rhythm of plan → execute → learn that compounds into life improvement. The expedition cycle creates that rhythm at a scale large enough for meaningful work, small enough for course correction.
 

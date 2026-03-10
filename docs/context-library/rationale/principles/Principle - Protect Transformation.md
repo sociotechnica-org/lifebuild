@@ -7,7 +7,7 @@ A single ranked priority list lets urgent maintenance perpetually displace impor
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - Superior Process]]
+- Advances: [[Product Thesis - Superior Process]]
 - Governs: [[Capability - Three-Stream Filtering]], [[Overlay - The Table]], [[System - Bronze Operations]], [[Room - Sorting Room]], [[System - Weekly Priority]]
 - Table positions: [[Component - Gold Position]], [[Component - Silver Position]], [[Component - Bronze Position]]
 - Related: [[Principle - Empty Slots Strategic]] — protection includes permission to rest

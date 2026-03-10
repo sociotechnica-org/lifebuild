@@ -12,11 +12,11 @@ Every action a builder takes maps to one of four verbs: **Tend**, **Invest**, **
   - [[System - Capacity Economy]] — Maintain/Invest/Spend classifies capacity flow direction (steward-side reasoning)
   - [[Loop - Daily Check-In]] — each micro loop is one of the four verbs
   - [[Loop - Expedition Cycle]] — expeditions are composed of verb-classified activities
-- Implements: [[Strategy - Superior Process]] — legible action classification
+- Implements: [[Product Thesis - Superior Process]] — legible action classification
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — builders need a simple vocabulary for what they're doing
+- Product Thesis: [[Product Thesis - Superior Process]] — builders need a simple vocabulary for what they're doing
 - Driver: Without a verb framework, all work feels the same — undifferentiated tasks on a list. The Four Verbs give builders a way to understand what kind of energy they're spending. Tending feels different from Venturing. Restoring feels different from Investing. Naming the difference creates awareness.
 
 ## WHEN: Timeline

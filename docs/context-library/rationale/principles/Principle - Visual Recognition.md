@@ -7,7 +7,7 @@ A builder must immediately recognize what each visual element represents without
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - Spatial Visibility]]
+- Advances: [[Product Thesis - Spatial Visibility]]
 - Governs: [[Primitive - Project]], [[Primitive - System]], [[Structure - Hex Grid]], [[Component - Hex Tile]]
 - Companion detail: Brand Standards v2
 - Related: [[Principle - Visibility Creates Agency]] — visibility must also be instantly legible

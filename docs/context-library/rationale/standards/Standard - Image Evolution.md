@@ -14,7 +14,7 @@ The specification for the five-stage visual progression of a project's illustrat
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — visual distinctiveness enables spatial memory
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — visual distinctiveness enables spatial memory
 - Principle: [[Principle - Visual Recognition]] — two-second identification test
 - Decision: Content-depicting diorama-style illustrations over abstract patterns. By Colored stage, builder should recognize "that's my kitchen project" from across the room.
 

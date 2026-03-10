@@ -13,7 +13,7 @@ The specification for lifecycle stages a project moves through from initial capt
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — clear lifecycle enables structured management
+- Product Thesis: [[Product Thesis - Superior Process]] — clear lifecycle enables structured management
 - Principle: [[Principle - Visibility Creates Agency]] — state visible at a glance
 - Driver: Builders need to know where each project stands and what they can do with it.
 

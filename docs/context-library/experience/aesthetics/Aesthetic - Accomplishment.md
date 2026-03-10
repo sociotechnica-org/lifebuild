@@ -15,7 +15,7 @@
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Spatial Visibility]] — the map visibly reflects work done
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — the map visibly reflects work done
 - Principle: [[Principle - Visibility Creates Agency]] — visible accomplishment reinforces the builder's sense of capability
 - Driver: The builder needs evidence that their work matters — not abstract evidence (points, percentages) but tangible evidence (the map changed, the tile evolved, a new system generates tasks automatically). Accomplishment is the aesthetic that closes the effort-reward loop without extrinsic gamification.
 

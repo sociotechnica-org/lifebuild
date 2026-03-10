@@ -14,7 +14,7 @@ The ambient notification mechanism that surfaces items needing attention through
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — ambient signals leverage spatial awareness
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — ambient signals leverage spatial awareness
 - Principle: [[Principle - Visibility Creates Agency]] — builders see problems early
 - Principle: [[Principle - Guide When Helpful]] — helpful signals, not nagging alerts
 - Driver: Builders need awareness without bombardment. Smoke Signals make problems visible without demanding immediate action.

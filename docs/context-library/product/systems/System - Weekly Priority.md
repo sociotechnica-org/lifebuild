@@ -16,7 +16,7 @@ The mechanism that produces and maintains a builder's active weekly commitment �
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — weekly commitment creates focus
+- Product Thesis: [[Product Thesis - Superior Process]] — weekly commitment creates focus
 - Principle: [[Principle - Protect Transformation]] — stream constraints enforced
 - Principle: [[Principle - Empty Slots Strategic]] — empty positions are valid choices
 - Driver: Builders need clarity on "what am I working on this week?" Weekly Priority answers that question.

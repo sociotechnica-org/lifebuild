@@ -11,7 +11,7 @@
 Every release advances LifeBuild along three independent strategic bets, each with a maturity ladder:
 
 **Plank 1 — Spatial Visibility** (serves Autonomy)
-Source: `docs/context-library/rationale/strategies/Strategy - Spatial Visibility.md`
+Source: `docs/context-library/rationale/product-thesis/Product Thesis - Spatial Visibility.md`
 
 | Level | Name                    | What It Is                                |
 | ----- | ----------------------- | ----------------------------------------- |
@@ -22,7 +22,7 @@ Source: `docs/context-library/rationale/strategies/Strategy - Spatial Visibility
 | 4     | Hybrid Physical/Digital | AR integration                            |
 
 **Plank 2 — Superior Process** (serves Competence)
-Source: `docs/context-library/rationale/strategies/Strategy - Superior Process.md`
+Source: `docs/context-library/rationale/product-thesis/Product Thesis - Superior Process.md`
 
 | Level | Name                  | What It Is                                |
 | ----- | --------------------- | ----------------------------------------- |
@@ -36,7 +36,7 @@ Source: `docs/context-library/rationale/strategies/Strategy - Superior Process.m
 | 7     | Full Orchestrated     | Defined roles, communication protocols    |
 
 **Plank 3 — AI as Teammates** (serves Relatedness)
-Source: `docs/context-library/rationale/strategies/Strategy - AI as Teammates.md`
+Source: `docs/context-library/rationale/product-thesis/Product Thesis - AI as Teammates.md`
 
 | Level | Name                   | What It Is                                      |
 | ----- | ---------------------- | ----------------------------------------------- |
@@ -90,10 +90,10 @@ Releases are grouped into thematic arcs. Each arc has a narrative theme and a pr
 
 2. **Read adjacent releases** — Read the release before (what the builder can do) and after (what they need to be able to do). The new release bridges that gap.
 
-3. **Read the three strategy cards** — Always re-read the maturity ladders to anchor ladder positions:
-   - `docs/context-library/rationale/strategies/Strategy - Spatial Visibility.md`
-   - `docs/context-library/rationale/strategies/Strategy - Superior Process.md`
-   - `docs/context-library/rationale/strategies/Strategy - AI as Teammates.md`
+3. **Read the three plank cards** — Always re-read the maturity ladders to anchor ladder positions:
+   - `docs/context-library/rationale/product-thesis/Product Thesis - Spatial Visibility.md`
+   - `docs/context-library/rationale/product-thesis/Product Thesis - Superior Process.md`
+   - `docs/context-library/rationale/product-thesis/Product Thesis - AI as Teammates.md`
 
 4. **Set ladder positions** — Where does each bet stand BEFORE this release? Where should it stand AFTER? Use the maturity ladder levels.
 
@@ -323,6 +323,6 @@ After a release ships, convert the planning card to retrospective format by addi
 
 - Release cards live at: `docs/context-library/releases/`
 - Naming: `Release - [Title].md` (e.g., `Release - The Campfire.md`)
-- Strategy cards: `docs/context-library/rationale/strategies/Strategy - *.md`
+- Product Thesis cards: `docs/context-library/rationale/product-thesis/Product Thesis - *.md`
 - Existing releases: Read all files in `docs/context-library/releases/` before writing new ones
 - Builder journey phases: `docs/context-library/experience/journeys/Journey - Sanctuary Progression.md`

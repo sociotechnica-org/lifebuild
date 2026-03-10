@@ -17,12 +17,12 @@ Jarvis's dedicated space in the Strategy Studio — where builders engage in hig
   - [[Room - Roster Room]] — delegation management
 - Conforms to:
   - [[Standard - Planning Calibration]] — strategic conversations frame plans as hypotheses
-- Implements: [[Strategy - AI as Teammates]] — deepest advisor relationship
+- Implements: [[Product Thesis - AI as Teammates]] — deepest advisor relationship
 - Implements: [[Principle - Earn Don't Interrogate]] — Jarvis elicits, never interrogates
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — Jarvis is the primary AI relationship
+- Product Thesis: [[Product Thesis - AI as Teammates]] — Jarvis is the primary AI relationship
 - Principle: [[Principle - Plans Are Hypotheses]] — strategic conversations hold plans lightly
 - Driver: Builders need a thinking partner who knows their whole picture. The Council Chamber hosts that partnership.
 - Constraints: Council Chamber is the builder's space, not Jarvis's office. The builder controls pace, topic, and depth of conversation. Jarvis guides, never drives.

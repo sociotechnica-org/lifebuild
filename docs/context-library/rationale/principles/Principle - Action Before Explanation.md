@@ -6,8 +6,8 @@ Comprehension follows action, never the other way around. Builders learn by doin
 
 ## WHERE: Ecosystem
 
-- Advances: [[Strategy - AI as Teammates]] -- teammates show, they don't lecture
-- Advances: [[Strategy - Spatial Visibility]] -- the map teaches by being visible, not by being explained
+- Advances: [[Product Thesis - AI as Teammates]] -- teammates show, they don't lecture
+- Advances: [[Product Thesis - Spatial Visibility]] -- the map teaches by being visible, not by being explained
 - Companion: [[Principle - Earn Don't Interrogate]] -- that principle says "never block progress with knowledge acquisition"; this principle says "never explain before acting"
 - Related: [[Principle - Compression and Release]] -- compression obscures what's coming; action-before-explanation ensures the reveal teaches through experience, not narration
 - Related: [[Principle - The WOW Chain]] -- each wow is also a lesson disguised as a surprise
@@ -20,8 +20,8 @@ Comprehension follows action, never the other way around. Builders learn by doin
 
 ## WHY: Belief
 
-- Strategy: [[Strategy - Spatial Visibility]] -- the map reveal IS the explanation; showing beats telling
-- Strategy: [[Strategy - AI as Teammates]] -- teammates demonstrate value through action, not introduction speeches
+- Product Thesis: [[Product Thesis - Spatial Visibility]] -- the map reveal IS the explanation; showing beats telling
+- Product Thesis: [[Product Thesis - AI as Teammates]] -- teammates demonstrate value through action, not introduction speeches
 - Driver: The conversation-first campfire failed because it explained the world before the builder could see it. The builder spent the conversation going "what's a hex? what do you mean stewards?" -- they never got past "what IS this?" to "what can I do here?" The fix: let them do something first, and understanding arrives as a consequence of the action, not as a prerequisite for it.
 
 ## WHEN: Timeline

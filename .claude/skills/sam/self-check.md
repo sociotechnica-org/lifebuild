@@ -62,12 +62,12 @@ If Standard doesn't exist yet → flag for creation.
 ### Folder Placement Check
 
 - [ ] **Card in correct layer?**
-  - Strategy, Principle, Standard → `/rationale/` subtree
+  - Product Thesis, Principle, Standard → `/rationale/` subtree
   - Zone, Room, Overlay, Structure, Component, Artifact, Capability, Primitive, System, Agent, Prompt → `/product/` subtree
 
 ### WHY Section (1 minute)
 
-- [ ] Strategy or Principle link present with explanation?
+- [ ] Product Thesis or Principle link present with explanation?
 - [ ] **Linked note exists?** (Check — don't link to nothing)
 - [ ] **Linked note is substantive?** (Not a stub)
 - [ ] Driver identified?
@@ -107,12 +107,12 @@ Different structure than product-layer cards.
 
 ---
 
-## Strategy/Principle Checklist
+## Product Thesis/Principle Checklist
 
 - [ ] WHY has reasoning, not just assertion?
 - [ ] **Has Anti-Patterns section?** (what violating this looks like)
 - [ ] Tensions documented?
-- [ ] **Filed in `/rationale/strategies/` or `/rationale/principles/`?** (not `/product/`)
+- [ ] **Filed in `/rationale/product-thesis/` or `/rationale/principles/`?** (not `/product/`)
 
 ---
 
@@ -148,12 +148,12 @@ After finishing a zone's cards:
 - [ ] All Standards have conforming cards linked?
 - [ ] All product-layer cards touching governed domains have conformance links?
 
-### Strategy/Principle Coverage
+### Product Thesis/Principle Coverage
 
-- [ ] Every linked strategy note exists?
-- [ ] Strategy notes have substance?
-- [ ] No orphan strategy notes?
-- [ ] **All Strategy/Principle notes have Anti-Patterns section?**
+- [ ] Every linked product thesis note exists?
+- [ ] Product Thesis notes have substance?
+- [ ] No orphan product thesis notes?
+- [ ] **All Product Thesis/Principle notes have Anti-Patterns section?**
 
 ### Examples & Anti-Patterns Coverage
 
@@ -201,13 +201,13 @@ appear in their Bronze queue each week..."
 ```markdown
 # The card says:
 
-Strategy: [[Strategy - Visual Work]] — implements visibility
+Product Thesis: [[Product Thesis - Visual Work]] — implements visibility
 
-# But the strategy note is just:
+# But the product thesis note is just:
 
 "Visual work is important."
 
-# Fix: Enrich the strategy note before handing off
+# Fix: Enrich the product thesis note before handing off
 ```
 
 **Missing conformance:**
@@ -230,7 +230,7 @@ Zone, System, Dependency, Dependency, Component
 # Good (spread across dimensions)
 
 Zone, System, Dependency (WHERE)
-Strategy, Decision (WHY)
+Product Thesis, Decision (WHY)
 Future enhancement (WHEN)
 ```
 
@@ -264,7 +264,7 @@ Future enhancement (WHEN)
 - Wrong: Applying glow to Bronze items (reserved for Gold/Silver)"
 ```
 
-**Strategy without anti-patterns:**
+**Product Thesis without anti-patterns:**
 
 ```markdown
 # Bad
