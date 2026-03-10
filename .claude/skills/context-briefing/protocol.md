@@ -112,12 +112,12 @@ SEARCH: Grep for "[terms]" in docs/context-library/
 
 ### Search Techniques
 
-| Need                             | Technique                                                   |
-| -------------------------------- | ----------------------------------------------------------- |
-| Find a card by name              | `Glob` for `**/[Type] - [Name].md`                          |
-| Find cards about a topic         | `Grep` for topic terms across `docs/context-library/`       |
-| Find cards in a dimension        | `Grep` for content under `## WHY:` or `## HOW:` headers     |
-| Find cards that reference a card | `Grep` for `[[Card Name]]` across the library               |
+| Need                             | Technique                                                         |
+| -------------------------------- | ----------------------------------------------------------------- |
+| Find a card by name              | `Glob` for `**/[Type] - [Name].md`                                |
+| Find cards about a topic         | `Grep` for topic terms across `docs/context-library/`             |
+| Find cards in a dimension        | `Grep` for content under `## WHY:` or `## HOW:` headers           |
+| Find cards that reference a card | `Grep` for `[[Card Name]]` across the library                     |
 | Follow a WHY chain upstream      | Read card → follow `[[Principle -` and `[[Product Thesis -` links |
 
 ### Loop Prevention

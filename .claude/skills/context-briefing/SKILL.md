@@ -16,22 +16,22 @@ Location: `docs/context-library/`
 
 ~100 markdown cards organized by type:
 
-| Layer     | Folder                   | Types                        |
-| --------- | ------------------------ | ---------------------------- |
-| Rationale | `/rationale/product-thesis/` | Product Thesis (5)          |
-| Rationale | `/rationale/principles/` | Principle (15)               |
-| Rationale | `/rationale/standards/`  | Standard (16)                |
-| Product   | `/product/zones/`        | Zone (3)                     |
-| Product   | `/product/rooms/`        | Room (7)                     |
-| Product   | `/product/overlays/`     | Overlay (1)                  |
-| Product   | `/product/structures/`   | Structure (2)                |
-| Product   | `/product/components/`   | Component (5)                |
-| Product   | `/product/artifacts/`    | Artifact (2)                 |
-| Product   | `/product/capabilities/` | Capability (7)               |
-| Product   | `/product/primitives/`   | Primitive (3)                |
-| Product   | `/product/systems/`      | System (15)                  |
-| Product   | `/product/agents/`       | Agent (14)                   |
-| Temporal  | `/temporal/`             | Decision, Initiative, Future |
+| Layer     | Folder                       | Types                        |
+| --------- | ---------------------------- | ---------------------------- |
+| Rationale | `/rationale/product-thesis/` | Product Thesis (5)           |
+| Rationale | `/rationale/principles/`     | Principle (15)               |
+| Rationale | `/rationale/standards/`      | Standard (16)                |
+| Product   | `/product/zones/`            | Zone (3)                     |
+| Product   | `/product/rooms/`            | Room (7)                     |
+| Product   | `/product/overlays/`         | Overlay (1)                  |
+| Product   | `/product/structures/`       | Structure (2)                |
+| Product   | `/product/components/`       | Component (5)                |
+| Product   | `/product/artifacts/`        | Artifact (2)                 |
+| Product   | `/product/capabilities/`     | Capability (7)               |
+| Product   | `/product/primitives/`       | Primitive (3)                |
+| Product   | `/product/systems/`          | System (15)                  |
+| Product   | `/product/agents/`           | Agent (14)                   |
+| Temporal  | `/temporal/`                 | Decision, Initiative, Future |
 
 ## Card Anatomy
 

@@ -2352,21 +2352,21 @@ Cards touching governed domains must link to constraining Standards.
 
 ## Containment Relationships
 
-| Type       | Must Link To                   | Relationship                              |
-| ---------- | ------------------------------ | ----------------------------------------- |
-| Room       | Zone                           | Parent workspace                          |
-| Structure  | Room                           | Where it lives                            |
-| Component  | Structure or Room or Overlay   | Parent element                            |
-| Artifact   | Room                           | Where it's edited                         |
-| Capability | Room(s)                        | Where it's performed                      |
-| Prompt     | Agent                          | What it implements                        |
-| Overlay    | Zone(s)                        | Where it's visible                        |
-| Loop       | Room(s), Capability(s)         | What it contains                          |
-| Journey    | Loop(s), Room(s)               | What it spans                             |
-| Aesthetic  | Room(s), Loop(s), Component(s) | Where it applies                          |
+| Type       | Must Link To                        | Relationship                              |
+| ---------- | ----------------------------------- | ----------------------------------------- |
+| Room       | Zone                                | Parent workspace                          |
+| Structure  | Room                                | Where it lives                            |
+| Component  | Structure or Room or Overlay        | Parent element                            |
+| Artifact   | Room                                | Where it's edited                         |
+| Capability | Room(s)                             | Where it's performed                      |
+| Prompt     | Agent                               | What it implements                        |
+| Overlay    | Zone(s)                             | Where it's visible                        |
+| Loop       | Room(s), Capability(s)              | What it contains                          |
+| Journey    | Loop(s), Room(s)                    | What it spans                             |
+| Aesthetic  | Room(s), Loop(s), Component(s)      | Where it applies                          |
 | Division   | Product Thesis, Agent(s), System(s) | What it serves, who staffs, what supports |
-| Playbook   | Division(s), Standard(s)       | Where it's used, what constrains it       |
-| Dynamic    | System(s)                      | What produces it                          |
+| Playbook   | Division(s), Standard(s)            | Where it's used, what constrains it       |
+| Dynamic    | System(s)                           | What produces it                          |
 
 ---
 

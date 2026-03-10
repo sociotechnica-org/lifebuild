@@ -81,10 +81,10 @@ How the type of task affects which dimensions to prioritize during context assem
 
 ## Quick Reference
 
-| Task Type    | Primary Dimensions  | Retrieval Width      | Upstream Depth        |
-| ------------ | ------------------- | -------------------- | --------------------- |
-| Feature      | WHERE, HOW          | Broad lateral        | Profile default       |
-| Bug fix      | HOW, WHEN           | Narrow + temporal    | Profile default       |
+| Task Type    | Primary Dimensions  | Retrieval Width      | Upstream Depth              |
+| ------------ | ------------------- | -------------------- | --------------------------- |
+| Feature      | WHERE, HOW          | Broad lateral        | Profile default             |
+| Bug fix      | HOW, WHEN           | Narrow + temporal    | Profile default             |
 | Refactor     | WHY, WHERE          | Broad + blast radius | Maximum (to Product Thesis) |
 | New          | WHY, HOW + siblings | Medium + patterns    | Profile default             |
 | Architecture | WHY, WHERE, WHEN    | Maximum              | Maximum (to Product Thesis) |

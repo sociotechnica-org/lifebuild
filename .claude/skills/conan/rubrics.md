@@ -23,7 +23,7 @@ Criteria: Product Thesis linked (with explanation), Rationale present, Driver tr
 | Grade | Criteria                                               |
 | ----- | ------------------------------------------------------ |
 | A     | Full causal chain. Alternatives/tensions acknowledged. |
-| B     | Product Thesis + driver + rationale. No tensions.            |
+| B     | Product Thesis + driver + rationale. No tensions.      |
 | C     | Thin explanation OR missing driver.                    |
 | D     | Vague strategy reference, no real rationale.           |
 | F     | Empty or no strategic connection.                      |

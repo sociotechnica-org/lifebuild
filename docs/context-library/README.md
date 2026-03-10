@@ -33,11 +33,11 @@ Without specification context, agents produce technically correct but contextual
 
 ### Rationale (`/rationale/`) — WHY we build
 
-| Type       | Count | Purpose                                                   |
-| ---------- | ----- | --------------------------------------------------------- |
+| Type           | Count | Purpose                                                     |
+| -------------- | ----- | ----------------------------------------------------------- |
 | Product Thesis | 5     | Problem thesis, solution thesis, and three strategic planks |
-| Principles | 15    | Judgment guidance — rules of thumb                        |
-| Standards  | 16    | Testable specifications — concrete rules cards conform to |
+| Principles     | 15    | Judgment guidance — rules of thumb                          |
+| Standards      | 16    | Testable specifications — concrete rules cards conform to   |
 
 ### Product (`/product/`) — WHAT gets built
 

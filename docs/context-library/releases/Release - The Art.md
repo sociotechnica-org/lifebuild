@@ -79,14 +79,14 @@ The map becomes deeply personal. AI-generated isometric sprites replace the pre-
 
 ## AFFECTED LIBRARY CARDS
 
-| Card                               | How It's Affected                                        |
-| ---------------------------------- | -------------------------------------------------------- |
-| [[Standard - Image Evolution]]     | Fully implemented (3-5 stages)                           |
-| [[Standard - Visual Language]]     | Fully expressed — consistent isometric style             |
-| [[Component - Hex Tile]]           | Rich rendering with generated art + evolution            |
-| [[Product Thesis - Spatial Visibility]]  | Approaching full vision (L4)                             |
-| [[Aesthetic - Accomplishment]]     | Expressed through art evolution — effort becomes visible |
-| [[Principle - Visual Recognition]] | Fully expressed — content-depicting, recognizable art    |
+| Card                                    | How It's Affected                                        |
+| --------------------------------------- | -------------------------------------------------------- |
+| [[Standard - Image Evolution]]          | Fully implemented (3-5 stages)                           |
+| [[Standard - Visual Language]]          | Fully expressed — consistent isometric style             |
+| [[Component - Hex Tile]]                | Rich rendering with generated art + evolution            |
+| [[Product Thesis - Spatial Visibility]] | Approaching full vision (L4)                             |
+| [[Aesthetic - Accomplishment]]          | Expressed through art evolution — effort becomes visible |
+| [[Principle - Visual Recognition]]      | Fully expressed — content-depicting, recognizable art    |
 
 ---
 

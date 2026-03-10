@@ -218,11 +218,11 @@ Overall: [Healthy / Needs Work / Critical]
 
 ## Health Levels
 
-| Level      | Definition                                                                           |
-| ---------- | ------------------------------------------------------------------------------------ |
+| Level      | Definition                                                                                 |
+| ---------- | ------------------------------------------------------------------------------------------ |
 | Healthy    | >80% Standards pass, >80% Product Thesis/Principles pass, Product layer sample averages B+ |
-| Needs Work | 60-80% pass rates, or Product layer sample averages B- to C+                         |
-| Critical   | <60% pass rates, or Product layer sample below C                                     |
+| Needs Work | 60-80% pass rates, or Product layer sample averages B- to C+                               |
+| Critical   | <60% pass rates, or Product layer sample below C                                           |
 
 ## Principles
 

@@ -341,20 +341,20 @@ Dynamics are about HOW the system responds to emergent behavior.
 
 Quick reference for what MUST be included regardless of scoring:
 
-| Target Type | Mandatory                                                 |
-| ----------- | --------------------------------------------------------- |
+| Target Type | Mandatory                                                       |
+| ----------- | --------------------------------------------------------------- |
 | System      | 1+ Product Thesis, all anti-patterns, all affected Capabilities |
-| Component   | Parent Structure/Room, all conforming Standards           |
-| Room        | Parent Zone, resident Agent (if exists)                   |
+| Component   | Parent Structure/Room, all conforming Standards                 |
+| Room        | Parent Zone, resident Agent (if exists)                         |
 | Zone        | All contained Rooms, 1+ Product Thesis                          |
-| Structure   | Parent Room, all conforming Standards                     |
-| Capability  | 1+ Room, all affected Artifacts                           |
+| Structure   | Parent Room, all conforming Standards                           |
+| Capability  | 1+ Room, all affected Artifacts                                 |
 | Agent       | Home Room, all managed Artifacts, 1+ Product Thesis             |
-| Prompt      | Parent Agent (complete)                                   |
-| Overlay     | All visible Zones, all conforming Standards               |
-| Primitive   | All Rooms that serve it, all operating Capabilities       |
-| Artifact    | Host Room, all using Capabilities                         |
-| Loop        | All composing Capabilities, all involved Rooms            |
-| Journey     | All Loops engaged, all guiding Agents                     |
-| Aesthetic   | All contexts where feeling applies                        |
-| Dynamic     | All contributing Systems, agent responses                 |
+| Prompt      | Parent Agent (complete)                                         |
+| Overlay     | All visible Zones, all conforming Standards                     |
+| Primitive   | All Rooms that serve it, all operating Capabilities             |
+| Artifact    | Host Room, all using Capabilities                               |
+| Loop        | All composing Capabilities, all involved Rooms                  |
+| Journey     | All Loops engaged, all guiding Agents                           |
+| Aesthetic   | All contexts where feeling applies                              |
+| Dynamic     | All contributing Systems, agent responses                       |
