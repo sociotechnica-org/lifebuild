@@ -9,14 +9,14 @@ The specification for the progressive ladder (Levels 0-5) measuring how well the
 - Implemented by: [[Standard - Knowledge Framework]] — organizes knowledge
 - Implemented by: [[System - Progressive Knowledge Capture]] — acquires knowledge
 - Implements: [[Principle - Compound Capability]] — service compounds over time
-- Advances: [[Strategy - AI as Teammates]] — relationship depth creates value
+- Advances: [[Product Thesis - AI as Teammates]] — relationship depth creates value
 - Used by: [[Agent - Jarvis]] — orchestrates progression
 - Conforming systems: [[System - Service Level Progression]] — UI for level display and progression
 - Related: [[Artifact - The Charter]] — living knowledge store
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — the difference between tool and teammate is knowledge depth
+- Product Thesis: [[Product Thesis - AI as Teammates]] — the difference between tool and teammate is knowledge depth
 - Principle: [[Principle - Compound Capability]] — month-12 service should be dramatically better than month-1
 - Decision: Six levels provide clear progression markers without false precision.
 

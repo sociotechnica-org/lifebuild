@@ -1,8 +1,8 @@
 # Job 2.5: Spot-Check
 
-**Purpose:** Verify upstream cards (Standards, Strategy, Principles) before dependent product-layer cards are built.
+**Purpose:** Verify upstream cards (Standards, Product Thesis, Principles) before dependent product-layer cards are built.
 
-**Trigger:** After Sam builds Standards or Strategy/Principle notes, before building product-layer cards (Rooms, Overlays, Structures, etc.).
+**Trigger:** After Sam builds Standards or Product Thesis/Principle notes, before building product-layer cards (Rooms, Overlays, Structures, etc.).
 
 Spot-Check gates product-layer builds. Catches upstream gaps before they cascade.
 
@@ -10,7 +10,7 @@ Spot-Check gates product-layer builds. Catches upstream gaps before they cascade
 
 1. **Identify cards to check**
    - All Standards just built
-   - All Strategy notes just built or enriched
+   - All Product Thesis notes just built or enriched
    - All Principle notes just built or enriched
 
 2. **Apply abbreviated rubric**
@@ -23,7 +23,7 @@ Spot-Check gates product-layer builds. Catches upstream gaps before they cascade
    | HOW | Contains actual spec (values, rules, thresholds) |
    | Anti-example | Includes what violation looks like |
 
-   Strategy/Principle:
+   Product Thesis/Principle:
    | Check | Pass Criteria |
    |-------|---------------|
    | WHAT | Clear statement, not placeholder |
@@ -57,7 +57,7 @@ Cards checked: [n]
 |------|------|-----|-----|---------|---------|
 | [name] | ✓/✗ | ✓/✗ | ✓/✗ | ✓/✗ | PASS/FIX/ESCALATE |
 
-## Strategy/Principles
+## Product Thesis/Principles
 
 | Card | WHAT | WHY | Anti-pattern | Verdict |
 |------|------|-----|--------------|---------|
@@ -82,7 +82,7 @@ Cards checked: [n]
 - Contains table, list, or explicit values? → Pass
 - Vague guidance only? → Fail
 
-**Strategy - WHY Check:**
+**Product Thesis - WHY Check:**
 
 - Explains reasoning ("because...", "we believe...")? → Pass
 - Just asserts ("X is important")? → Fail

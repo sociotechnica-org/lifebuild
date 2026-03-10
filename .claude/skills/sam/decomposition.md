@@ -6,7 +6,7 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 
 ### Step 1: Is this about WHY we build?
 
-- Guiding philosophy (a bet) → **Strategy**
+- Guiding philosophy (a bet) → **Product Thesis**
 - Judgment guidance (a rule of thumb) → **Principle**
 - Testable spec (concrete rules, values, thresholds) → **Standard**
 

@@ -19,7 +19,7 @@ The interface for moving between LifeBuild's three main workspaces — Life Map 
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — workspaces are distinct places
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — workspaces are distinct places
 - Principle: [[Principle - Familiarity Over Function]] — movement should feel intuitive
 - Driver: Builders need to move between execution, planning, and learning fluidly. Navigation makes that movement effortless.
 - Constraints: Navigation connects workspaces without disrupting flow. Transitions preserve all state (zoom, scroll, selection). Three workspaces are peers, not a hierarchy.

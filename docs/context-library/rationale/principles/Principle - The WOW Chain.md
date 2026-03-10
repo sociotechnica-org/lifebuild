@@ -6,7 +6,7 @@ After a reveal, a sequence of varied surprises prevents deflation. Each wow is a
 
 ## WHERE: Ecosystem
 
-- Advances: [[Strategy - AI as Teammates]] -- wow beats introduce teammates through action, not introduction
+- Advances: [[Product Thesis - AI as Teammates]] -- wow beats introduce teammates through action, not introduction
 - Related: [[Principle - Action Before Explanation]] -- each wow is also a lesson disguised as a surprise
 - Related: [[Principle - Compression and Release]] -- the portal is beat #0 that opens the chain
 - Related: [[Principle - First 72 Hours]] -- wow beats front-load the first session within the 72-hour window
@@ -15,7 +15,7 @@ After a reveal, a sequence of varied surprises prevents deflation. Each wow is a
 
 ## WHY: Belief
 
-- Strategy: [[Strategy - AI as Teammates]] -- teammates are introduced through their actions, which are surprises in themselves
+- Product Thesis: [[Product Thesis - AI as Teammates]] -- teammates are introduced through their actions, which are surprises in themselves
 - Driver: After a huge reveal, there's a risk of deflation -- the blank canvas problem. If nothing follows the portal, the feeling fades fast. The wow chain keeps attention alive. God of War follows the axe recall with combat, then a companion, then a boss -- each a different kind of surprise. Animal Crossing follows the island reveal with a furniture tree, then a pun fish, then naming the island. Without the chain, the reveal is a peak followed by a cliff.
 
 ## WHEN: Timeline

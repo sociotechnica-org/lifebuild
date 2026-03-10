@@ -14,7 +14,7 @@ The holding area for projects still in development — work in stages 1-3 of the
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — development is distinct from prioritization
+- Product Thesis: [[Product Thesis - Superior Process]] — development is distinct from prioritization
 - Principle: [[Principle - Earn Don't Interrogate]] — projects can be incomplete
 - Driver: Not all projects are ready for prioritization. The Planning Queue holds work-in-progress until it's ready.
 

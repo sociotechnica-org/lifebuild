@@ -24,7 +24,7 @@ The living strategic document maintained in the Council Chamber — a builder's 
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — teammates need shared context
+- Product Thesis: [[Product Thesis - AI as Teammates]] — teammates need shared context
 - Principle: [[Principle - Plans Are Hypotheses]] — strategic documents adapt
 - Driver: Jarvis needs to know what matters to the builder. The Charter captures that — not as rigid doctrine but as living understanding.
 - Constraints: The Charter belongs to the builder, not the system. Jarvis proposes updates, the builder decides. The Charter describes current understanding, never binding commitments.

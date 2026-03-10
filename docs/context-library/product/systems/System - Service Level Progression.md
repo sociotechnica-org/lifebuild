@@ -32,7 +32,7 @@ The invisible state machine governing how AI capabilities evolve based on builde
   - Agent quality scales with level — higher levels yield better recommendations, deeper pattern recognition
 - Rationale:
   - [[Principle - Compound Capability]] — visible compounding of system intelligence
-  - [[Strategy - AI as Teammates]] — agents improve with levels
+  - [[Product Thesis - AI as Teammates]] — agents improve with levels
 
 ## WHY: Rationale
 

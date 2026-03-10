@@ -14,7 +14,7 @@
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Superior Process]] — maintenance is sacred, not menial
+- Product Thesis: [[Product Thesis - Superior Process]] — maintenance is sacred, not menial
 - Principle: [[Principle - Visibility Creates Agency]] — visible territory state creates stewardship agency
 - Driver: Bronze work and system maintenance can feel like drudgery or like domain stewardship. The difference is aesthetic. When tending feels like walking your garden — noticing what's thriving, pruning what's overgrown, watering what's dry — it becomes satisfying rather than tedious. The Stewardship aesthetic transforms obligation into craft.
 

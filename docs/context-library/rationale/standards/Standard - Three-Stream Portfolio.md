@@ -15,7 +15,7 @@ The specification for classifying all builder work into three purpose-based stre
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — applies structured framework to prevent urgency bias
+- Product Thesis: [[Product Thesis - Superior Process]] — applies structured framework to prevent urgency bias
 - Driver: Neurological reality — the brain's threat-detection system responds to urgent/concrete faster than prefrontal cortex evaluates important/abstract. A single ranked list lets urgency always win.
 - Decision: Three streams aren't three lists — they're three separate competitions. Gold competes with Gold on importance. Bronze competes with Bronze on urgency. Cross-type competition is structurally prevented.
 

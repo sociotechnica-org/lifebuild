@@ -7,7 +7,7 @@ External representation and internal understanding strengthen each other through
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - Spatial Visibility]] — spatial organization enables the loop
+- Advances: [[Product Thesis - Spatial Visibility]] — spatial organization enables the loop
 - Governs: [[Structure - Hex Grid]], [[System - Clustering]], [[Zone - Life Map]]
 - Implemented by: [[Standard - Spatial Interaction Rules]] — makes builder spatial agency testable
 - Related: [[Principle - Visibility Creates Agency]] — seeing enables understanding

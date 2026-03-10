@@ -118,7 +118,7 @@ SEARCH: Grep for "[terms]" in docs/context-library/
 | Find cards about a topic         | `Grep` for topic terms across `docs/context-library/`       |
 | Find cards in a dimension        | `Grep` for content under `## WHY:` or `## HOW:` headers     |
 | Find cards that reference a card | `Grep` for `[[Card Name]]` across the library               |
-| Follow a WHY chain upstream      | Read card → follow `[[Principle -` and `[[Strategy -` links |
+| Follow a WHY chain upstream      | Read card → follow `[[Principle -` and `[[Product Thesis -` links |
 
 ### Loop Prevention
 
@@ -187,7 +187,7 @@ When mapping relationships in the briefing, use these edge types:
 | `constrained-by`   | Must conform to this        | Component constrained-by Standard |
 | `contains`         | Parent-child spatial        | Zone contains Room                |
 | `invokes`          | Triggers this workflow      | Room invokes Capability           |
-| `extends`          | Builds on this              | Principle extends Strategy        |
+| `extends`          | Builds on this              | Principle extends Product Thesis  |
 | `coordinates-with` | Peer relationship           | Agent coordinates-with Agent      |
 | `operates-on`      | Acts on this data           | Capability operates-on Primitive  |
 | `manages`          | Oversees lifecycle of       | Agent manages Artifact            |

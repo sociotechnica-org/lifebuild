@@ -17,7 +17,7 @@ Planted infrastructure that generates work indefinitely. Unlike projects, system
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — infrastructure reduces future cognitive load
+- Product Thesis: [[Product Thesis - Superior Process]] — infrastructure reduces future cognitive load
 - Principle: [[Principle - Compound Capability]] — planted systems make future weeks easier
 - Driver: Builders need containers for recurring work that runs itself. The question for systems is: "Is it running smoothly?"
 

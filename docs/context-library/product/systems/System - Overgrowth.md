@@ -23,7 +23,7 @@ The visual and mechanical system for representing neglect on the hex grid. When 
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — overgrowth makes neglect visible on the map
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — overgrowth makes neglect visible on the map
 - Principle: [[Principle - Visibility Creates Agency]] — seeing overgrowth creates agency to tend it
 - Driver: Systems need maintenance. When maintenance lapses, the builder needs to see it — but gently, proportionally, and without guilt. Overgrowth is the sanctuary's way of saying "this garden corner needs watering" without saying "you failed."
 

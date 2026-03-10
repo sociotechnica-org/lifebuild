@@ -11,13 +11,13 @@ The builder's Librarian — a steward who records, remembers, and finds patterns
 - Manages: Completed projects, uprooted systems, historical data
 - Manages: Historical Charter versions
 - Coordinates with: [[Agent - Jarvis]] — feeds pattern analysis for strategic conversations; [[Agent - Marvin]] — provides project history, precedent data, and historical performance data for priority scoring
-- Implements: [[Strategy - AI as Teammates]] — institutional memory
+- Implements: [[Product Thesis - AI as Teammates]] — institutional memory
 - Implements: [[Principle - Compound Capability]] — knowledge compounds over time
 - Feeds: [[Standard - Knowledge Framework]] — historical patterns
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — teammates have memory
+- Product Thesis: [[Product Thesis - AI as Teammates]] — teammates have memory
 - Principle: [[Principle - Compound Capability]] — accumulated wisdom creates value
 - Driver: Builders need institutional memory. Conan ensures nothing is lost and patterns surface.
 

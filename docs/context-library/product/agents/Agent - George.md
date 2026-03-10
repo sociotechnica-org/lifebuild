@@ -11,12 +11,12 @@ The Factory Foreman who manages the software factory floor — the production sy
 - Manages: Factory metrics (WIP Balance, Blocked Count, Decision Velocity, Cycle Time, First-Pass Yield, ECO Rate)
 - Manages: Shift plans and resource allocation recommendations
 - Coordinates with: [[Agent - Conan]] — routes PATCH station work to Conan for context library updates; [[Agent - Sam]] — routes MAKE station work to Sam for implementation; Human operators — routes DECIDE station work to the right person
-- Implements: [[Strategy - AI as Teammates]] — operational intelligence
+- Implements: [[Product Thesis - AI as Teammates]] — operational intelligence
 - Feeds: Factory dashboard snapshots for historical trend analysis
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — teammates manage operations, not just tasks
+- Product Thesis: [[Product Thesis - AI as Teammates]] — teammates manage operations, not just tasks
 - Driver: A software factory without a foreman is just a backlog. George ensures work flows through stations in the right order, resources go where they're needed, and bottlenecks get found before the whole line stops.
 
 ## WHEN: Timeline

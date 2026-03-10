@@ -17,14 +17,14 @@ The spatial organization canvas that fills most of the Life Map — a tessellate
   - [[Standard - Visual Language]] — colors, states, indicators
   - [[Standard - Spatial Interaction Rules]] — builder-driven placement, no auto-organization
 - Implements:
-  - [[Strategy - Spatial Visibility]] — work has spatial position
+  - [[Product Thesis - Spatial Visibility]] — work has spatial position
   - [[Principle - Bidirectional Loop]] — arrangement reflects and shapes understanding
   - [[Principle - Visual Recognition]] — spatial memory for navigation
 - Uses: [[Capability - Zoom Navigation]] — scale changes what's visible
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — hexagons are the spatial unit
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — hexagons are the spatial unit
 - Principle: [[Principle - Visual Recognition]] — "my health stuff is upper-left" becomes automatic
 - Principle: [[Principle - Familiarity Over Function]] — spatial metaphor feels natural
 - Decision: Hexagons (not squares) because they tessellate without privileged axes. Every hex has six equal neighbors — no "up is better than sideways" bias.

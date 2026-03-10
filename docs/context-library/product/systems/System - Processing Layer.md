@@ -14,7 +14,7 @@ The deterministic computation engine that transforms raw builder data into State
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — agents need processed intelligence
+- Product Thesis: [[Product Thesis - AI as Teammates]] — agents need processed intelligence
 - Principle: [[Principle - Compound Capability]] — processing layer compounds agent effectiveness by doing math once, not per-agent
 - Driver: Separation of concerns. Deterministic logic (calibration math, pattern detection) shouldn't consume agent context windows. Agents add judgment and conversation quality.
 - Decision: State Summaries ~250 tokens. Compact enough for agent context, rich enough for personalized service.

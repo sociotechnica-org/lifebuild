@@ -26,7 +26,7 @@ A macro engagement loop on a ~12-week cadence — four seasons per year, each wi
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Superior Process]] — seasonal rhythm prevents burnout and creates natural reflection points
+- Product Thesis: [[Product Thesis - Superior Process]] — seasonal rhythm prevents burnout and creates natural reflection points
 - Principle: [[Principle - Plans Are Hypotheses]] — seasonal boundaries are natural points to reassess direction
 - Driver: Builders need a rhythm longer than individual expeditions but shorter than a year. Seasons create natural cadence for planting, executing, harvesting, and resting — preventing the "always pushing" pattern that leads to capacity collapse.
 

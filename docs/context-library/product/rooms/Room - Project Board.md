@@ -22,11 +22,11 @@ The detail overlay that opens when a builder clicks any project tile — a focus
   - [[Standard - Project States]] — shows current state, enables transitions
   - [[Standard - Image Evolution]] — shows current illustration stage
   - [[Standard - Visual Language]] — project state indicators, category colors
-- Implements: [[Strategy - Superior Process]] — detailed work needs detailed view
+- Implements: [[Product Thesis - Superior Process]] — detailed work needs detailed view
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — detailed work needs detailed view
+- Product Thesis: [[Product Thesis - Superior Process]] — detailed work needs detailed view
 - Principle: [[Principle - Familiarity Over Function]] — board metaphor feels natural for project management
 - Driver: Builders need to work on projects, not just see them. The Project Board is the workspace within the workspace.
 - Constraints: Project Board is for working within a single project. Cross-project decisions happen on [[Overlay - The Table]] and in the [[Room - Sorting Room]], not here. Overlay behavior preserves spatial context.

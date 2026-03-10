@@ -16,7 +16,7 @@ The ordered repository of all fully-planned work ready for activation, organized
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — structured prioritization replaces reactive decision-making
+- Product Thesis: [[Product Thesis - Superior Process]] — structured prioritization replaces reactive decision-making
 - Principle: [[Principle - Protect Transformation]] — stream organization prevents Bronze from crowding Gold/Silver
 - Decision: Separating Planning Queue from Priority Queue creates psychological safety — capture ideas quickly without immediately prioritizing.
 

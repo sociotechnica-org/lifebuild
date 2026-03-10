@@ -32,12 +32,12 @@ The invisible mechanism governing how weekly commitments change after planning. 
   - [[Agent - Marvin]] — supports transitions, no judgment
 - Rationale:
   - [[Principle - Plans Are Hypotheses]] — adaptation is expected
-  - [[Strategy - Superior Process]] — structured flexibility
+  - [[Product Thesis - Superior Process]] — structured flexibility
 
 ## WHY: Rationale
 
 - Principle: [[Principle - Plans Are Hypotheses]] — plans change; that's leadership, not failure
-- Strategy: [[Strategy - Superior Process]] — adaptation has structure, not chaos
+- Product Thesis: [[Product Thesis - Superior Process]] — adaptation has structure, not chaos
 - Driver: Life doesn't wait for Friday planning. Builders need to respond to change without guilt or friction.
 - Constraints: Adaptation carries no guilt tax. The system never frames mid-week changes as failure. Modification UI feels like adjusting strategy, not editing a failure report.
 

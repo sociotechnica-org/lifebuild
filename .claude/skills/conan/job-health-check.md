@@ -75,9 +75,9 @@ Standards without conforming cards: [list]
 Standards missing anti-examples: [list]
 ```
 
-### Phase 4: Strategy/Principle Health
+### Phase 4: Product Thesis/Principle Health
 
-Spot-check ALL Strategy and Principle notes.
+Spot-check ALL Product Thesis and Principle notes.
 
 | Check         | Pass Criteria                                   |
 | ------------- | ----------------------------------------------- |
@@ -89,7 +89,7 @@ Spot-check ALL Strategy and Principle notes.
 **Output:**
 
 ```
-## Strategy/Principle Health
+## Product Thesis/Principle Health
 
 | Card | WHAT | WHY | Anti-patterns | Downstream | Verdict |
 |------|------|-----|---------------|------------|---------|
@@ -135,7 +135,7 @@ For weak product-layer cards, trace upstream:
 
 ```
 Card weak on WHY?
-    └─ Check linked Strategy/Principle
+    └─ Check linked Product Thesis/Principle
         └─ Stub? → Upstream fix
         └─ Substantive? → Card-level fix
 
@@ -174,7 +174,7 @@ Scope: [full library / zone]
 |-------|--------|-----------|
 | Source Alignment | [Good/Drift/Gap] | |
 | Standards | [n]/[total] pass | |
-| Strategy/Principles | [n]/[total] pass | |
+| Product Thesis/Principles | [n]/[total] pass | |
 | Product Layer (sampled) | [grade] | |
 
 Overall: [Healthy / Needs Work / Critical]
@@ -188,7 +188,7 @@ Overall: [Healthy / Needs Work / Critical]
 ## Phase 3: Standards
 [details]
 
-## Phase 4: Strategy/Principles
+## Phase 4: Product Thesis/Principles
 [details]
 
 ## Phase 5: Product Layer
@@ -220,7 +220,7 @@ Overall: [Healthy / Needs Work / Critical]
 
 | Level      | Definition                                                                           |
 | ---------- | ------------------------------------------------------------------------------------ |
-| Healthy    | >80% Standards pass, >80% Strategy/Principles pass, Product layer sample averages B+ |
+| Healthy    | >80% Standards pass, >80% Product Thesis/Principles pass, Product layer sample averages B+ |
 | Needs Work | 60-80% pass rates, or Product layer sample averages B- to C+                         |
 | Critical   | <60% pass rates, or Product layer sample below C                                     |
 
@@ -228,6 +228,6 @@ Overall: [Healthy / Needs Work / Critical]
 
 - Upstream before downstream — always
 - Distinguish root causes from symptoms
-- Standards and Strategy gaps hurt most — prioritize finding them
+- Standards and Product Thesis gaps hurt most — prioritize finding them
 - Sample product-layer cards strategically — high-link cards reveal more
 - Anti-patterns gaps are fixable — flag but don't panic

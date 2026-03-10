@@ -190,18 +190,18 @@ Every card with a containment relationship must link to its parent.
 
 ---
 
-## Strategy/Principle Links (WHY Section)
+## Product Thesis/Principle Links (WHY Section)
 
 ```markdown
-- [[Strategy - X]] — this implements [principle] by [how]
+- [[Product Thesis - X]] — this implements [principle] by [how]
 - [[Principle - X]] — guidance driving [aspect] of this card
-- [[Strategy - X]] — philosophy behind [design choice]
+- [[Product Thesis - X]] — philosophy behind [design choice]
 ```
 
 **Examples:**
 
 ```markdown
-- [[Strategy - Visual Work]] — this implements visibility by showing queue state
+- [[Product Thesis - Visual Work]] — this implements visibility by showing queue state
 - [[Principle - Visual Recognition]] — guidance driving indicator design
 ```
 
@@ -267,7 +267,7 @@ Blocked by: [[X]] — can't proceed until [dependency resolved]
 | Depends on     | "provides", "must exist", "supplies"                              |
 | Depended on by | "uses this to", "displays", "built on"                            |
 | System         | "foundational mechanism", "cross-cutting"                         |
-| Strategy       | "implements [principle] by"                                       |
+| Product Thesis | "implements [principle] by"                                       |
 | Principle      | "guidance driving", "makes testable"                              |
 | Decision       | "key choice that", "decision determining"                         |
 | Temporal       | "supersedes", "enables", "blocked by"                             |

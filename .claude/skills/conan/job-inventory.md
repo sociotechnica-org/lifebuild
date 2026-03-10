@@ -30,7 +30,7 @@
 
 9. **Determine build order** — Sequence for Sam to build:
    - Standards first (they constrain everything)
-   - Strategy/Principles next (WHY upstream)
+   - Product Thesis/Principles next (WHY upstream)
    - Systems next (cross-cutting mechanisms)
    - Zones/Rooms (most-depended-on first)
    - Overlays, Structures, Artifacts, Capabilities
@@ -51,7 +51,7 @@ Date: [date]
 | Card | Source | Status | Classification Rationale |
 |------|--------|--------|-------------------------|
 
-### Strategy/Principles ([count])
+### Product Thesis/Principles ([count])
 | Card | Source | Status | Classification Rationale |
 |------|--------|--------|-------------------------|
 
@@ -111,7 +111,7 @@ Build in this sequence (most-depended-on first):
 | Order | Card | Rationale |
 |-------|------|-----------|
 
-### Phase 2: Strategy/Principles
+### Phase 2: Product Thesis/Principles
 | Order | Card | Rationale |
 |-------|------|-----------|
 

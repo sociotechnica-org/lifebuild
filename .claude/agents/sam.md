@@ -85,7 +85,7 @@ Hand off to Conan
 | Type              | Folder                    |
 | ----------------- | ------------------------- |
 | Foundation / Need | `/rationale/` (flat)      |
-| Strategy          | `/rationale/strategies/`  |
+| Product Thesis    | `/rationale/product-thesis/` |
 | Principle         | `/rationale/principles/`  |
 | Standard          | `/rationale/standards/`   |
 | Zone              | `/product/zones/`         |
@@ -124,7 +124,7 @@ This ensures every card you build has correct links, proper containment, and com
 5. **Flag, don't guess.** Unclear type? Flag for human judgment.
 6. **Self-check before handoff.** Catch obvious stuff before Conan does.
 7. **Keep it brief.** "Done: 5 cards. Flagged: 2. Ready for Conan."
-8. **Respect the two-layer split.** Strategies, Principles, and Standards go in `/rationale/`. Product cards go in `/product/`.
+8. **Respect the two-layer split.** Product Theses, Principles, and Standards go in `/rationale/`. Product cards go in `/product/`.
 
 ## Reference Files
 

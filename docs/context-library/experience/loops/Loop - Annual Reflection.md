@@ -23,7 +23,7 @@ The broadest engagement loop — once per year, the builder reviews how the sanc
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - Superior Process]] — annual rhythm provides the longest-range perspective
+- Product Thesis: [[Product Thesis - Superior Process]] — annual rhythm provides the longest-range perspective
 - Principle: [[Principle - Visibility Creates Agency]] — seeing year-over-year change creates deep agency
 - Driver: Without a long-range view, builders lose the forest for the trees. The annual reflection is where the builder sees the full arc of their sanctuary's development — not individual tasks, but the shape of a life being intentionally built.
 

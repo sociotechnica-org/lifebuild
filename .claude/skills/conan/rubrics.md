@@ -18,19 +18,19 @@ Failure example: "The settings for Bronze mode." → F (pointer, not definition)
 
 ## WHY
 
-Criteria: Strategy linked (with explanation), Rationale present, Driver traced
+Criteria: Product Thesis linked (with explanation), Rationale present, Driver traced
 
 | Grade | Criteria                                               |
 | ----- | ------------------------------------------------------ |
 | A     | Full causal chain. Alternatives/tensions acknowledged. |
-| B     | Strategy + driver + rationale. No tensions.            |
+| B     | Product Thesis + driver + rationale. No tensions.            |
 | C     | Thin explanation OR missing driver.                    |
 | D     | Vague strategy reference, no real rationale.           |
 | F     | Empty or no strategic connection.                      |
 
 **Trace Test:** Follow strategy links. If upstream is stub → penalize downstream card.
 
-Failure example: "Strategy: [[Visual Work]]" → D (naked link)
+Failure example: "Product Thesis: [[Visual Work]]" → D (naked link)
 
 ## WHERE
 
@@ -117,7 +117,7 @@ Flag during grading, don't halt. Complete grade + note AUDIT SIGNAL.
 - WHY focuses on belief/evidence, not driver
 - Must have "What Violating This Looks Like" section
 
-**Strategies:**
+**Product Theses:**
 
 - Must have "What Violating This Looks Like" section
 - WHY must have reasoning, not just assertion

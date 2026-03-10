@@ -14,7 +14,7 @@ The specification for how Work at Hand projects appear in two places simultaneou
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — work has spatial location AND priority status
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — work has spatial location AND priority status
 - Principle: [[Principle - Visibility Creates Agency]] — builder sees both where work lives (grid) and that it's prioritized (Table)
 - Decision: Same object rendered twice, not two objects synced. Ensures consistency.
 

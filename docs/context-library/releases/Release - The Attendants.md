@@ -88,7 +88,7 @@ The builder stops doing everything alone. Attendant agents — specialist AI wor
 | ---------------------------------- | ----------------------------------------- |
 | [[Room - Roster Room]]             | Core feature — launched                   |
 | [[Standard - Naming Architecture]] | Attendant tier fully activated            |
-| [[Strategy - AI as Teammates]]     | Advancing to L3.5 — agents with authority |
+| [[Product Thesis - AI as Teammates]]     | Advancing to L3.5 — agents with authority |
 | [[Standard - Service Levels]]      | Attendant-level service activated         |
 | [[Primitive - System]]             | Extended with delegation profiles         |
 

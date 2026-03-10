@@ -20,7 +20,7 @@ An individual hexagonal tile on the grid representing a single project or system
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — tiles are the atomic spatial unit
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — tiles are the atomic spatial unit
 - Principle: [[Principle - Visual Recognition]] — consistent tile format aids scanning
 - Driver: Builders need to recognize work at a glance. Tiles provide consistent, scannable representation.
 

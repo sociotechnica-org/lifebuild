@@ -50,7 +50,7 @@ Load the retrieval profile for the target type from `retrieval-profiles.md`. The
 
 1. Read each seed card in full
 2. Extract all `[[wikilinks]]` from seed cards — these are relationship edges
-3. Follow mandatory upstream links per the profile (Strategy/Principle chains, parent containers, conforming Standards)
+3. Follow mandatory upstream links per the profile (Product Thesis/Principle chains, parent containers, conforming Standards)
 4. `Grep` for the seed card names across the library to find cards that reference them (reverse edges)
 5. Stop at the hop depth specified by the profile
 
@@ -59,7 +59,7 @@ Load the retrieval profile for the target type from `retrieval-profiles.md`. The
 The retrieval profile lists mandatory card categories for the target type. Verify:
 
 - [ ] All mandatory categories have at least 1 card
-- [ ] WHY chain reaches at least one Strategy or Principle
+- [ ] WHY chain reaches at least one Product Thesis or Principle
 - [ ] Parent containers are included (Zone for Room, Room for Structure, etc.)
 
 If any mandatory category is missing, search specifically for it.
@@ -126,9 +126,9 @@ When your task is about the library itself (not assembling context for implement
 
 Additional references: `.claude/skills/conan/rubrics.md`, `.claude/skills/conan/grade-computation.md`
 
-**Build sequence:** Source Assessment → Inventory → Sam builds Standards → Spot-Check → Sam builds Strategy/Principles → Spot-Check → Sam builds product-layer cards → Grade → Fix cycle → **Downstream Sync**
+**Build sequence:** Source Assessment → Inventory → Sam builds Standards → Spot-Check → Sam builds Product Thesis/Principles → Spot-Check → Sam builds product-layer cards → Grade → Fix cycle → **Downstream Sync**
 
-**Assessment sequence:** Source Alignment → Inventory Reconciliation → Standards Health → Strategy/Principle Health → Product Layer Sampling → Cascade Analysis → **Downstream Sync**
+**Assessment sequence:** Source Alignment → Inventory Reconciliation → Standards Health → Product Thesis/Principle Health → Product Layer Sampling → Cascade Analysis → **Downstream Sync**
 
 **Auto-trigger rule:** After completing ANY maintenance job that changes library structure (new types, renames, folder changes, bulk card creation/deletion, template changes), ALWAYS run Job 9 (Downstream Sync) as the final step. Do not wait for the human to ask. This prevents meta-file drift.
 
@@ -154,7 +154,7 @@ Additional references: `.claude/skills/conan/rubrics.md`, `.claude/skills/conan/
 
 **Step 1: Is this about WHY we build?**
 
-- Guiding philosophy (a bet) → Strategy
+- Guiding philosophy (a bet) → Product Thesis
 - Judgment guidance (a rule of thumb) → Principle
 - Testable spec (concrete rules) → Standard
 
@@ -217,7 +217,7 @@ Apply IN ORDER. Each gate catches a common error pattern.
 | ----- | ---------------------------------------------------------- |
 | WHAT  | Standalone definition, no links needed to understand       |
 | WHERE | 3+ contextualized links, conformance links where obligated |
-| WHY   | Strategy/Principle link + driver                           |
+| WHY   | Product Thesis/Principle link + driver                     |
 | WHEN  | Temporal status or explicit N/A                            |
 | HOW   | Sufficient for builder to implement                        |
 
@@ -272,7 +272,7 @@ Commentary only below B. One sentence max. Rage through word choice, not volume.
 
 The Context Library lives at `docs/context-library/` with this structure:
 
-- `/rationale/` — Strategies, Principles, Standards (WHY layer)
+- `/rationale/` — Product Theses, Principles, Standards (WHY layer)
 - `/product/` — Zones, Rooms, Overlays, Structures, Components, Artifacts, Capabilities, Primitives, Systems, Agents (WHAT layer)
 - `/experience/` — Loops, Journeys, Aesthetics, Dynamics (experience layer — how the product feels over time)
 - `/temporal/` — Decision, Initiative, Future cards

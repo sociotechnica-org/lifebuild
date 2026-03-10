@@ -10,13 +10,13 @@ The specification for visual vocabulary across all LifeBuild interfaces — cate
 - Conforming components: [[Component - Hex Tile]], [[Component - Gold Position]], [[Component - Silver Position]], [[Component - Bronze Position]]
 - Implements: [[Principle - Visual Recognition]] — instant identification without inspection
 - Implements: [[Principle - Visibility Creates Agency]] — state visible at a glance
-- Advances: [[Strategy - Spatial Visibility]] — spatial organization requires visual clarity
+- Advances: [[Product Thesis - Spatial Visibility]] — spatial organization requires visual clarity
 - Related: [[Standard - Image Evolution]] — project illustration progression
 - Related: [[Standard - Life Categories]] — category-to-color mapping
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — visibility requires legibility
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — visibility requires legibility
 - Principle: [[Principle - Visual Recognition]] — two-second identification test
 - Decision: Content-depicting illustrations over abstract patterns. Recognition trumps beauty.
 

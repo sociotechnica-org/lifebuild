@@ -18,7 +18,7 @@ Location: `docs/context-library/`
 
 | Layer     | Folder                   | Types                        |
 | --------- | ------------------------ | ---------------------------- |
-| Rationale | `/rationale/strategies/` | Strategy (3)                 |
+| Rationale | `/rationale/product-thesis/` | Product Thesis (5)          |
 | Rationale | `/rationale/principles/` | Principle (15)               |
 | Rationale | `/rationale/standards/`  | Standard (16)                |
 | Product   | `/product/zones/`        | Zone (3)                     |
@@ -39,7 +39,7 @@ Every card has 5 dimensions:
 
 - **WHAT** — Standalone definition
 - **WHERE** — Ecosystem relationships via `[[wikilinks]]`
-- **WHY** — Strategic rationale (links to Strategies/Principles)
+- **WHY** — Strategic rationale (links to Product Theses/Principles)
 - **WHEN** — Build phase, implementation status, reality notes
 - **HOW** — Implementation guidance, examples, anti-patterns
 
@@ -74,7 +74,7 @@ See `protocol.md` for the CONTEXT_BRIEFING.md format.
 ## Quick Reference: Upstream Chain
 
 ```
-Strategy (WHY we care)
+Product Thesis (WHY we care)
     ↓ generates
 Principle (judgment guidance)
     ↓ implemented by
@@ -89,4 +89,4 @@ Primitive (core data entity)
 Agent (AI team member)
 ```
 
-Every product-layer card should trace back to at least one Strategy via its WHY chain. If it can't, that's a gap worth noting.
+Every product-layer card should trace back to at least one Product Thesis via its WHY chain. If it can't, that's a gap worth noting.

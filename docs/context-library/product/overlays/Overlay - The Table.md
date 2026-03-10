@@ -31,8 +31,8 @@ A persistent priority spotlight that sits at the top of the Life Map, displaying
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — priority visible at all times
-- Strategy: [[Strategy - Superior Process]] — structured weekly commitment
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — priority visible at all times
+- Product Thesis: [[Product Thesis - Superior Process]] — structured weekly commitment
 - Principle: [[Principle - Protect Transformation]] — Gold/Silver slots protected from Bronze overflow
 - Principle: [[Principle - Empty Slots Strategic]] — empty positions are valid choices
 - Driver: Builders need constant awareness of what they've committed to this week. The Table is the answer to "what am I working on right now?"

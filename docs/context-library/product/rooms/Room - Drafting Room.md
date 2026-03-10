@@ -15,14 +15,14 @@ Marvin's dedicated space — where builders create new projects and systems, gui
 - Conforms to:
   - [[Standard - Visual Language]] — creation stage visual treatments
 - Implements: [[System - Four-Stage Creation]] — guided process
-- Implements: [[Strategy - Superior Process]] — structured project development
+- Implements: [[Product Thesis - Superior Process]] — structured project development
 - Implements: [[Principle - Earn Don't Interrogate]] — progressive capture
 - Creates: [[Primitive - Project]] — output of project creation flow
 - Creates: [[Primitive - System]] — output of system creation flow
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — creation deserves structure
+- Product Thesis: [[Product Thesis - Superior Process]] — creation deserves structure
 - Principle: [[Principle - Earn Don't Interrogate]] — Marvin guides without blocking
 - Driver: Builders need help turning ideas into actionable projects. The Drafting Room provides that translation.
 - Constraints: Drafting Room translates ideas into projects or systems without judging them. Marvin guides structure, not evaluates worth. Quick capture is always available.
