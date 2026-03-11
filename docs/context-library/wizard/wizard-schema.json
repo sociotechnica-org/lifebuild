@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "context-library-wizard/v1",
+  "title": "Context Library Wizard Schema",
+  "description": "Input/output contract for the Context Library Wizard engine",
+
+  "$defs": {
+    "ai_mode": {
+      "type": "string",
+      "enum": ["no_low_ai", "short_order_cook", "pair_programmer", "factory"],
+      "description": "How much product decision authority AI builders have"
+    },
+    "novelty_level": {
+      "type": "string",
+      "enum": ["low", "moderate", "high"],
+      "description": "How novel the product is relative to established categories"
+    },
+    "complexity_level": {
+      "type": "string",
+      "enum": ["low", "moderate", "high"],
+      "description": "How interconnected the product's features and systems are"
+    },
+    "tier": {
+      "type": "string",
+      "enum": ["foundation", "core", "amplifier", "deprioritized"],
+      "description": "Priority tier for seeding a knowledge area"
+    },
+    "area_id": {
+      "type": "string",
+      "description": "Knowledge area identifier (e.g., '1.1', '2.3', '5.2+5.4')",
+      "pattern": "^[0-9]+\\.[0-9]+(\\+[0-9]+\\.[0-9]+)?$"
+    },
+    "area_recommendation": {
+      "type": "object",
+      "properties": {
+        "id": { "$ref": "#/$defs/area_id" },
+        "name": { "type": "string" },
+        "domain": { "type": "string" },
+        "tier": { "$ref": "#/$defs/tier" },
+        "description": {
+          "type": "string",
+          "description": "What this knowledge area covers"
+        },
+        "when_missing": {
+          "type": "string",
+          "description": "What goes wrong without this knowledge"
+        }
+      },
+      "required": ["id", "name", "domain", "tier", "description", "when_missing"],
+      "additionalProperties": false
+    },
+    "gap_status": {
+      "type": "string",
+      "enum": ["absent", "partial", "present"],
+      "description": "Whether the team has this knowledge documented"
+    },
+    "freshness": {
+      "type": "string",
+      "enum": ["fresh", "stale", "unknown"],
+      "description": "How current the existing documentation is"
+    }
+  },
+
+  "type": "object",
+  "properties": {
+    "input": {
+      "type": "object",
+      "description": "The three wizard inputs",
+      "properties": {
+        "ai_mode": { "$ref": "#/$defs/ai_mode" },
+        "novelty": { "$ref": "#/$defs/novelty_level" },
+        "complexity": { "$ref": "#/$defs/complexity_level" }
+      },
+      "required": ["ai_mode", "novelty", "complexity"],
+      "additionalProperties": false
+    },
+
+    "output": {
+      "type": "object",
+      "description": "The wizard's recommendation",
+      "properties": {
+        "mode_narrative": {
+          "type": "object",
+          "properties": {
+            "mode": { "$ref": "#/$defs/ai_mode" },
+            "label": { "type": "string" },
+            "risk": {
+              "type": "string",
+              "description": "Primary risk this mode addresses"
+            },
+            "story": {
+              "type": "string",
+              "description": "One-sentence description of what the library serves"
+            },
+            "pool_size": {
+              "type": "integer",
+              "minimum": 10,
+              "maximum": 22
+            }
+          },
+          "required": ["mode", "label", "risk", "story", "pool_size"],
+          "additionalProperties": false
+        },
+
+        "recommendations": {
+          "type": "array",
+          "description": "Tier-sorted list of knowledge area recommendations",
+          "items": { "$ref": "#/$defs/area_recommendation" },
+          "minItems": 10,
+          "maxItems": 22
+        },
+
+        "distribution": {
+          "type": "object",
+          "description": "Count of areas per tier",
+          "properties": {
+            "foundation": { "type": "integer", "minimum": 0 },
+            "core": { "type": "integer", "minimum": 0 },
+            "amplifier": { "type": "integer", "minimum": 0 },
+            "deprioritized": { "type": "integer", "minimum": 0 }
+          },
+          "required": ["foundation", "core", "amplifier", "deprioritized"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["mode_narrative", "recommendations", "distribution"],
+      "additionalProperties": false
+    },
+
+    "intake": {
+      "type": "object",
+      "description": "Optional: team's existing knowledge declaration for gap analysis",
+      "properties": {
+        "existing_knowledge": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "area_id": { "$ref": "#/$defs/area_id" },
+              "status": { "$ref": "#/$defs/gap_status" },
+              "freshness": { "$ref": "#/$defs/freshness" },
+              "notes": {
+                "type": "string",
+                "description": "Free-text description of what exists"
+              }
+            },
+            "required": ["area_id", "status"],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": ["existing_knowledge"],
+      "additionalProperties": false
+    },
+
+    "gap_analysis": {
+      "type": "object",
+      "description": "Output of the intake/gap analysis engine",
+      "properties": {
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "area_id": { "$ref": "#/$defs/area_id" },
+              "name": { "type": "string" },
+              "recommended_tier": { "$ref": "#/$defs/tier" },
+              "current_status": { "$ref": "#/$defs/gap_status" },
+              "current_freshness": { "$ref": "#/$defs/freshness" },
+              "priority_score": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "description": "Composite priority: tier weight × gap severity × freshness penalty"
+              },
+              "action": {
+                "type": "string",
+                "enum": ["create", "update", "refresh", "none"],
+                "description": "Recommended action based on gap analysis"
+              },
+              "impact_statement": {
+                "type": "string",
+                "description": "What seeding this area will improve, specific to the team's configuration"
+              }
+            },
+            "required": ["area_id", "name", "recommended_tier", "current_status", "priority_score", "action"],
+            "additionalProperties": false
+          }
+        },
+        "sequence": {
+          "type": "array",
+          "description": "Ordered list of area IDs — the recommended seeding sequence",
+          "items": { "$ref": "#/$defs/area_id" }
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "total_areas": { "type": "integer" },
+            "gaps_to_fill": { "type": "integer" },
+            "areas_to_refresh": { "type": "integer" },
+            "areas_complete": { "type": "integer" }
+          },
+          "required": ["total_areas", "gaps_to_fill", "areas_to_refresh", "areas_complete"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["gaps", "sequence", "summary"],
+      "additionalProperties": false
+    }
+  },
+  "required": ["input", "output"]
+}

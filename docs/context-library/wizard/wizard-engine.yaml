@@ -1,0 +1,531 @@
+# Context Library Wizard Engine
+# Version: 1.0.0
+# Generated from Phase 1-4 specifications
+#
+# This file contains all data needed to generate wizard recommendations.
+# A UI consumes this file and produces a prioritized knowledge list
+# for any (mode, novelty, complexity) input.
+
+# ─────────────────────────────────────────────
+# CATALOG: The 22 knowledge areas
+# ─────────────────────────────────────────────
+
+catalog:
+  - id: "1.1"
+    name: "Product Vision"
+    domain: "Vision & Strategy"
+    description: "One sentence: what is this and why does it exist? Target user. Core value proposition."
+    when_missing: "The library has no anchor. Every card is based on inferences, producing technically accurate but strategically hollow knowledge."
+
+  - id: "1.2"
+    name: "Product Strategy"
+    domain: "Vision & Strategy"
+    description: "The bets the team is making. Trade-offs. What they're optimizing for and what they're sacrificing."
+    when_missing: "People optimize for different outcomes and don't realize they disagree."
+    note: "Strategy is the floor; Product Thesis (testable, falsifiable claims with counter-theses and validation criteria) is the ceiling."
+
+  - id: "1.3"
+    name: "User Personas / JTBD"
+    domain: "Vision & Strategy"
+    description: "Who uses this? What outcomes do they want? What context are they in?"
+    when_missing: "Builders create features for imagined users that don't match real ones."
+
+  - id: "1.4"
+    name: "Competitive Analysis"
+    domain: "Vision & Strategy"
+    description: "What exists in the space? What's the differentiated position?"
+    when_missing: "Builders create category-generic features instead of differentiated ones."
+
+  - id: "1.5"
+    name: "Market Requirements"
+    domain: "Vision & Strategy"
+    description: "User research, surveys, interviews, analytics. The evidence behind the strategy."
+    when_missing: "Decisions are based on beliefs rather than evidence."
+
+  - id: "2.1"
+    name: "Information Architecture"
+    domain: "Architecture & Nouns"
+    description: "What screens or spaces exist? How does the user navigate? What's the hierarchy?"
+    when_missing: "Builders organize things differently, producing inconsistent navigation."
+
+  - id: "2.2"
+    name: "Noun Vocabulary"
+    domain: "Architecture & Nouns"
+    description: "What do we call things? The metaphor family and why it was chosen."
+    when_missing: "Two builders working on adjacent features call the same thing by different names."
+
+  - id: "2.3"
+    name: "Product Entities"
+    domain: "Architecture & Nouns"
+    description: "The core objects: what entities exist, what are their attributes, how do they relate?"
+    when_missing: "Product objects are reimplemented inconsistently each time they're touched."
+
+  - id: "2.4"
+    name: "System Design"
+    domain: "Architecture & Nouns"
+    description: "How do invisible product mechanisms work? Scoring, progression, recommendations, state machines."
+    when_missing: "Invisible mechanisms are reimplemented differently each time they're touched."
+
+  - id: "2.5"
+    name: "Full GDD / PRD"
+    domain: "Architecture & Nouns"
+    description: "Comprehensive product specification covering all features, behaviors, edge cases."
+    when_missing: "Edge cases are handled inconsistently or not at all."
+
+  - id: "3.1"
+    name: "User Journey Maps"
+    domain: "Experience & Feel"
+    description: "End-to-end flows for key scenarios. First-time experience. Daily use. Error recovery."
+    when_missing: "Individual screens work but the end-to-end flow feels disconnected."
+
+  - id: "3.2"
+    name: "Emotional / Aesthetic Goals"
+    domain: "Experience & Feel"
+    description: "How should this product feel? What adjectives describe the ideal experience?"
+    when_missing: "The product is functionally correct but emotionally flat."
+
+  - id: "3.3"
+    name: "Engagement Loops"
+    domain: "Experience & Feel"
+    description: "What brings people back? The daily, weekly, or seasonal rhythm."
+    when_missing: "The product is used once but doesn't become a habit."
+
+  - id: "3.4"
+    name: "Progression / Mastery"
+    domain: "Experience & Feel"
+    description: "How does the experience deepen over time? What unlocks? Day 1 vs. month 6."
+    when_missing: "The experience feels the same at month 6 as day 1."
+
+  - id: "3.5"
+    name: "Anti-Patterns"
+    domain: "Experience & Feel"
+    description: "Explicit 'this is not that' statements. The guardrails that define identity by exclusion."
+    when_missing: "Builders default to conventions of whatever product category they're most familiar with."
+
+  - id: "4.1"
+    name: "Design System"
+    domain: "Visual & Interaction"
+    description: "Colors, typography, spacing, component specs. The visual language."
+    when_missing: "Multiple builders produce screens that look like they belong to different products."
+
+  - id: "4.2"
+    name: "Interaction Patterns"
+    domain: "Visual & Interaction"
+    description: "How do drag-and-drop, modals, transitions, and gestures work?"
+    when_missing: "Interactions feel inconsistent across the product."
+
+  - id: "4.3"
+    name: "Prototypes / Mockups"
+    domain: "Visual & Interaction"
+    description: "Visual references for what screens look like. Figma files, screenshots, Storybook stories."
+    when_missing: "Builders guess at layout and visual design, producing inconsistent results."
+
+  - id: "4.4"
+    name: "Accessibility Standards"
+    domain: "Visual & Interaction"
+    description: "WCAG level, screen reader requirements, keyboard navigation, color contrast minimums."
+    when_missing: "Accessibility is applied inconsistently or forgotten entirely."
+
+  - id: "5.1"
+    name: "Key Decisions Log"
+    domain: "Decision History"
+    description: "What was decided, when, and why. Especially: what was rejected and why."
+    when_missing: "Settled decisions get relitigated. Past mistakes get repeated."
+
+  - id: "5.2+5.4"
+    name: "Institutional Memory"
+    domain: "Decision History"
+    description: "Lessons learned, postmortems, failed approaches, historic documents."
+    when_missing: "The most expensive failure: weeks rediscovering that an approach doesn't work."
+
+  - id: "5.3"
+    name: "Roadmap"
+    domain: "Decision History"
+    description: "What's coming. What's explicitly deferred. Release sequence."
+    when_missing: "Builders design features that conflict with planned work."
+
+# ─────────────────────────────────────────────
+# POOLS: Which areas enter at which mode
+# ─────────────────────────────────────────────
+
+pools:
+  no_low_ai:
+    size: 10
+    areas: ["1.1", "1.2", "1.3", "2.1", "2.2", "3.1", "3.2", "3.5", "4.1", "5.1"]
+
+  short_order_cook:
+    size: 13
+    adds: ["2.3", "4.2", "4.3"]
+    areas: ["1.1", "1.2", "1.3", "2.1", "2.2", "2.3", "3.1", "3.2", "3.5", "4.1", "4.2", "4.3", "5.1"]
+
+  pair_programmer:
+    size: 18
+    adds: ["1.4", "2.4", "3.3", "3.4", "5.3"]
+    areas: ["1.1", "1.2", "1.3", "1.4", "2.1", "2.2", "2.3", "2.4", "3.1", "3.2", "3.3", "3.4", "3.5", "4.1", "4.2", "4.3", "5.1", "5.3"]
+
+  factory:
+    size: 22
+    adds: ["1.5", "2.5", "4.4", "5.2+5.4"]
+    areas: ["1.1", "1.2", "1.3", "1.4", "1.5", "2.1", "2.2", "2.3", "2.4", "2.5", "3.1", "3.2", "3.3", "3.4", "3.5", "4.1", "4.2", "4.3", "4.4", "5.1", "5.2+5.4", "5.3"]
+
+# ─────────────────────────────────────────────
+# FOUNDATION: Mode-dependent foundation areas
+# ─────────────────────────────────────────────
+
+foundation:
+  no_low_ai: ["1.1", "1.2", "2.2"]
+  short_order_cook: ["1.1", "2.2", "4.1"]
+  pair_programmer: ["1.1", "1.2", "2.2", "3.5"]
+  factory: ["1.1", "1.2", "2.2", "3.2", "3.5"]
+
+# ─────────────────────────────────────────────
+# SENSITIVITY PROFILES
+# ─────────────────────────────────────────────
+#
+# Each profile maps High/Moderate/Low to an implied tier.
+# null means the profile doesn't apply (area is insensitive on that axis).
+# Combination rule: final = max(novelty_tier, complexity_tier, floor)
+
+novelty_profiles:
+  # N+strong: identity knowledge, critical at high novelty
+  strong_positive:
+    high: "core"
+    moderate: "amplifier"
+    low: "deprioritized"
+
+  # N+mild: important at high+moderate, less at low
+  mild_positive:
+    high: "core"
+    moderate: "core"
+    low: "amplifier"
+
+  # N-standard: inversely sensitive, MORE important at low novelty
+  inverse_standard:
+    high: "amplifier"
+    moderate: "core"
+    low: "core"
+
+  # N-delayed: inversely sensitive with delay
+  inverse_delayed:
+    high: "amplifier"
+    moderate: "amplifier"
+    low: "core"
+
+complexity_profiles:
+  # C+strong: structural knowledge, critical at high complexity
+  strong:
+    high: "core"
+    moderate: "amplifier"
+    low: "deprioritized"
+
+  # C+moderate: important at high+moderate
+  moderate:
+    high: "core"
+    moderate: "core"
+    low: "amplifier"
+
+  # C+mild: important at high, baseline otherwise
+  mild:
+    high: "core"
+    moderate: "amplifier"
+    low: "amplifier"
+
+# ─────────────────────────────────────────────
+# AREA PROFILES: sensitivity + floor per mode
+# ─────────────────────────────────────────────
+#
+# Each area has:
+#   novelty: profile name or null
+#   complexity: profile name or null
+#   floors: minimum tier per mode (only listed where not "deprioritized")
+
+area_profiles:
+  "1.1":
+    # Product Vision — always Foundation, handled by foundation table
+    novelty: null
+    complexity: null
+
+  "1.2":
+    # Product Strategy — Foundation at 3 modes, Core at Short-Order Cook
+    novelty: null
+    complexity: null
+    floors:
+      short_order_cook: "amplifier"  # never below A when not Foundation
+
+  "1.3":
+    # User Personas
+    novelty: "mild_positive"
+    complexity: null
+    floors:
+      no_low_ai: "amplifier"
+      short_order_cook: "amplifier"
+      pair_programmer: "amplifier"
+      factory: "amplifier"
+
+  "1.4":
+    # Competitive Analysis — inversely novelty-sensitive
+    novelty: "inverse_standard"
+    complexity: null
+    floors:
+      pair_programmer: "amplifier"
+      factory: "amplifier"
+
+  "1.5":
+    # Market Requirements — inversely novelty-sensitive, delayed
+    novelty: "inverse_delayed"
+    complexity: null
+    floors:
+      factory: "amplifier"
+
+  "2.1":
+    # Information Architecture
+    novelty: null
+    complexity: "strong"
+    floors:
+      pair_programmer: "amplifier"
+      factory: "amplifier"
+
+  "2.2":
+    # Noun Vocabulary — always Foundation
+    novelty: null
+    complexity: null
+
+  "2.3":
+    # Product Entities
+    novelty: null
+    complexity: "moderate"
+    floors:
+      short_order_cook: "amplifier"
+      pair_programmer: "amplifier"
+      factory: "amplifier"
+
+  "2.4":
+    # System Design
+    novelty: null
+    complexity: "moderate"
+    floors:
+      pair_programmer: "amplifier"
+      factory: "amplifier"
+
+  "2.5":
+    # Full GDD / PRD
+    novelty: null
+    complexity: "strong"
+    # No elevated floor — can be deprioritized at Factory low-complexity
+
+  "3.1":
+    # User Journey Maps
+    novelty: null
+    complexity: "strong"
+    # Floor handled by override for Pair Programmer novelty-gating
+
+  "3.2":
+    # Emotional Goals — Foundation at Factory, N+strong elsewhere
+    novelty: "strong_positive"
+    complexity: null
+
+  "3.3":
+    # Engagement Loops
+    novelty: null
+    complexity: "strong"
+
+  "3.4":
+    # Progression / Mastery — ANOMALY, uses lookup table
+    novelty: null
+    complexity: null
+    # See progression_lookup below
+
+  "3.5":
+    # Anti-Patterns — Foundation at PP+Factory, N+strong elsewhere
+    novelty: "strong_positive"
+    complexity: null
+
+  "4.1":
+    # Design System — activity-dependent, handled by floors + override
+    novelty: null
+    complexity: null
+    floors:
+      no_low_ai: "amplifier"
+      # short_order_cook: Foundation (in foundation table)
+      pair_programmer: "core"
+      factory: "core"
+
+  "4.2":
+    # Interaction Patterns
+    novelty: null
+    complexity: "moderate"
+    floors:
+      short_order_cook: "amplifier"
+      pair_programmer: "amplifier"
+      factory: "amplifier"
+
+  "4.3":
+    # Prototypes / Mockups — always Core when in pool
+    novelty: null
+    complexity: null
+    floors:
+      short_order_cook: "core"
+      pair_programmer: "core"
+      factory: "core"
+
+  "4.4":
+    # Accessibility Standards
+    novelty: null
+    complexity: "moderate"
+    floors:
+      factory: "amplifier"
+
+  "5.1":
+    # Key Decisions Log
+    novelty: null
+    complexity: "moderate"
+    floors:
+      no_low_ai: "amplifier"
+      short_order_cook: "amplifier"
+      pair_programmer: "amplifier"
+      factory: "amplifier"
+
+  "5.2+5.4":
+    # Institutional Memory
+    novelty: null
+    complexity: "mild"
+    floors:
+      factory: "amplifier"
+
+  "5.3":
+    # Roadmap
+    novelty: null
+    complexity: "moderate"
+    floors:
+      pair_programmer: "amplifier"
+      factory: "amplifier"
+
+# ─────────────────────────────────────────────
+# OVERRIDES
+# ─────────────────────────────────────────────
+
+# Progression / Mastery: interaction effect, can't decompose into independent profiles
+progression_lookup:
+  high_high: "core"
+  high_moderate: "core"
+  high_low: "core"
+  moderate_high: "amplifier"
+  moderate_moderate: "amplifier"
+  moderate_low: "deprioritized"
+  low_high: "amplifier"
+  low_moderate: "deprioritized"
+  low_low: "deprioritized"
+
+# Journey Maps at Pair Programmer: novelty-gated floor
+# Standard C+strong applies, but floor is A unless novelty is Low
+journey_maps_pair_programmer_override:
+  description: "At Pair Programmer, Journey Maps floor is Amplifier unless novelty is Low"
+  rule: "if mode == pair_programmer and area == 3.1: floor = (novelty == low) ? deprioritized : amplifier"
+
+# Design System at No/Low AI: complexity-sensitive (only at this mode)
+design_system_no_low_ai_override:
+  description: "At No/Low AI, Design System is Core at high complexity, Amplifier otherwise"
+  rule: "if mode == no_low_ai and area == 4.1: tier = (complexity == high) ? core : amplifier"
+
+# ─────────────────────────────────────────────
+# QUESTIONS: User-facing wizard interface
+# ─────────────────────────────────────────────
+
+questions:
+  - id: "ai_mode"
+    order: 1
+    question: "How much product decision authority do your AI builders have?"
+    determines: "Knowledge pool ceiling — which areas are relevant for your team"
+    options:
+      - value: "no_low_ai"
+        label: "No/Low AI"
+        guidance: "A product person is present for every product decision. AI helps with autocomplete or brainstorming, but a human decides how things look, feel, and behave."
+      - value: "short_order_cook"
+        label: "Short-Order Cook"
+        guidance: "A product person scopes each task explicitly. The AI executes bounded work — 'build this modal,' 'add this validation' — but doesn't decide what to build or how it should feel."
+      - value: "pair_programmer"
+        label: "Pair Programmer"
+        guidance: "AI participates in design discussions. It proposes alternatives, evaluates trade-offs, and helps shape features — but a product person reviews and approves."
+      - value: "factory"
+        label: "Factory"
+        guidance: "AI is the primary implementer. It decides empty state copy, error message tone, default settings, information hierarchy — product micro-decisions that happen hundreds of times with no product person reviewing each one."
+    disambiguation: "Think about the last 10 product decisions that were made (what copy to use, how a screen is laid out, what the default behavior is). How many of those did a product person explicitly make vs. how many did the builder decide on their own?"
+
+  - id: "novelty"
+    order: 2
+    question: "If you described your product in one sentence, would someone from your industry correctly guess what using it feels like?"
+    determines: "Which identity and experience knowledge areas are prioritized"
+    options:
+      - value: "low"
+        label: "Low — Established Category"
+        guidance: "We're in a well-known category. If I say 'it's a CRM' or 'it's a todo app,' people immediately picture something close to what we're building."
+      - value: "moderate"
+        label: "Moderate — Familiar Space, Novel Approach"
+        guidance: "People recognize the space but not our approach. They'd get the purpose right but picture something very different from what we're actually building."
+      - value: "high"
+        label: "High — Pioneering"
+        guidance: "There's no established category for what we're building. People either look confused or immediately compare it to something it's NOT."
+    disambiguation:
+      - "When you onboard a new team member, how long until they 'get' the product vision? Immediately → Low. A few conversations → Moderate. Weeks, and they keep reverting to wrong mental models → High."
+      - "Do you frequently say 'no, it's not like [familiar product]'? Rarely → Low. Sometimes → Moderate. Constantly → High."
+      - "Could a competitor copy your product by looking at screenshots? Yes → Low. Partially → Moderate. They'd miss the entire point → High."
+
+  - id: "complexity"
+    order: 3
+    question: "When you make a product decision about one feature, how many other features does it typically affect?"
+    determines: "Which structural and system knowledge areas are prioritized"
+    options:
+      - value: "low"
+        label: "Low — Single-Purpose"
+        guidance: "Our product does one thing well. Most features are independent — changing the settings page doesn't affect anything else."
+      - value: "moderate"
+        label: "Moderate — Interacting Features"
+        guidance: "Our features interact. Adding a new view might affect 2-3 other views. We sometimes discover that a change in one area broke something in another."
+      - value: "high"
+        label: "High — Interconnected Systems"
+        guidance: "Our features create combined effects. Changing one system affects what gets recommended, which affects user behavior, which affects retention. Wrong decisions cascade."
+    disambiguation:
+      - "Think about the last time you changed a product decision. Did you update one spec, or several? One → Low. A few → Moderate. A chain reaction → High."
+      - "Does your product have 'invisible mechanisms' — scoring, recommendations, progression systems, state machines? None → Low. A few → Moderate. Several interconnected ones → High."
+      - "If a new builder implements a feature perfectly per its spec but doesn't know the rest of the product, how likely is it to break something? Unlikely → Low. Possible → Moderate. Almost certain → High."
+    note: "This is about PRODUCT complexity, not technical complexity. Your tech stack, framework choices, and deployment architecture don't factor in."
+
+# ─────────────────────────────────────────────
+# MODE NARRATIVES: For output display
+# ─────────────────────────────────────────────
+
+mode_narratives:
+  no_low_ai:
+    risk: "Implicit alignment — the team thinks they agree but they don't."
+    story: "Your library serves as a product alignment reference for your team."
+  short_order_cook:
+    risk: "Context loss at handoff — the product person's intent doesn't survive translation to a task spec."
+    story: "Your library ensures product context survives the handoff to AI builders."
+  pair_programmer:
+    risk: "Misaligned proposals — technically elegant solutions that are product-wrong."
+    story: "Your library gives AI builders enough strategic context to propose aligned designs."
+  factory:
+    risk: "Silent wrong defaults — hundreds of autonomous micro-decisions that cumulatively define the experience."
+    story: "Your library is the comprehensive product knowledge graph that autonomous agents need for every decision."
+
+# ─────────────────────────────────────────────
+# TIER DESCRIPTIONS: For output display
+# ─────────────────────────────────────────────
+
+tiers:
+  foundation:
+    label: "Foundation"
+    description: "Must exist first. Other knowledge depends on these for coherence."
+    action: "Seed these immediately — they are prerequisites for everything else."
+  core:
+    label: "Core"
+    description: "Primary value drivers for your configuration."
+    action: "Seed these after Foundation. They are where the library provides the most value."
+  amplifier:
+    label: "Amplifier"
+    description: "Makes Foundation and Core more effective. Valuable but not prerequisite."
+    action: "Seed these when Foundation and Core are in place. They multiply the library's effectiveness."
+  deprioritized:
+    label: "Deprioritized"
+    description: "In your pool but low urgency for your configuration."
+    action: "Seed last, if you get to it. These are useful reference but not a priority."
