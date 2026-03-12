@@ -1390,7 +1390,6 @@ Omit section when reality matches vision — no gap, no implications.]
 - Correct alternative: [Z]
 ```
 
-
 ---
 
 ### Loop
@@ -2160,19 +2159,19 @@ Cards touching governed domains must link to constraining Standards.
 
 ## Containment Relationships
 
-| Type       | Must Link To                   | Relationship                              |
-| ---------- | ------------------------------ | ----------------------------------------- |
-| Room       | Zone                           | Parent workspace                          |
-| Structure  | Room                           | Where it lives                            |
-| Component  | Structure or Room or Overlay   | Parent element                            |
-| Artifact   | Room                           | Where it's edited                         |
-| Capability | Room(s)                        | Where it's performed                      |
-| Prompt     | Agent                          | What it implements                        |
-| Overlay    | Zone(s)                        | Where it's visible                        |
-| Loop       | Room(s), Capability(s)         | What it contains                          |
-| Journey    | Loop(s), Room(s)               | What it spans                             |
-| Aesthetic  | Room(s), Loop(s), Component(s) | Where it applies                          |
-| Dynamic    | System(s)                      | What produces it                          |
+| Type       | Must Link To                   | Relationship         |
+| ---------- | ------------------------------ | -------------------- |
+| Room       | Zone                           | Parent workspace     |
+| Structure  | Room                           | Where it lives       |
+| Component  | Structure or Room or Overlay   | Parent element       |
+| Artifact   | Room                           | Where it's edited    |
+| Capability | Room(s)                        | Where it's performed |
+| Prompt     | Agent                          | What it implements   |
+| Overlay    | Zone(s)                        | Where it's visible   |
+| Loop       | Room(s), Capability(s)         | What it contains     |
+| Journey    | Loop(s), Room(s)               | What it spans        |
+| Aesthetic  | Room(s), Loop(s), Component(s) | Where it applies     |
+| Dynamic    | System(s)                      | What produces it     |
 
 ---
 
