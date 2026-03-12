@@ -15,7 +15,7 @@
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy - AI as Teammates]] — teammates know you; tools don't
+- Product Thesis: [[Product Thesis - AI as Teammates]] — teammates know you; tools don't
 - Principle: [[Principle - Earn Don't Interrogate]] — knowledge is earned through relationship, not extracted through forms
 - Driver: The difference between a tool and a teammate is that the teammate remembers. Being Known is the aesthetic that makes stewards feel like people you work with, not interfaces you use. It compounds over time — the longer the relationship, the more the builder feels understood.
 

@@ -20,7 +20,7 @@ The structured beginning-of-week ritual where builders select their Work at Hand
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — weekly commitment deserves attention
+- Product Thesis: [[Product Thesis - Superior Process]] — weekly commitment deserves attention
 - Principle: [[Principle - Protect Transformation]] — selection enforces stream constraints
 - Principle: [[Principle - Empty Slots Strategic]] — intentional emptiness is valid choice
 - Driver: Builders need a moment to decide what matters this week. Weekly Planning creates that moment.

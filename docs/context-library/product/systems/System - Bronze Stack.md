@@ -36,12 +36,12 @@ The data mechanism governing which operational tasks populate the Bronze positio
   - [[Overlay - The Table]] — Bronze position displays the stack
   - [[Component - Bronze Position]] — rightmost position on The Table
 - Rationale:
-  - [[Strategy - Superior Process]] — operational work managed separately from transformation
+  - [[Product Thesis - Superior Process]] — operational work managed separately from transformation
   - [[Principle - Protect Transformation]] — Bronze has its own space, can't invade Gold/Silver
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — operational work managed separately from transformation
+- Product Thesis: [[Product Thesis - Superior Process]] — operational work managed separately from transformation
 - Principle: [[Principle - Protect Transformation]] — Bronze has its own space, can't invade Gold/Silver
 - Driver: Bronze represents multiplicity (many tasks) while Gold/Silver represent singularity (one project each).
 

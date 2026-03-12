@@ -13,14 +13,14 @@ Type-specific instructions for assembling context briefings. Each profile descri
 **Always include:**
 
 - The System card itself (full content)
-- At least 1 governing Strategy (follow WHY links)
+- At least 1 governing Product Thesis (follow WHY links)
 - All Principles referenced in the card's WHY section
 - All Capabilities that invoke this system — `Grep` for the system name across `docs/context-library/product/capabilities/`
 - All Rooms where this system is visible — `Grep` for the system name across `docs/context-library/product/rooms/`
 - Any Standards this system must conform to
 
 **Traversal depth:** 3 hops upstream via wikilinks.
-Read the card → follow its `[[links]]` → follow THOSE cards' `[[links]]` → one more hop for Strategy/Principle chains.
+Read the card → follow its `[[links]]` → follow THOSE cards' `[[links]]` → one more hop for Product Thesis/Principle chains.
 
 **Dimension priority:** WHY (high) > WHERE (high) > HOW (medium) > WHAT (low).
 When summarizing supporting cards, preserve WHY and WHERE content. Compress HOW to key points.
@@ -86,7 +86,7 @@ Rooms are relationship-heavy — WHERE context (what connects to what) is critic
 - The Zone card itself (full content)
 - All Rooms contained in this Zone — `Glob` for cards referencing this zone
 - Visible Overlays — `Grep` for the zone name across `docs/context-library/product/overlays/`
-- Governing Strategies (at least 1)
+- Governing Product Theses (at least 1)
 - Adjacent Zones for navigation context
 
 **Traversal depth:** 2 hops. Zone → contained Rooms → their key elements.
@@ -151,7 +151,7 @@ Capabilities are about connections and workflows — WHERE it happens and HOW it
 - Room where this Artifact is edited
 - Capabilities that use this Artifact
 - Primitives this Artifact contains
-- Governing Strategy (at least 1)
+- Governing Product Thesis (at least 1)
 
 **Traversal depth:** 2 hops. Artifact → Room and Artifact → Capabilities.
 
@@ -195,10 +195,10 @@ Overlays are cross-zone — WHERE they appear and HOW they behave across context
 - All Capabilities available to this Agent — `Grep` for agent name across `docs/context-library/product/capabilities/`
 - Artifacts this Agent manages — check WHERE section
 - Coordinating Agents (agents this one hands off to or coordinates with)
-- Full WHY chain — at least 1 Strategy, all referenced Principles
+- Full WHY chain — at least 1 Product Thesis, all referenced Principles
 - Any Prompts that implement this Agent — `Glob` for `docs/context-library/product/prompts/Prompt - [Agent Name]*.md`
 
-**Traversal depth:** 3 hops. Agents are highly connected — Room, Capabilities, Artifacts, Strategy chain.
+**Traversal depth:** 3 hops. Agents are highly connected — Room, Capabilities, Artifacts, Product Thesis chain.
 
 **Dimension priority:** WHY (high) > WHERE (high) > HOW (medium) > WHAT (low).
 Agent alignment is strategic — WHY they exist and WHERE they fit matters as much as implementation.
@@ -261,7 +261,7 @@ Primitives are the data backbone — WHERE they're used throughout the product i
 - Parent Loop (if nested) and child Loops (if containing)
 - Journey this Loop advances (if any)
 - Agents who participate
-- At least 1 Strategy from the WHY section
+- At least 1 Product Thesis from the WHY section
 
 **Traversal depth:** 2 hops. Loops connect Rooms, Capabilities, and Agents.
 
@@ -284,7 +284,7 @@ Loops are about the cycle — HOW it flows and WHERE it happens.
 - Agents who guide through phases
 - Systems that support progression
 - Capabilities unlocked during progression
-- At least 1 Strategy from the WHY section
+- At least 1 Product Thesis from the WHY section
 
 **Traversal depth:** 3 hops. Journeys span the full product.
 
@@ -341,20 +341,20 @@ Dynamics are about HOW the system responds to emergent behavior.
 
 Quick reference for what MUST be included regardless of scoring:
 
-| Target Type | Mandatory                                                 |
-| ----------- | --------------------------------------------------------- |
-| System      | 1+ Strategy, all anti-patterns, all affected Capabilities |
-| Component   | Parent Structure/Room, all conforming Standards           |
-| Room        | Parent Zone, resident Agent (if exists)                   |
-| Zone        | All contained Rooms, 1+ Strategy                          |
-| Structure   | Parent Room, all conforming Standards                     |
-| Capability  | 1+ Room, all affected Artifacts                           |
-| Agent       | Home Room, all managed Artifacts, 1+ Strategy             |
-| Prompt      | Parent Agent (complete)                                   |
-| Overlay     | All visible Zones, all conforming Standards               |
-| Primitive   | All Rooms that serve it, all operating Capabilities       |
-| Artifact    | Host Room, all using Capabilities                         |
-| Loop        | All composing Capabilities, all involved Rooms            |
-| Journey     | All Loops engaged, all guiding Agents                     |
-| Aesthetic   | All contexts where feeling applies                        |
-| Dynamic     | All contributing Systems, agent responses                 |
+| Target Type | Mandatory                                                       |
+| ----------- | --------------------------------------------------------------- |
+| System      | 1+ Product Thesis, all anti-patterns, all affected Capabilities |
+| Component   | Parent Structure/Room, all conforming Standards                 |
+| Room        | Parent Zone, resident Agent (if exists)                         |
+| Zone        | All contained Rooms, 1+ Product Thesis                          |
+| Structure   | Parent Room, all conforming Standards                           |
+| Capability  | 1+ Room, all affected Artifacts                                 |
+| Agent       | Home Room, all managed Artifacts, 1+ Product Thesis             |
+| Prompt      | Parent Agent (complete)                                         |
+| Overlay     | All visible Zones, all conforming Standards                     |
+| Primitive   | All Rooms that serve it, all operating Capabilities             |
+| Artifact    | Host Room, all using Capabilities                               |
+| Loop        | All composing Capabilities, all involved Rooms                  |
+| Journey     | All Loops engaged, all guiding Agents                           |
+| Aesthetic   | All contexts where feeling applies                              |
+| Dynamic     | All contributing Systems, agent responses                       |

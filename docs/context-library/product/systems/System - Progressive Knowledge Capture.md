@@ -8,14 +8,14 @@ The knowledge acquisition mechanism agents use to learn about builders over time
 
 - Used by: All agents, especially [[Agent - Jarvis]], [[Agent - Mesa]]
 - Implements: [[Principle - Earn Don't Interrogate]]
-- Implements: [[Strategy - AI as Teammates]]
+- Implements: [[Product Thesis - AI as Teammates]]
 - Feeds: [[Standard - Knowledge Framework]] — where captured knowledge lives
 - Feeds: [[Artifact - The Charter]] — strategic knowledge captured here
 
 ## WHY: Rationale
 
 - Principle: [[Principle - Earn Don't Interrogate]] — Progressive Knowledge Capture is how agents honor this principle
-- Strategy: [[Strategy - AI as Teammates]] — teammates learn organically, not via forms
+- Product Thesis: [[Product Thesis - AI as Teammates]] — teammates learn organically, not via forms
 - Driver: Upfront questionnaires create friction and capture stale data. Progressive capture builds living, contextual knowledge through natural interaction.
 
 ## WHEN: Timeline

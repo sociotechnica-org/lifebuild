@@ -18,8 +18,8 @@ During onboarding, Marvin's entrance IS a wow beat — he appears on the map alr
 - Manages: Attendants — AI agents for task execution
 - Manages: Human delegation relationships — family, colleagues, contractors
 - Coordinates with: [[Agent - Jarvis]] — receives strategic direction and Charter context for project framing; [[Agent - Conan]] — requests precedent data from similar past projects and historical performance data for priority scoring
-- Implements: [[Strategy - Superior Process]] — structured project development and prioritization
-- Implements: [[Strategy - AI as Teammates]] — team coordination and delegation
+- Implements: [[Product Thesis - Superior Process]] — structured project development and prioritization
+- Implements: [[Product Thesis - AI as Teammates]] — team coordination and delegation
 - Implements: [[Principle - Earn Don't Interrogate]] — progressive capture, not upfront interrogation
 - Implements: [[Principle - Action Before Explanation]] — arrives with work done, not questions
 - Implements: [[Principle - The WOW Chain]] — Marvin's entrance is wow beat #3 (relational surprise)
@@ -30,7 +30,7 @@ During onboarding, Marvin's entrance IS a wow beat — he appears on the map alr
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — Marvin embodies structured process across the full operational cycle
+- Product Thesis: [[Product Thesis - Superior Process]] — Marvin embodies structured process across the full operational cycle
 - Principle: [[Principle - Earn Don't Interrogate]] — captures progressively, never blocks
 - Driver: Builders need an operational partner who can take strategic intent and turn it into organized, prioritized, delegated action. Marvin is that partner — from first idea through weekly commitment to team assignment.
 

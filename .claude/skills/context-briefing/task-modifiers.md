@@ -45,7 +45,7 @@ How the type of task affects which dimensions to prioritize during context assem
 - **HOW** (low) — You're changing the HOW, so current HOW is less useful.
 - **WHEN** (normal) — Stability markers help — don't refactor evolving cards.
 
-**Retrieval adjustment:** Expand upstream. Follow the full WHY chain to Strategy level. Read anti-patterns carefully — "What Breaks This" lists are especially relevant during refactoring.
+**Retrieval adjustment:** Expand upstream. Follow the full WHY chain to Product Thesis level. Read anti-patterns carefully — "What Breaks This" lists are especially relevant during refactoring.
 
 ---
 
@@ -75,16 +75,16 @@ How the type of task affects which dimensions to prioritize during context assem
 - **WHEN** (high) — Stability matters. Don't change stable foundations without strong justification. Check what's evolving vs settled.
 - **HOW** (normal) — Current implementation matters less since you're changing it.
 
-**Retrieval adjustment:** Maximum upstream and lateral expansion. Use the full 3-hop depth. Read ALL related Strategies and Principles. Assess blast radius by `Grep`-ing for the concept name across the entire library — every match is something potentially affected.
+**Retrieval adjustment:** Maximum upstream and lateral expansion. Use the full 3-hop depth. Read ALL related Product Theses and Principles. Assess blast radius by `Grep`-ing for the concept name across the entire library — every match is something potentially affected.
 
 ---
 
 ## Quick Reference
 
-| Task Type    | Primary Dimensions  | Retrieval Width      | Upstream Depth        |
-| ------------ | ------------------- | -------------------- | --------------------- |
-| Feature      | WHERE, HOW          | Broad lateral        | Profile default       |
-| Bug fix      | HOW, WHEN           | Narrow + temporal    | Profile default       |
-| Refactor     | WHY, WHERE          | Broad + blast radius | Maximum (to Strategy) |
-| New          | WHY, HOW + siblings | Medium + patterns    | Profile default       |
-| Architecture | WHY, WHERE, WHEN    | Maximum              | Maximum (to Strategy) |
+| Task Type    | Primary Dimensions  | Retrieval Width      | Upstream Depth              |
+| ------------ | ------------------- | -------------------- | --------------------------- |
+| Feature      | WHERE, HOW          | Broad lateral        | Profile default             |
+| Bug fix      | HOW, WHEN           | Narrow + temporal    | Profile default             |
+| Refactor     | WHY, WHERE          | Broad + blast radius | Maximum (to Product Thesis) |
+| New          | WHY, HOW + siblings | Medium + patterns    | Profile default             |
+| Architecture | WHY, WHERE, WHEN    | Maximum              | Maximum (to Product Thesis) |

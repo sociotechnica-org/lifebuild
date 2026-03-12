@@ -18,11 +18,11 @@ The single currency in LifeBuild is capacity — a composite of time, energy, co
 - Agents:
   - [[Agent - Jarvis]] — reasons about capacity patterns, surfaces honest picture
   - [[Agent - Marvin]] — models capacity in expedition shaping
-- Implements: [[Strategy - Superior Process]] — structured capacity management
+- Implements: [[Product Thesis - Superior Process]] — structured capacity management
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — capacity is the constraint that makes process necessary
+- Product Thesis: [[Product Thesis - Superior Process]] — capacity is the constraint that makes process necessary
 - Principle: [[Principle - Empty Slots Strategic]] — capacity-first philosophy
 - Driver: Builders are overwhelmed not because they lack knowledge but because they lack bandwidth. The Capacity Economy models this constraint honestly and creates the dynamics (compounding, The Shift) that resolve it over time.
 

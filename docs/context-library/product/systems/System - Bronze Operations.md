@@ -15,7 +15,7 @@ The builder-facing workflow for Bronze stream interaction — mode selection, ta
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — structured Bronze mechanics prevent ad-hoc maintenance chaos
+- Product Thesis: [[Product Thesis - Superior Process]] — structured Bronze mechanics prevent ad-hoc maintenance chaos
 - System: [[Standard - Three-Stream Portfolio]] — Bronze requires unique mechanics
 - Principle: [[Principle - Protect Transformation]] — Bronze stays contained
 - Driver: Operational work behaves differently than transformational work. Bronze Operations codifies that difference.

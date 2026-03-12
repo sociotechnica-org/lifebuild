@@ -7,7 +7,7 @@ Builders classify work by how it feels to them, not by objective criteria — th
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - Superior Process]], [[Strategy - AI as Teammates]]
+- Advances: [[Product Thesis - Superior Process]], [[Product Thesis - AI as Teammates]]
 - Governs: [[Capability - Purpose Assignment]], [[Standard - Priority Score]], [[Room - Sorting Room]], [[System - Weekly Priority]]
 - Agents: [[Agent - Marvin]] (priority recommendations and purpose capture during creation)
 - Related: [[Principle - Earn Don't Interrogate]] — both respect builder sovereignty

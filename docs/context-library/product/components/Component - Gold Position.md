@@ -19,7 +19,7 @@ The leftmost position on The Table, displaying a single expansion project — wo
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — structural protection for transformation
+- Product Thesis: [[Product Thesis - Superior Process]] — structural protection for transformation
 - Principle: [[Principle - Protect Transformation]] — Gold slot cannot be invaded by Bronze
 - Decision: One Gold maximum because two transformations compete for attention and neither advances. The limit forces commitment.
 

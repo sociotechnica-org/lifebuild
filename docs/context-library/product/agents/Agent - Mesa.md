@@ -12,13 +12,13 @@ The Life Map Advisor — a friendly, helpful presence available on-call througho
 - Manages: [[Capability - Zoom Navigation]] — assists with zoom-level transitions
 - Manages: [[Component - Hex Tile]] — explains tile indicators and visual states
 - Coordinates with: [[Agent - Jarvis]] — routes strategic questions to the Council Chamber; [[Agent - Marvin]] — routes operational questions (priority, project creation, delegation) to the appropriate room
-- Implements: [[Strategy - Spatial Visibility]] — helps builders work with spatial interface
+- Implements: [[Product Thesis - Spatial Visibility]] — helps builders work with spatial interface
 - Implements: [[Principle - Guide When Helpful]] — available when needed, not intrusive
 - Implements: [[Principle - First 72 Hours]] — first-contact behavior during onboarding
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — spatial interface needs in-context help
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — spatial interface needs in-context help
 - Principle: [[Principle - Guide When Helpful]] — present when needed, invisible when not
 - Driver: Builders working on the Life Map need help without leaving context. Mesa is the local guide.
 

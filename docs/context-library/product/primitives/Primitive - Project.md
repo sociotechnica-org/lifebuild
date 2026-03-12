@@ -19,8 +19,8 @@ A discrete initiative with a finish line — bounded work that completes and mov
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — structured work management
-- Strategy: [[Strategy - Spatial Visibility]] — projects have spatial presence on hex grid
+- Product Thesis: [[Product Thesis - Superior Process]] — structured work management
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — projects have spatial presence on hex grid
 - Principle: [[Principle - Plans Are Hypotheses]] — project plans can adapt
 - Driver: Builders need bounded containers for work with finish lines. The question for projects is always: "How close am I to finished?"
 

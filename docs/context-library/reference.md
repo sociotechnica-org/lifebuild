@@ -8,7 +8,7 @@ Lookup tables for building and auditing Context Library cards.
 
 ```
 WHY we build things?
-├─ Guiding philosophy → STRATEGY
+├─ Product thesis (problem, solution, plank) → PRODUCT THESIS
 ├─ Judgment guidance → PRINCIPLE
 └─ Testable specification → STANDARD
 
@@ -47,7 +47,7 @@ WHAT ships?
 
 **Step 1: Is this about WHY we build?**
 
-- Guiding philosophy (a bet) → Strategy
+- Product thesis (problem, solution, or plank) → Product Thesis
 - Judgment guidance (a rule of thumb) → Principle
 - Testable spec (concrete rules) → Standard
 
@@ -209,7 +209,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 | Card types                              | Status values                                        |
 | --------------------------------------- | ---------------------------------------------------- |
-| Strategy, Principle                     | `experimental` \| `evolving` \| `stable`             |
+| Product Thesis, Principle               | `experimental` \| `evolving` \| `stable`             |
 | Standard                                | `draft` \| `active` \| `deprecated`                  |
 | Product layer (Zone through Agent)      | `core` \| `evolving` \| `proposed`                   |
 | Experience layer (Loop through Dynamic) | `core` \| `evolving` \| `proposed`                   |
@@ -221,29 +221,36 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## Templates
 
-### Strategy
+### Product Thesis
 
 ```markdown
-# Strategy - [Name]
+# Product Thesis - [Name]
 
-## WHAT: The Strategy
+## WHAT: The Thesis
 
-[One sentence articulating the bet. What we believe will work.]
+[One sentence articulating the thesis. For planks: the bet. For problem: the diagnosis. For solution: the gestalt.]
+
+Counter-thesis: [The strongest argument against this thesis.]
 
 ## WHERE: Ecosystem
 
+- Type: Product Thesis (Problem | Solution | Plank)
+- Parent: [[Product Thesis]] — [relationship to parent thesis]
+- Planks: [[Product Thesis]] — [if solution, what planks support it]
 - Principles:
   - [[Principle]] — [what judgment guidance this generates]
 - Standards:
   - [[Standard]] — [what specifications this generates]
 - Zones:
   - [[Zone]] — [what product areas embody this]
-- Tensions:
-  - [[Strategy]] — [what other strategies this trades off against]
 
 ## WHY: Belief
 
-[2-4 sentences. The reasoning behind this bet. What evidence or intuition supports it. What user truth it's grounded in.]
+[2-4 sentences. The reasoning behind this thesis. What evidence or intuition supports it. What user truth it's grounded in.]
+
+## Validation Criteria
+
+[How to validate this thesis. Specific metrics, tests, targets, and invalidation signals.]
 
 ## WHEN: Timeline
 
@@ -252,16 +259,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ### Reality ([YYYY-MM-DD])
 
-[Is this strategy being followed? What evidence exists? What's diverging?]
-
-### History
-
-> **YYYY-MM-DD — [Title]**
-> [What changed and why.]
-
-### Implications
-
-[What divergence from this strategy means for builders. Omit when stable.]
+[Is this thesis holding? What evidence exists? What's diverging?]
 
 ## HOW: Application
 
@@ -275,7 +273,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ### Decision Heuristic
 
-[When facing a tradeoff, how does this strategy guide the choice?]
+[When facing a tradeoff, how does this thesis guide the choice?]
 ```
 
 ---
@@ -291,8 +289,8 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHERE: Ecosystem
 
-- Strategy:
-  - [[Strategy]] — [what bet this serves]
+- Product Thesis:
+  - [[Product Thesis]] — [what bet this serves]
 - Standards:
   - [[Standard]] — [what specifications make this testable]
 - Governs:
@@ -462,7 +460,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Driver: [Why builders need this entity. What problem it solves.]
 
@@ -551,7 +549,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy]] — [what bet this embodies]
+- Product Thesis: [[Product Thesis]] — [what bet this embodies]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Separation: [Why this is distinct from other zones. What cognitive mode it serves.]
 
@@ -636,7 +634,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Separation: [Why this is its own room. What JTBD it serves.]
 
@@ -720,7 +718,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Persistence: [Why this must be always-visible. What breaks if hidden.]
 
@@ -965,7 +963,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Purpose: [What builders use this artifact for. What problem it solves.]
 
@@ -1054,7 +1052,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Purpose: [Why builders need to do this. What goal it serves.]
 
@@ -1141,7 +1139,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Gap: [What breaks without this. What problem it solves invisibly.]
 
@@ -1228,7 +1226,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes behavior]
 - Gap: [What breaks without this agent. What need they fill.]
 
@@ -1420,7 +1418,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Driver: [What engagement pattern this creates. What the builder gains from completing one cycle.]
 
@@ -1510,7 +1508,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Driver: [What growth this journey produces. What the builder gains.]
 
@@ -1593,7 +1591,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: Purpose
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Driver: [Why this feeling matters. What it signals about the builder's state.]
 
@@ -1749,7 +1747,7 @@ Omit section when reality matches vision — no gap, no implications.]
   - [[System]] — [how it shapes this]
 - Governed by:
   - [[Principle]] — [what guided the choice]
-  - [[Strategy]] — [what bet it serves]
+  - [[Product Thesis]] — [what bet it serves]
 - Generates:
   - [[Principle]] — [if this decision became a principle]
   - [[Standard]] — [if this decision became a standard]
@@ -1850,7 +1848,7 @@ Omit section when reality matches vision — no gap, no implications.]
 
 ## WHY: The Driver
 
-- Strategy: [[Strategy]] — [alignment]
+- Product Thesis: [[Product Thesis]] — [alignment]
 - Principle: [[Principle]] — [guidance]
 - Trigger: [What prompted this initiative. Metric, enterprise context, opportunity.]
 
@@ -1996,7 +1994,7 @@ Releases use **planning mode** (forward-looking) while being built and **retrosp
 
 ## WHY: Driver
 
-- Strategy: [[Strategy]] — [what bet this serves]
+- Product Thesis: [[Product Thesis]] — [what bet this serves]
 - Principle: [[Principle]] — [what guidance shapes it]
 - Trigger: [What's prompting this. Metric, opportunity, request.]
 
@@ -2055,7 +2053,7 @@ Releases use **planning mode** (forward-looking) while being built and **retrosp
 
 ```
 /rationale/
-  strategies/
+  product-thesis/
   principles/
   standards/
 
@@ -2103,7 +2101,7 @@ CONVENTIONS.md
 
 | Type             | Pattern                          | Example                                      |
 | ---------------- | -------------------------------- | -------------------------------------------- |
-| Strategy         | Strategy - [Name]                | Strategy - Spatial Visibility                |
+| Product Thesis   | Product Thesis - [Name]          | Product Thesis - Spatial Visibility          |
 | Principle        | Principle - [Name]               | Principle - Visual Recognition               |
 | Standard         | Standard - [Name]                | Standard - Visual Language                   |
 | Primitive        | Primitive - [Name]               | Primitive - Project                          |
@@ -2200,7 +2198,7 @@ Every link must have context. No naked links.
 | Source Type           | Extract                                                      |
 | --------------------- | ------------------------------------------------------------ |
 | SOT + companion docs  | Zone/Room definitions, capability specs, strategic reasoning |
-| Strategy/vision docs  | Strategy, Principle, Initiative goals                        |
+| Strategy/vision docs  | Product Thesis, Principle, Initiative goals                  |
 | Brand standards docs  | Standards (colors, typography, illustration rules)           |
 | Roadmap/planning docs | Future state, phasing, dependencies                          |
 | Design docs/PRDs      | Capability specs, user scenarios, edge cases                 |

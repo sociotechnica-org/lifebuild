@@ -12,7 +12,7 @@ The builder's Counselor — a steward whose counsel you seek before making decis
 - Manages: [[Artifact - The Agenda]] — drives session structure
 - Manages: [[Standard - Knowledge Framework]] — synthesizes patterns across agents
 - Coordinates with: [[Agent - Conan]] — receives historical patterns for strategic context; [[Agent - Marvin]] — provides strategic context for project creation and prioritization; [[Agent - Mesa]] — receives routed strategic questions from the Life Map
-- Implements: [[Strategy - AI as Teammates]] — primary relationship agent
+- Implements: [[Product Thesis - AI as Teammates]] — primary relationship agent
 - Implements: [[Principle - Earn Don't Interrogate]] — elicitation over interrogation
 - Implements: [[Principle - First 72 Hours]] -- opens the onboarding portal
 - Implements: [[Principle - Action Before Explanation]] -- asks, doesn't explain
@@ -20,7 +20,7 @@ The builder's Counselor — a steward whose counsel you seek before making decis
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — Jarvis embodies the teammate relationship
+- Product Thesis: [[Product Thesis - AI as Teammates]] — Jarvis embodies the teammate relationship
 - Principle: [[Principle - Plans Are Hypotheses]] — tone never implies failure for adaptation
 - Driver: Builders need a strategic counsel who knows them deeply. Jarvis is the primary relationship — the agent who understands the whole picture.
 

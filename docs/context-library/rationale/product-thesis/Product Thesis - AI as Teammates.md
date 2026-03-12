@@ -1,12 +1,16 @@
-# Strategy - AI as Teammates
+# Product Thesis - AI as Teammates
 
-## WHAT: The Strategy
+## WHAT: The Thesis
 
-Agents with defined jobs, permissions, and coordination capabilities provide leverage previously available only to people with human staff. This is Strategic Plank 3 — the third of three independent bets LifeBuild is built on.
+Agents with defined jobs, permissions, and coordination capabilities provide leverage previously available only to people with human staff. This is Plank 3 — the third of three independent bets LifeBuild is built on.
+
+Counter-thesis: The "teammate" framing is anthropomorphic wishful thinking. AI is a tool, and the most effective tools are general-purpose, not role-specialized. Users will prefer one powerful general assistant over a team of specialized agents with limited authority — the coordination overhead of multiple agents exceeds the specialization benefit.
 
 ## WHERE: Ecosystem
 
-- Type: Strategic Bet
+- Type: Product Thesis (Plank)
+- Parent: [[Product Thesis - The Organized Life]]
+- Problem: [[Product Thesis - Organizational Life]]
 - Implementing principles: [[Principle - Earn Don't Interrogate]], [[Principle - Guide When Helpful]]
 - Core team: [[Agent - Jarvis]], [[Agent - Marvin]], [[Agent - Conan]]. Reserve: [[Agent - Mesa]]
 - Systems: [[Standard - Service Levels]], [[Standard - Knowledge Framework]], [[System - Processing Layer]]
@@ -61,6 +65,17 @@ The bet: if builders have AI agents with defined jobs, appropriate permissions, 
 ### Decision Heuristic
 
 When choosing between the builder doing work personally and delegating to an agent, delegate — but only within the agent's defined role and earned authority level, never beyond it.
+
+## Validation Criteria
+
+To validate the teammate bet, measure whether role-differentiated agents outperform generic assistance, and whether users develop trust patterns that enable progressive delegation.
+
+- **Role-appropriate delegation:** After 30 days, do users direct operational questions to Marvin and strategic questions to Jarvis, or do they use agents interchangeably? Measure the percentage of interactions that match the agent's defined role. Target: >60% role-matched interactions. If users treat all agents as generic chat, the role differentiation isn't creating value.
+- **Acceptance rate by authority level:** Track what percentage of agent suggestions/actions are accepted at each authority tier. Level 1 (reactive help) acceptance should be high (>80%). If users reject most agent output even at the lowest authority level, the trust foundation isn't forming.
+- **Permission escalation rate:** What percentage of users voluntarily grant agents expanded permissions (moving from "suggest" to "draft" to "execute") within 90 days? Target: >20% of active users escalate at least once. This is the trust ladder in action — if nobody climbs, the progressive trust model isn't working.
+- **Generic reversion test:** Give users access to both role-specific agents and a generic "ask anything" assistant. After 60 days, what percentage of interactions go to role-specific agents vs. the generic option? If generic wins, specialization isn't worth the complexity.
+- **Time-to-delegation:** How long after onboarding before a user delegates a task they previously would have done themselves (not just asks a question, but hands off actual work)? Target: within 14 days for at least one task type. If users never cross from "asking for help" to "delegating work," the teammate thesis isn't landing.
+- **Invalidation signal:** Users treat agents as interchangeable chat interfaces, don't escalate permissions, or revert to doing work themselves because delegation overhead exceeds the time saved.
 
 ## Tensions
 

@@ -12,12 +12,12 @@ The naming hierarchy for all characters in LifeBuild: **Builder** (the person), 
   - [[Agent - Marvin]] — Steward (Manager)
   - [[Agent - Conan]] — Steward (Librarian)
   - [[Room - Roster Room]] — where Attendants are assigned
-  - [[Strategy - AI as Teammates]] — the naming embodies the teammate model
-- Implements: [[Strategy - AI as Teammates]] — teammates have names, roles, and relationships
+  - [[Product Thesis - AI as Teammates]] — the naming embodies the teammate model
+- Implements: [[Product Thesis - AI as Teammates]] — teammates have names, roles, and relationships
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — naming is how the teammate relationship becomes legible
+- Product Thesis: [[Product Thesis - AI as Teammates]] — naming is how the teammate relationship becomes legible
 - Driver: The names communicate the social contract. "Builder" says: you are the one who decides what to build. "Stewards" says: we serve and advise, but we do not direct. "Attendants" says: we handle the work you shouldn't be doing yourself. The hierarchy is intentional — it encodes authority, humility, and purpose.
 
 ## WHEN: Timeline

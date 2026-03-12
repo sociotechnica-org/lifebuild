@@ -16,13 +16,13 @@ The planning workspace — a collection of specialized rooms where builders enga
 - Adjacent:
   - [[Zone - Life Map]] — execution workspace
   - [[Zone - Archives]] — learning workspace
-- Implements: [[Strategy - AI as Teammates]] — advisor conversations happen here
+- Implements: [[Product Thesis - AI as Teammates]] — advisor conversations happen here
 - Agent access: [[Agent - Jarvis]], [[Agent - Marvin]]
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — planning requires conversation partners
-- Strategy: [[Strategy - Superior Process]] — planning is distinct from execution
+- Product Thesis: [[Product Thesis - AI as Teammates]] — planning requires conversation partners
+- Product Thesis: [[Product Thesis - Superior Process]] — planning is distinct from execution
 - Principle: [[Principle - Guide When Helpful]] — advisors available when builders seek them
 - Driver: Builders need space to think strategically before committing to action. The Strategy Studio provides that space.
 - Constraints: Strategy Studio is for thinking, not doing. Execution happens on Life Map. The separation between planning and execution is deliberate and structural.

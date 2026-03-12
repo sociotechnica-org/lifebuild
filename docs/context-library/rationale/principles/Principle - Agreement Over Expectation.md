@@ -8,7 +8,7 @@ In first contact, this principle defers to [[Principle - Action Before Explanati
 
 ## WHERE: Ecosystem
 
-- Advances: [[Strategy - AI as Teammates]] — teammates negotiate working agreements, they don't impose defaults
+- Advances: [[Product Thesis - AI as Teammates]] — teammates negotiate working agreements, they don't impose defaults
 - Companion: [[Principle - Earn Don't Interrogate]] — that principle governs HOW we acquire knowledge (timing, tone, method); this principle governs WHAT relational knowledge matters and WHY explicit agreement beats implicit expectation
 - Governs:
   - [[Component - Campfire]] — Campfire first contact defers to [[Principle - Action Before Explanation]]; designed alliance forms through shared experience, not conversational exchange

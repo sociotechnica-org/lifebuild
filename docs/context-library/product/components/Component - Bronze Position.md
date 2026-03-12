@@ -20,7 +20,7 @@ The rightmost position on The Table, displaying a stack of operational tasks —
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — operational work managed separately
+- Product Thesis: [[Product Thesis - Superior Process]] — operational work managed separately
 - Principle: [[Principle - Protect Transformation]] — Bronze has dedicated space, cannot overflow into Gold/Silver
 - Decision: Stack (multiple tasks) rather than single project because Bronze represents operational multiplicity. Maintenance is many small things, not one big thing.
 

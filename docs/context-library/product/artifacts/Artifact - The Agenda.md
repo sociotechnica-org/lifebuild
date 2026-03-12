@@ -19,7 +19,7 @@ The session structure that guides conversations in the Council Chamber — a cus
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — good conversations have shape
+- Product Thesis: [[Product Thesis - Superior Process]] — good conversations have shape
 - Principle: [[Principle - Guide When Helpful]] — structure aids, doesn't control
 - Driver: Strategic conversations can wander aimlessly. The Agenda provides just enough structure to keep them productive.
 - Constraints: The Agenda provides shape, not control. Enough structure to be productive, enough flexibility to be human. Builders can override, modify, or skip any agenda item.

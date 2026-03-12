@@ -7,7 +7,7 @@ An empty Gold or Silver slot can be a deliberate choice — to recover, catch up
 ## WHERE: Ecosystem
 
 - Type: Design Principle
-- Advances: [[Strategy - Superior Process]]
+- Advances: [[Product Thesis - Superior Process]]
 - Governs: [[Overlay - The Table]] (visual treatment of empty slots), [[Component - Gold Position]], [[Component - Silver Position]]
 - Implemented by: [[Standard - Table Slot Behaviors]] — makes intentional emptiness testable
 - Agents: [[Agent - Marvin]] (respects empty choices), [[Agent - Jarvis]] (strategic framing)

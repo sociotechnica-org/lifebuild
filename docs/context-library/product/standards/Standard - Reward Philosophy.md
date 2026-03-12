@@ -13,12 +13,12 @@ LifeBuild uses no extrinsic reward mechanics. The moral principle: building capa
   - [[Journey - Sanctuary Progression]] — progression IS the reward
   - [[Component - Hex Tile]] — visual evolution as environmental reward
   - [[System - Overgrowth]] — absence is never punished
-- Implements: [[Strategy - Superior Process]] — intrinsic motivation over extrinsic
+- Implements: [[Product Thesis - Superior Process]] — intrinsic motivation over extrinsic
 - Implements: [[Principle - Protect Transformation]] — Gold ventures shift to aspiration as the natural reward
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Superior Process]] — extrinsic rewards undermine the deep process LifeBuild teaches
+- Product Thesis: [[Product Thesis - Superior Process]] — extrinsic rewards undermine the deep process LifeBuild teaches
 - Driver: The productivity industry is addicted to extrinsic motivation — streaks, points, badges, leaderboards. These work short-term but crowd out intrinsic motivation long-term. LifeBuild makes the opposite bet: the sanctuary itself IS the reward. A more beautiful map, more capable stewards, more free capacity — these are real, not gamified.
 
 ## WHEN: Timeline

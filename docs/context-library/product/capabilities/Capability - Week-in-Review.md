@@ -20,7 +20,7 @@ The structured end-of-week reflection where builders review what happened agains
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - AI as Teammates]] — reflection requires partnership
+- Product Thesis: [[Product Thesis - AI as Teammates]] — reflection requires partnership
 - Principle: [[Principle - Plans Are Hypotheses]] — review tests hypotheses
 - Principle: [[Principle - Compound Capability]] — learnings compound
 - Driver: Builders need to process what happened, not just move to next week. Week-in-Review creates that processing.

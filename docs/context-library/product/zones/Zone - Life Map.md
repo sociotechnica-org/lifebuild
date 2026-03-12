@@ -22,7 +22,7 @@ The primary — and essentially only — workspace. The map IS the game. A spati
 - Primitives:
   - [[Primitive - Project]] — projects visible on grid
   - [[Primitive - System]] — systems visible on grid
-- Implements: [[Strategy - Spatial Visibility]] — work exists in space
+- Implements: [[Product Thesis - Spatial Visibility]] — work exists in space
 - Implements: [[Standard - Dual Presence]] — Work at Hand appears on both Table and grid
 - Implements: [[Principle - Visibility Creates Agency]] — everything visible at once
 - Conforms to: [[Standard - Visual Language]] — hex tiles, state indicators, category colors render per spec
@@ -31,7 +31,7 @@ The primary — and essentially only — workspace. The map IS the game. A spati
 
 ## WHY: Rationale
 
-- Strategy: [[Strategy - Spatial Visibility]] — Life Map is the primary embodiment of spatial thinking
+- Product Thesis: [[Product Thesis - Spatial Visibility]] — Life Map is the primary embodiment of spatial thinking
 - Principle: [[Principle - Visibility Creates Agency]] — builders see everything, decide what to focus on
 - Principle: [[Principle - Visual Recognition]] — spatial memory aids finding and understanding
 - Driver: Builders need a home base where all their work is visible and organized. The Life Map is that home.
