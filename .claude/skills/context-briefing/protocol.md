@@ -3,6 +3,7 @@
 Contract for context delivery between the library system and consuming agents.
 
 **Roles:**
+
 - **Conan** (assembler) — assembles context briefings from the library
 - **Builder agents** (code writers) — consume briefings during software implementation
 - **Sam** (scribe) — writes and fixes library cards, NOT code
@@ -105,7 +106,7 @@ Any agent working with library content — builder agents during code implementa
 
 **Rule: 2+ "Search" signals → MUST search the library before proceeding**
 
-**Note on Sam:** Sam the Scribe also uses this matrix, but during *card creation*, not code implementation. When Sam encounters uncertainty about product concepts while writing a card (e.g., "is this a System or a Capability?"), the same protocol applies. The signals map slightly differently: "reversibility" means how hard it is to fix a card classification error, "blast radius" means how many downstream cards would inherit a mistake.
+**Note on Sam:** Sam the Scribe also uses this matrix, but during _card creation_, not code implementation. When Sam encounters uncertainty about product concepts while writing a card (e.g., "is this a System or a Capability?"), the same protocol applies. The signals map slightly differently: "reversibility" means how hard it is to fix a card classification error, "blast radius" means how many downstream cards would inherit a mistake.
 
 ### Query Format
 
@@ -188,7 +189,7 @@ SEARCH: Grep for "[terms]" in docs/context-library/
     Sam updates affected library cards
 ```
 
-**Note:** Sam the Scribe also consumes briefings in a parallel workflow — when writing *library cards* (not code) that depend on product context. Sam's handoff flow is: Conan assembles briefing → Sam reads briefing → Sam writes cards → Conan grades cards. This is distinct from the builder agent flow above.
+**Note:** Sam the Scribe also consumes briefings in a parallel workflow — when writing _library cards_ (not code) that depend on product context. Sam's handoff flow is: Conan assembles briefing → Sam reads briefing → Sam writes cards → Conan grades cards. This is distinct from the builder agent flow above.
 
 ---
 

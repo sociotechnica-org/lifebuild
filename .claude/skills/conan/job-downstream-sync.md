@@ -60,11 +60,11 @@ Files that mirror library structure and must stay in sync with `docs/context-lib
 
 ### Library Documentation
 
-| File                                    | Sync Points                                                                                                   |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `docs/context-library/reference.md`     | Canonical type taxonomy, templates, folder structure, naming conventions — this is the SOURCE, not the target |
-| `docs/context-library/README.md`        | Card counts per type, type descriptions, library structure summary                                            |
-| `docs/context-library/CONTRIBUTING.md`  | Agent role descriptions (Conan, Sam), workflow descriptions                                                   |
+| File                                   | Sync Points                                                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `docs/context-library/reference.md`    | Canonical type taxonomy, templates, folder structure, naming conventions — this is the SOURCE, not the target |
+| `docs/context-library/README.md`       | Card counts per type, type descriptions, library structure summary                                            |
+| `docs/context-library/CONTRIBUTING.md` | Agent role descriptions (Conan, Sam), workflow descriptions                                                   |
 
 ## Procedure
 
