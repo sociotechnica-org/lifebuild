@@ -20,7 +20,7 @@ Surgery ≠ Recommend. Recommend prioritizes options for human decision. Surgery
 
 3. **Flag judgment calls** — Mark ambiguous decisions for human resolution.
 
-4. **Deliver plan** — Output complete project plan for builder agent.
+4. **Deliver plan** — Output complete project plan for Sam.
 
 ## The 6-Phase Protocol
 
@@ -65,7 +65,7 @@ Conan re-grades affected cards and confirms surgery success.
 [tasks per phase]
 
 ## Summary Checklist
-| Phase | Tasks | Est. Time |
+| Phase | Tasks | Status |
 ```
 
 ## Plan Quality Criteria
@@ -84,12 +84,11 @@ Conan re-grades affected cards and confirms surgery success.
 | ---------------- | -------------- | -------------------------------- |
 | Job 4: Recommend | Job 7: Surgery | Human approves recommendations   |
 | Job 6: Audit     | Job 7: Surgery | Human approves reclassifications |
-| Job 7: Surgery   | Builder Agent  | Project plan delivered           |
-| Builder Agent    | Job 5: Review  | Completed work returned          |
+| Job 7: Surgery   | Sam            | Project plan delivered           |
+| Sam              | Job 5: Review  | Completed work returned          |
 
 ## Principles
 
 - Never produce plans that delete before replacement exists
-- Include time estimates per phase
 - Flag deferred items with blockers
-- Plans must be self-contained — builder agent has no prior context
+- Plans must be self-contained — Sam has no prior context

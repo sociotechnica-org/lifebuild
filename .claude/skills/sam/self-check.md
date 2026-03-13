@@ -27,22 +27,7 @@ Run before handing cards to Conan. Catches obvious issues.
 
 ### Conformance Check
 
-Does this card touch a governed domain?
-
-| If the card…                                        | Must link to…                      |
-| --------------------------------------------------- | ---------------------------------- |
-| Renders visually                                    | Standard - Visual Language         |
-| Has state indicators (saturation, glow, dimming)    | Standard - Visual Language         |
-| Displays project illustrations                      | Standard - Image Evolution         |
-| Involves priority ordering or scoring               | Standard - Priority Score          |
-| Involves stream classification (Gold/Silver/Bronze) | Standard - Three-Stream Portfolio  |
-| Has project lifecycle states                        | Standard - Project States          |
-| Shows smoke signal indicators                       | Standard - Smoke Signal Thresholds |
-| Has Bronze mode behavior                            | Standard - Bronze Mode Behaviors   |
-| Involves service level awareness                    | Standard - Service Levels          |
-| Renders Work at Hand in multiple locations          | Standard - Dual Presence           |
-| Involves category assignment                        | Standard - Life Categories         |
-| Is an Agent or Prompt                               | Standard - Agent Voice (if exists) |
+Does this card touch a governed domain? Verify conformance against the canonical table in `docs/context-library/reference.md`. Each product-layer card touching a governed domain must link to the constraining Standard listed there.
 
 If yes → conformance link must be in WHERE.
 If Standard doesn't exist yet → flag for creation.
@@ -64,6 +49,7 @@ If Standard doesn't exist yet → flag for creation.
 - [ ] **Card in correct layer?**
   - Product Thesis, Principle, Standard → `/rationale/` subtree
   - Zone, Room, Overlay, Structure, Component, Artifact, Capability, Primitive, System, Agent, Prompt → `/product/` subtree
+  - Loop, Journey, Aesthetic, Dynamic → `/experience/` subtree (loops, journeys, aesthetics, dynamics)
 
 ### WHY Section (1 minute)
 

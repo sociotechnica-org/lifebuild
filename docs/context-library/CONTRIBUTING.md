@@ -91,10 +91,9 @@ If a card is getting too long (>700 words), consider splitting into hub + spokes
 
 ### After completing work:
 
-1. **Update affected cards** if implementation changed
-2. **Add new cards** for new features/components you created
-3. **Update WHEN sections** with reality notes on cards you confirmed are accurate
-4. **Flag gaps** — if you needed context that didn't exist, note it
+1. **Flag affected cards** — if your implementation changed product concepts, notify the human librarian or Sam so cards can be updated
+2. **Flag gaps** — if you needed product context that didn't exist in the library, note it in the provenance log or flag for Conan
+3. **Do not directly edit library cards** — card creation and updates are Sam's job, guided by Conan's assessment. This keeps card quality consistent and grading meaningful.
 
 ### When assembling context briefings:
 

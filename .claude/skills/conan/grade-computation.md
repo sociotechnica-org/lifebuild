@@ -59,6 +59,10 @@ Zone = Sum(all card scores including 0 for missing) / Expected card count
 System = Average(all zone scores)
 ```
 
+## Experience Layer
+
+Experience layer cards (Loops, Journeys, Aesthetics, Dynamics) live in `/experience/`, outside the zone/system hierarchy. They are scored individually using the same Card Score formula, but are not currently included in Zone or System score computation. Report experience layer card grades separately when present.
+
 ## Rage Meter
 
 | System Grade | Rage Level          |

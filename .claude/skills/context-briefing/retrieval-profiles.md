@@ -186,7 +186,7 @@ Overlays are cross-zone — WHERE they appear and HOW they behave across context
 
 ## Agent
 
-**Examples:** Jarvis, Marvin, Conan
+**Examples:** Jarvis, Marvin
 
 **Always include:**
 

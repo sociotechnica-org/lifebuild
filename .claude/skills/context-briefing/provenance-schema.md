@@ -12,7 +12,7 @@ Append-only log tracking context assembly and decision provenance.
 {
   "timestamp": "2026-02-11T14:30:00Z",
   "session_id": "uuid-v4",
-  "agent": "conan | sam | george",
+  "agent": "conan | sam | builder | george",
 
   "task": {
     "description": "Implement Bronze Mode toggle in Sorting Room",
@@ -124,7 +124,9 @@ After task completion, append an outcome entry:
 | `delivered.supporting` | string[] | yes      | Cards included as summaries         |
 | `gaps`                 | object[] | no       | Identified context gaps             |
 
-### queries array (Sam entries)
+### queries array (consuming agent entries — builder agents or Sam)
+
+Tracks library searches triggered by the 5-signal decision matrix. Builder agents log queries about code-level product decisions. Sam logs queries about card classification and content decisions.
 
 | Field          | Type   | Required | Description                |
 | -------------- | ------ | -------- | -------------------------- |
@@ -135,7 +137,9 @@ After task completion, append an outcome entry:
 | `result_count` | number | yes      | Number of results          |
 | `action`       | string | yes      | What was done with results |
 
-### decisions array (Sam entries)
+### decisions array (consuming agent entries — builder agents or Sam)
+
+Tracks product-domain decisions informed by library context. Builder agents log code-level decisions (schema choices, API contracts, component architecture). Sam logs card-level decisions (type classification, link choices, content scope). Both use the same 5-signal evaluation.
 
 | Field          | Type     | Required | Description                         |
 | -------------- | -------- | -------- | ----------------------------------- |

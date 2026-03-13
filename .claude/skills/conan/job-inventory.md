@@ -36,6 +36,7 @@
    - Overlays, Structures, Artifacts, Capabilities
    - Components last (implementation details)
    - Agents + Prompts
+   - Loops, Journeys, Aesthetics, Dynamics (experience layer)
 
 ## Output
 
@@ -95,6 +96,22 @@ Date: [date]
 | Card | Agent | Status | Classification Rationale |
 |------|-------|--------|-------------------------|
 
+### Loops ([count])
+| Card | Source | Status | Classification Rationale |
+|------|--------|--------|-------------------------|
+
+### Journeys ([count])
+| Card | Source | Status | Classification Rationale |
+|------|--------|--------|-------------------------|
+
+### Aesthetics ([count])
+| Card | Source | Status | Classification Rationale |
+|------|--------|--------|-------------------------|
+
+### Dynamics ([count])
+| Card | Source | Status | Classification Rationale |
+|------|--------|--------|-------------------------|
+
 ## Enumeration Decisions
 | Entity | Types Found | Decision | Rationale |
 |--------|-------------|----------|-----------|
@@ -132,6 +149,10 @@ Build in this sequence (most-depended-on first):
 |-------|------|--------|
 
 ### Phase 7: Agents/Prompts
+| Order | Card | Depends On | Rationale |
+|-------|------|------------|-----------|
+
+### Phase 8: Experience Layer (Loops/Journeys/Aesthetics/Dynamics)
 | Order | Card | Depends On | Rationale |
 |-------|------|------------|-----------|
 

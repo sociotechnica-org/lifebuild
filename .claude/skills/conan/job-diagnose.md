@@ -22,9 +22,9 @@
 
    | Type              | Description                                           |
    | ----------------- | ----------------------------------------------------- |
-   | Missing Note      | Should exist, doesn't                                 |
-   | Stub Note         | Exists but too thin                                   |
-   | Disconnected Note | Exists, substantive, but not linked                   |
+   | Missing Card      | Should exist, doesn't                                 |
+   | Stub Card         | Exists but too thin                                   |
+   | Disconnected Card | Exists, substantive, but not linked                   |
    | Quality Gap       | Per-card issue, no upstream cause                     |
    | Structural Gap    | Cluster of missing cards                              |
    | Conformance Gap   | Standard exists, product-layer cards don't link to it |

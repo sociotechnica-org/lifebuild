@@ -41,15 +41,11 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
 
 4. **Check conformance** — For product-layer cards (Rooms, Overlays, Structures, Components, Artifacts, Capabilities, Agents):
 
+   Check conformance obligations against the canonical table in `docs/context-library/reference.md`. Each product-layer card touching a governed domain must link to the constraining Standard listed there.
+
    ```
    Card: [Name]
-   Governed domains touched:
-   - Visual rendering? → needs Standard - Visual Language
-   - Priority ordering? → needs Standard - Priority Score
-   - Stream classification? → needs Standard - Three-Stream Portfolio
-   - Project states? → needs Standard - Project States
-   [See Library Reference for full list]
-
+   Governed domains touched: [list from reference.md conformance table]
    Required: [list]
    Present: [list]
    Missing: [list]

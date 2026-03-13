@@ -1,6 +1,6 @@
 # Decomposition
 
-How to extract cards from source material. Use when Conan's inventory is sparse or when working directly from SOT.
+How to extract cards from source material. Use when Conan's inventory is sparse or when working directly from SOT (Source of Truth document).
 
 ## What Becomes a Card
 

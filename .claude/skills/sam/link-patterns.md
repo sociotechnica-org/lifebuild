@@ -190,6 +190,42 @@ Every card with a containment relationship must link to its parent.
 
 ---
 
+## Loops (Engagement Cycles)
+
+```markdown
+- [[Loop - X]] — repeating cycle driving [engagement pattern]
+- [[Loop - X]] — rhythm that structures [activity]
+```
+
+---
+
+## Journeys (Progression Arcs)
+
+```markdown
+- [[Journey - X]] — multi-phase arc progressing through [what]
+- [[Journey - X]] — progression path from [start] to [end]
+```
+
+---
+
+## Aesthetics (Target Feelings)
+
+```markdown
+- [[Aesthetic - X]] — target emotional experience for [context]
+- [[Aesthetic - X]] — feeling this should evoke during [interaction]
+```
+
+---
+
+## Dynamics (Emergent Behaviors)
+
+```markdown
+- [[Dynamic - X]] — emergent behavior arising from [system interactions]
+- [[Dynamic - X]] — cross-system pattern producing [effect]
+```
+
+---
+
 ## Product Thesis/Principle Links (WHY Section)
 
 ```markdown
@@ -264,6 +300,10 @@ Blocked by: [[X]] — can't proceed until [dependency resolved]
 | Artifact       | "content object", "created during"                                |
 | Capability     | "action enabling", "workflow for"                                 |
 | Agent/Prompt   | "AI team member", "implementation of"                             |
+| Loop           | "repeating cycle", "rhythm that structures"                       |
+| Journey        | "multi-phase arc", "progression path"                             |
+| Aesthetic      | "target emotional experience", "feeling this should evoke"        |
+| Dynamic        | "emergent behavior", "cross-system pattern"                       |
 | Depends on     | "provides", "must exist", "supplies"                              |
 | Depended on by | "uses this to", "displays", "built on"                            |
 | System         | "foundational mechanism", "cross-cutting"                         |
