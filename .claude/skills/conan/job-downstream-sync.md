@@ -126,14 +126,14 @@ Remaining issues: [any that need human judgment]
 
 Known renames to check for (add to this list as renames happen):
 
-| Old                      | New       | When    |
-| ------------------------ | --------- | ------- |
-| Director                 | Builder   | 2026-02 |
-| Worker (product concept) | Attendant | 2026-02 |
-| Mesa (agent)             | removed   | 2026-02 |
-| Cameron (agent)          | removed   | 2026-02 |
-| Devin (agent)            | removed   | 2026-02 |
-| Bob (agent)              | Sam       | 2026-02 |
+| Old                      | New                       | When    |
+| ------------------------ | ------------------------- | ------- |
+| Director                 | Builder                   | 2026-02 |
+| Worker (product concept) | Attendant                 | 2026-02 |
+| Mesa (agent)             | removed                   | 2026-02 |
+| Cameron (agent)          | removed                   | 2026-02 |
+| Devin (agent)            | removed                   | 2026-02 |
+| Bob (agent)              | Sam                       | 2026-02 |
 | Constellation Protocol   | Context Briefing Protocol | 2026-03 |
 
 **Note:** "Worker" in infrastructure contexts (Cloudflare Worker, SharedWorker, web worker) is correct and should NOT be renamed.
