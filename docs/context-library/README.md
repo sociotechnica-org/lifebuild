@@ -37,22 +37,22 @@ Without specification context, agents produce technically correct but contextual
 | -------------- | ----- | ----------------------------------------------------------- |
 | Product Thesis | 5     | Problem thesis, solution thesis, and three strategic planks |
 | Principles     | 15    | Judgment guidance — rules of thumb                          |
-| Standards      | 16    | Testable specifications — concrete rules cards conform to   |
+| Standards      | 19    | Testable specifications — concrete rules cards conform to   |
 
 ### Product (`/product/`) — WHAT gets built
 
 | Type         | Count | Purpose                                                    |
 | ------------ | ----- | ---------------------------------------------------------- |
 | Zones        | 3     | Top-level workspaces (Life Map, Strategy Studio, Archives) |
-| Rooms        | 7     | Nested spaces within zones                                 |
+| Rooms        | 6     | Nested spaces within zones                                 |
 | Overlays     | 1     | Cross-zone persistent elements (The Table)                 |
 | Structures   | 2     | Spatial/visual fabric (Hex Grid, Kanban Board)             |
 | Components   | 5     | Specific UI widgets                                        |
 | Artifacts    | 2     | Content objects builders create/edit                       |
-| Capabilities | 7     | Actions/workflows builders perform                         |
+| Capabilities | 8     | Actions/workflows builders perform                         |
 | Primitives   | 3     | Core data entities (Project, System, Task)                 |
-| Systems      | 15    | Invisible mechanisms governing behavior                    |
-| Agents       | 14    | AI team members                                            |
+| Systems      | 16    | Invisible mechanisms governing behavior                    |
+| Agents       | 5     | AI team members                                            |
 
 ### Experience (`/experience/`) — HOW it feels
 

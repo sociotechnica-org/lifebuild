@@ -130,7 +130,7 @@ Known renames to check for (add to this list as renames happen):
 | ------------------------ | ------------------------- | ------- |
 | Director                 | Builder                   | 2026-02 |
 | Worker (product concept) | Attendant                 | 2026-02 |
-| Mesa (agent)             | removed                   | 2026-02 |
+| Mesa (agent)             | reserve (card retained)   | 2026-02 |
 | Cameron (agent)          | removed                   | 2026-02 |
 | Devin (agent)            | removed                   | 2026-02 |
 | Bob (agent)              | Sam                       | 2026-02 |

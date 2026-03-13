@@ -34,15 +34,19 @@ If Standard doesn't exist yet → flag for creation.
 
 ### Containment Check
 
-| Type       | Must Link To                                  |
-| ---------- | --------------------------------------------- |
-| Room       | Zone (parent workspace)                       |
-| Structure  | Room (where it lives)                         |
-| Component  | Structure or Room or Overlay (parent element) |
-| Artifact   | Room (where it's edited)                      |
-| Capability | Room(s) (where it's performed)                |
-| Prompt     | Agent (what it implements)                    |
-| Overlay    | Zone(s) (where it's visible)                  |
+| Type       | Must Link To                                              |
+| ---------- | --------------------------------------------------------- |
+| Room       | Zone (parent workspace)                                   |
+| Structure  | Room (where it lives)                                     |
+| Component  | Structure or Room or Overlay (parent element)             |
+| Artifact   | Room (where it's edited)                                  |
+| Capability | Room(s) (where it's performed)                            |
+| Prompt     | Agent (what it implements)                                |
+| Overlay    | Zone(s) (where it's visible)                              |
+| Loop       | Room(s) and Capability(ies) (where cycle plays out)       |
+| Journey    | Loop(s) and Agent(s) (what composes it)                   |
+| Aesthetic  | Room(s), Loop(s), or Component(s) (where feeling applies) |
+| Dynamic    | System(s) (what produces it)                              |
 
 ### Folder Placement Check
 

@@ -24,7 +24,7 @@ Conan writes this file before the consuming agent begins work. The consumer read
 ## Task Frame
 
 **Task:** [what needs to be built/modified]
-**Target type:** [System | Component | Room | etc.]
+**Target type:** [System | Component | Room | Zone | Structure | Capability | Artifact | Overlay | Agent | Prompt | Primitive | Loop | Journey | Aesthetic | Dynamic]
 **Task type:** [feature | bug | refactor | new | architecture]
 **Constraints:** [non-negotiable boundaries]
 **Acceptance criteria:** [how to know it's done]

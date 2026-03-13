@@ -29,7 +29,7 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
      - Target emotional experience → Aesthetic
      - Emergent cross-system behavior → Dynamic
    Step 6: Temporal? → Decision/Future
-   Step 6: Shipping? → Initiative/Release
+   Step 7: Shipping? → Initiative/Release
    Result: [type]
    Claimed: [type]
    Verdict: [PASS/MISCLASSIFIED]
