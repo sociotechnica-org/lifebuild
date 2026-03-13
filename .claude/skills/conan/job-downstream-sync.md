@@ -134,5 +134,6 @@ Known renames to check for (add to this list as renames happen):
 | Cameron (agent)          | removed   | 2026-02 |
 | Devin (agent)            | removed   | 2026-02 |
 | Bob (agent)              | Sam       | 2026-02 |
+| Constellation Protocol   | Context Briefing Protocol | 2026-03 |
 
 **Note:** "Worker" in infrastructure contexts (Cloudflare Worker, SharedWorker, web worker) is correct and should NOT be renamed.

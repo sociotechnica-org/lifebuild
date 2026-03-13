@@ -370,6 +370,7 @@ For a zone with 10 cards:
    - Overlays, Structures, Artifacts, Capabilities
    - Components last (implementation details)
    - Agents + Prompts
+   - Experience layer (Loops, Journeys, Aesthetics, Dynamics)
 3. After all created, batch self-check (15-20 min)
 4. Fix issues found
 5. Report and hand off

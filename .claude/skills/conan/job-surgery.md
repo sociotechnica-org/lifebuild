@@ -1,6 +1,6 @@
 # Job 7: Surgery
 
-**Purpose:** Produce actionable project plans for builder agents to execute library fixes.
+**Purpose:** Produce actionable project plans for Sam to execute library fixes.
 
 **Trigger:** After Diagnose or Audit identifies fixes, human approves scope.
 
