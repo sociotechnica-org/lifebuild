@@ -58,11 +58,13 @@ Files that mirror library structure and must stay in sync with `docs/context-lib
 | `.claude/skills/conan/rubrics.md`   | Type signal table, terminology       |
 | `.claude/skills/conan/job-audit.md` | Decision tree reference, terminology |
 
-### Library Reference
+### Library Documentation
 
-| File                                | Sync Points                                                                                                   |
-| ----------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| `docs/context-library/reference.md` | Canonical type taxonomy, templates, folder structure, naming conventions — this is the SOURCE, not the target |
+| File                                   | Sync Points                                                                                                   |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `docs/context-library/reference.md`    | Canonical type taxonomy, templates, folder structure, naming conventions — this is the SOURCE, not the target |
+| `docs/context-library/README.md`       | Card counts per type, type descriptions, library structure summary                                            |
+| `docs/context-library/CONTRIBUTING.md` | Agent role descriptions (Conan, Sam), workflow descriptions                                                   |
 
 ## Procedure
 
@@ -124,13 +126,14 @@ Remaining issues: [any that need human judgment]
 
 Known renames to check for (add to this list as renames happen):
 
-| Old                      | New       | When    |
-| ------------------------ | --------- | ------- |
-| Director                 | Builder   | 2026-02 |
-| Worker (product concept) | Attendant | 2026-02 |
-| Mesa (agent)             | removed   | 2026-02 |
-| Cameron (agent)          | removed   | 2026-02 |
-| Devin (agent)            | removed   | 2026-02 |
-| Bob (agent)              | Sam       | 2026-02 |
+| Old                      | New                       | When    |
+| ------------------------ | ------------------------- | ------- |
+| Director                 | Builder                   | 2026-02 |
+| Worker (product concept) | Attendant                 | 2026-02 |
+| Mesa (agent)             | reserve (card retained)   | 2026-02 |
+| Cameron (agent)          | removed                   | 2026-02 |
+| Devin (agent)            | removed                   | 2026-02 |
+| Bob (agent)              | Sam                       | 2026-02 |
+| Constellation Protocol   | Context Briefing Protocol | 2026-03 |
 
 **Note:** "Worker" in infrastructure contexts (Cloudflare Worker, SharedWorker, web worker) is correct and should NOT be renamed.

@@ -12,7 +12,7 @@ Follow build order — upstream before downstream.
 
 ### Phase 1: Source Alignment
 
-1. **List current source materials** — SOT, companion docs, brand standards, strategy docs
+1. **List current source materials** — SOT (Source of Truth document), companion docs, brand standards, strategy docs
 2. **Compare to library contents:**
    - Cards without source backing? → Orphan or outdated
    - Source content without cards? → Gap

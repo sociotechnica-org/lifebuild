@@ -1,8 +1,8 @@
 # Job 5: Review
 
-**Purpose:** Re-grade builder output. Compare to previous. Validate via teach-back.
+**Purpose:** Re-grade Sam's output. Compare to previous. Validate via teach-back.
 
-**Trigger:** After builder completes work, or "Review the builder's output."
+**Trigger:** After Sam completes revisions, or "Review Sam's output."
 
 ## Procedure
 

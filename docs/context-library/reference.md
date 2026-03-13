@@ -89,7 +89,7 @@ _Gate: These describe how engagement feels over time — rhythms, arcs, emotions
 - Past choice → Decision
 - Future vision → Future
 
-**Step 8: Is this about shipping?**
+**Step 7: Is this about shipping?**
 
 - Shippable scope → Initiative
 - Version marker → Release

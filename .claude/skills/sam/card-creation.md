@@ -7,7 +7,7 @@ Step-by-step procedure for building cards.
 Have these open:
 
 - Conan's inventory for the zone
-- Relevant SOT sections and companion docs
+- Relevant SOT (Source of Truth document) sections and companion docs
 - Library Reference (templates, conformance obligations)
 - Link patterns reference
 
@@ -55,16 +55,7 @@ Use the WHERE template from Library Reference for your card's type. Key patterns
 
 All types: include Conforms to links where obligated (see below).
 
-**Conformance check:** Does this card touch a governed domain?
-
-- Visual rendering → Standard - Visual Language
-- Priority/ordering → Standard - Priority Score
-- Stream classification → Standard - Three-Stream Portfolio
-- Project states → Standard - Project States
-- Project illustrations → Standard - Image Evolution
-- Category assignment or category-based organization → Standard - Life Categories
-
-See Library Reference for full conformance obligations table.
+**Conformance check:** Does this card touch a governed domain? Check the conformance obligations table in `docs/context-library/reference.md` for the full list of governed domains and their constraining Standards. If yes, add a conformance link in WHERE.
 
 Every link gets context phrase. Use link-patterns.md.
 
@@ -132,7 +123,7 @@ Describe intended behavior with examples.
 
 **If source lacks examples:** Flag for human input, or derive from behavior spec.
 
-### Step 8: Quick Self-Check (1-2 minutes)
+### Step 7: Quick Self-Check (1-2 minutes)
 
 - [ ] All five sections present?
 - [ ] WHAT standalone?
@@ -379,6 +370,7 @@ For a zone with 10 cards:
    - Overlays, Structures, Artifacts, Capabilities
    - Components last (implementation details)
    - Agents + Prompts
+   - Experience layer (Loops, Journeys, Aesthetics, Dynamics)
 3. After all created, batch self-check (15-20 min)
 4. Fix issues found
 5. Report and hand off

@@ -204,12 +204,16 @@ Apply IN ORDER. Each gate catches a common error pattern.
 **Gate 3 — Overlay = cross-ZONE persistence:** Persistence within one zone ≠ Overlay.
 **Gate 4 — Action-words → Capability:** Verbs (zooming, filtering, planning) → Capability, not Component.
 
-| Often Misclassified As | Actually   | Example                                 | Why                         |
-| ---------------------- | ---------- | --------------------------------------- | --------------------------- |
-| Component              | System     | Adaptation, Service Level Progression   | Fails Interaction Test      |
-| Component              | Capability | Zoom Navigation, Three-Stream Filtering | Action/workflow, not widget |
-| Component              | System     | Clustering, Bronze Stack                | Mechanism with state        |
-| Structure              | Overlay    | The Table                               | Cross-zone persistence      |
+| Often Misclassified As | Actually   | Example                                 | Why                                   |
+| ---------------------- | ---------- | --------------------------------------- | ------------------------------------- |
+| Component              | System     | Adaptation, Service Level Progression   | Fails Interaction Test                |
+| Component              | Capability | Zoom Navigation, Three-Stream Filtering | Action/workflow, not widget           |
+| Component              | System     | Clustering, Bronze Stack                | Mechanism with state                  |
+| Structure              | Overlay    | The Table                               | Cross-zone persistence                |
+| Capability             | Loop       | Weekly Planning rhythm                  | Not a single action — repeating cycle |
+| System                 | Journey    | Onboarding progression                  | Builder consciously lives the arc     |
+| Principle              | Aesthetic  | "Coming home to my sanctuary"           | Target feeling, not judgment guidance |
+| System                 | Dynamic    | Bronze Flood, Rest Deficit Spiral       | Emergent from system interaction      |
 
 ### Five Dimensions Requirements
 

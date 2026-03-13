@@ -1,12 +1,20 @@
-# Constellation Protocol
+# Context Briefing Protocol
 
-Contract between Conan (assembler) and Sam (implementer) for context delivery.
+Contract for context delivery between the library system and consuming agents.
+
+**Roles:**
+
+- **Conan** (assembler) — assembles context briefings from the library
+- **Builder agents** (code writers) — consume briefings during software implementation
+- **Sam** (scribe) — writes and fixes library cards, NOT code
+
+This protocol was originally written for a two-agent model. The current architecture has three roles: Conan assesses and assembles, builder agents consume briefings and write code, Sam writes library cards. Where this document says "the consumer," it means whichever agent is using the briefing — typically a builder agent writing code, but also Sam when writing cards that depend on product context.
 
 ---
 
-## Context Package: CONTEXT_BRIEFING.md
+## Context Briefing: CONTEXT_BRIEFING.md
 
-Conan writes this file before Sam starts implementation. Sam reads it as primary context.
+Conan writes this file before the consuming agent begins work. The consumer reads it as primary context.
 
 ### Structure
 
@@ -16,7 +24,7 @@ Conan writes this file before Sam starts implementation. Sam reads it as primary
 ## Task Frame
 
 **Task:** [what needs to be built/modified]
-**Target type:** [System | Component | Room | etc.]
+**Target type:** [System | Component | Room | Zone | Structure | Capability | Artifact | Overlay | Agent | Prompt | Primitive | Loop | Journey | Aesthetic | Dynamic]
 **Task type:** [feature | bug | refactor | new | architecture]
 **Constraints:** [non-negotiable boundaries]
 **Acceptance criteria:** [how to know it's done]
@@ -82,25 +90,27 @@ When a card serves both primary and WHY-chain purposes, include it as a primary 
 
 ---
 
-## Sam's Inquiry Protocol
+## Inquiry Protocol (5-Signal Decision Matrix)
+
+Any agent working with library content — builder agents during code implementation, Sam during card creation — uses this protocol when encountering uncertainty about product concepts.
 
 ### 5-Signal Decision Matrix
-
-When Sam encounters uncertainty during implementation:
 
 | Signal                 | Proceed Autonomously                           | Search the Library                                       |
 | ---------------------- | ---------------------------------------------- | -------------------------------------------------------- |
 | **Reversibility**      | Easily undone (formatting, tests, comments)    | Hard to reverse (schema, API contracts, data migrations) |
 | **Context coverage**   | All relevant dimensions present in briefing    | Missing cards in any dimension for affected area         |
 | **Precedent**          | Similar pattern exists in briefing or codebase | Novel pattern with no precedent                          |
-| **Blast radius**       | Change affects single file/module              | Change propagates across multiple systems                |
-| **Domain specificity** | General programming patterns                   | Domain-specific knowledge (LifeBuild-specific concepts)  |
+| **Blast radius**       | Change affects single file/card                | Change propagates across multiple systems                |
+| **Domain specificity** | General patterns                               | Product-specific knowledge                               |
 
 **Rule: 2+ "Search" signals → MUST search the library before proceeding**
 
+**Note on Sam:** Sam the Scribe also uses this matrix, but during _card creation_, not code implementation. When Sam encounters uncertainty about product concepts while writing a card (e.g., "is this a System or a Capability?"), the same protocol applies. The signals map slightly differently: "reversibility" means how hard it is to fix a card classification error, "blast radius" means how many downstream cards would inherit a mistake.
+
 ### Query Format
 
-When Sam needs more context, log this before searching:
+When the consuming agent needs more context, log this before searching:
 
 ```
 UNCERTAINTY: [dimension — WHAT/WHY/WHERE/HOW/WHEN]
@@ -162,17 +172,24 @@ SEARCH: Grep for "[terms]" in docs/context-library/
      retrieval misses, relationship discoveries)
        │
        ▼
-8. Sam reads .context/CONTEXT_BRIEFING.md
+8. Builder agent reads .context/CONTEXT_BRIEFING.md
        │
        ▼
-9. Sam implements, querying library when uncertain
+9. Builder agent implements code, querying library
+   when uncertain (5-signal matrix)
        │
        ▼
-10. Sam logs decisions to provenance-log.jsonl
+10. Builder agent logs decisions to provenance-log.jsonl
        │
        ▼
-11. Sam updates decision outcomes after task completion
+11. Builder agent updates decision outcomes after task
+       │
+       ▼
+12. If implementation changed product concepts:
+    Sam updates affected library cards
 ```
+
+**Note:** Sam the Scribe also consumes briefings in a parallel workflow — when writing _library cards_ (not code) that depend on product context. Sam's handoff flow is: Conan assembles briefing → Sam reads briefing → Sam writes cards → Conan grades cards. This is distinct from the builder agent flow above.
 
 ---
 

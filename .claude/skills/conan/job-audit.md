@@ -23,8 +23,13 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
      - Core data entity → Primitive
    Step 3: Invisible infrastructure? → System
    Step 4: AI team member? → Agent (implementation → Prompt)
-   Step 5: Temporal? → Decision/Future
-   Step 6: Shipping? → Initiative/Release
+   Step 5: Player experience over time?
+     - Repeating engagement cycle → Loop
+     - Multi-phase progression arc → Journey
+     - Target emotional experience → Aesthetic
+     - Emergent cross-system behavior → Dynamic
+   Step 6: Temporal? → Decision/Future
+   Step 7: Shipping? → Initiative/Release
    Result: [type]
    Claimed: [type]
    Verdict: [PASS/MISCLASSIFIED]
@@ -41,15 +46,11 @@ Audit ≠ Grading. Card can score A and still fail audit if misclassified.
 
 4. **Check conformance** — For product-layer cards (Rooms, Overlays, Structures, Components, Artifacts, Capabilities, Agents):
 
+   Check conformance obligations against the canonical table in `docs/context-library/reference.md`. Each product-layer card touching a governed domain must link to the constraining Standard listed there.
+
    ```
    Card: [Name]
-   Governed domains touched:
-   - Visual rendering? → needs Standard - Visual Language
-   - Priority ordering? → needs Standard - Priority Score
-   - Stream classification? → needs Standard - Three-Stream Portfolio
-   - Project states? → needs Standard - Project States
-   [See Library Reference for full list]
-
+   Governed domains touched: [list from reference.md conformance table]
    Required: [list]
    Present: [list]
    Missing: [list]

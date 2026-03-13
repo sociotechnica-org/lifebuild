@@ -1,6 +1,6 @@
 # Decomposition
 
-How to extract cards from source material. Use when Conan's inventory is sparse or when working directly from SOT.
+How to extract cards from source material. Use when Conan's inventory is sparse or when working directly from SOT (Source of Truth document).
 
 ## What Becomes a Card
 
@@ -56,14 +56,18 @@ How to extract cards from source material. Use when Conan's inventory is sparse 
 
 ### Common Confusions
 
-| Question                                    | Answer A   | Answer B            |
-| ------------------------------------------- | ---------- | ------------------- |
-| Navigate TO it, or interact WITHIN it?      | Zone/Room  | Structure/Component |
-| Builders say "I'm in X" or "I'm using X"?   | Zone/Room  | Structure/Component |
-| Has runtime state? Processes inputs?        | System     | Standard            |
-| Content builders create, or spatial fabric? | Artifact   | Structure           |
-| Core data entity, or content object?        | Primitive  | Artifact            |
-| Action/workflow, or spatial canvas?         | Capability | Structure           |
+| Question                                          | Answer A   | Answer B            |
+| ------------------------------------------------- | ---------- | ------------------- |
+| Navigate TO it, or interact WITHIN it?            | Zone/Room  | Structure/Component |
+| Builders say "I'm in X" or "I'm using X"?         | Zone/Room  | Structure/Component |
+| Has runtime state? Processes inputs?              | System     | Standard            |
+| Content builders create, or spatial fabric?       | Artifact   | Structure           |
+| Core data entity, or content object?              | Primitive  | Artifact            |
+| Action/workflow, or spatial canvas?               | Capability | Structure           |
+| Single action, or repeating engagement cycle?     | Capability | Loop                |
+| Invisible mechanism, or consciously-lived arc?    | System     | Journey             |
+| Team judgment guidance, or target user feeling?   | Principle  | Aesthetic           |
+| Designed infrastructure, or emergent interaction? | System     | Dynamic             |
 
 **When unsure:** Create the card, flag it, keep moving.
 
@@ -94,21 +98,25 @@ Examples:
 
 ### Structure Signals
 
-| SOT Pattern                                | Likely Card Type   |
-| ------------------------------------------ | ------------------ |
-| Top-level workspace/area                   | Zone               |
-| Named space within a workspace             | Room               |
-| Always-visible, cross-zone element         | Overlay            |
-| Spatial canvas, grid, board layout         | Structure          |
-| Specific UI widget, button, indicator      | Component          |
-| Content object builders create/edit        | Artifact           |
-| Action, workflow, process builders perform | Capability         |
-| Core data entity (project, task)           | Primitive          |
-| "The X System" or "X Architecture"         | System             |
-| Mentioned across multiple sections         | System             |
-| Table of values, thresholds, rules         | Standard           |
-| "Must conform to" or "follows spec"        | Standard reference |
-| AI personality, team member                | Agent              |
+| SOT Pattern                                     | Likely Card Type   |
+| ----------------------------------------------- | ------------------ |
+| Top-level workspace/area                        | Zone               |
+| Named space within a workspace                  | Room               |
+| Always-visible, cross-zone element              | Overlay            |
+| Spatial canvas, grid, board layout              | Structure          |
+| Specific UI widget, button, indicator           | Component          |
+| Content object builders create/edit             | Artifact           |
+| Action, workflow, process builders perform      | Capability         |
+| Core data entity (project, task)                | Primitive          |
+| "The X System" or "X Architecture"              | System             |
+| Mentioned across multiple sections              | System             |
+| Table of values, thresholds, rules              | Standard           |
+| "Must conform to" or "follows spec"             | Standard reference |
+| AI personality, team member                     | Agent              |
+| Recurring rhythm (daily, weekly, seasonal)      | Loop               |
+| Multi-phase progression arc (beginner → expert) | Journey            |
+| Target emotional state or feeling               | Aesthetic          |
+| Emergent behavior from system interactions      | Dynamic            |
 
 ### Extraction Pass
 

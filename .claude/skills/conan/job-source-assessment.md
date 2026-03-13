@@ -8,7 +8,7 @@ Source Assessment → Inventory → Build. This job gates inventory.
 
 ## Procedure
 
-1. **Identify source material** — SOT sections, companion docs, brand standards, decision records for this zone.
+1. **Identify source material** — SOT (Source of Truth document) sections, companion docs, brand standards, decision records for this zone.
 
 2. **Assess coverage by dimension**
 

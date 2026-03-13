@@ -101,6 +101,10 @@ Flag during grading, don't halt. Complete grade + note AUDIT SIGNAL.
 | Agent card has no Prompt card                                    | Prompt missing         |
 | HOW has behavioral types table                                   | Needs decomposition    |
 | Missing containment link (Room→Zone, Structure→Room, etc.)       | Structural deficiency  |
+| Card typed as Capability but describes a repeating cycle         | Loop                   |
+| Card typed as System but builder consciously lives through it    | Journey                |
+| Card typed as Principle but describes a target feeling           | Aesthetic              |
+| Card typed as System but is emergent from system interactions    | Dynamic                |
 
 ## Type-Specific Notes
 
@@ -176,3 +180,27 @@ Flag during grading, don't halt. Complete grade + note AUDIT SIGNAL.
 - WHERE must link to parent Agent
 - Must include actual prompt text
 - Must have version and changelog
+
+**Loops:**
+
+- WHERE must link to all Rooms involved and all composing Capabilities
+- Must describe the full cycle (trigger → steps → return)
+- Must connect to parent Loop (if nested) and advancing Journey (if any)
+
+**Journeys:**
+
+- WHERE must link to composing Loops and guiding Agents
+- Must describe phases and what progression means
+- Must explain what the builder consciously experiences vs. invisible System mechanisms
+
+**Aesthetics:**
+
+- WHERE must link to all Rooms/Loops/Capabilities where feeling applies
+- HOW must describe what reinforces and what breaks the feeling
+- Must be distinguishable from a Principle (feeling, not judgment guidance)
+
+**Dynamics:**
+
+- WHERE must link to contributing Systems and Loops
+- Must describe the emergent behavior pattern, not the designed mechanism
+- Must distinguish from Systems (Dynamics are anticipated, not designed)
